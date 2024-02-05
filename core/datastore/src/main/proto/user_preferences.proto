@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "me.theek.spark.core.datastore";
+option java_multiple_files = true;
+
+message UserPreferences {
+  bool should_hide_onboarding = 1;
+}

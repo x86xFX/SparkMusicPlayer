@@ -2,6 +2,9 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="FeatureListScreenPreview">
+        <State />
+      </entry>
       <entry key="Spark Music Player">
         <State />
       </entry>

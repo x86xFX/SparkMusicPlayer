@@ -1,6 +1,7 @@
 [versions]
 android-library = "8.2.2"
 activity-compose = "1.8.2"
+core-splashscreen = "1.0.1"
 espresso-core = "3.5.1"
 androidx-junit = "1.1.5"
 junit = "4.13.2"
@@ -11,6 +12,12 @@ androidx-compose-bom = "2024.01.00"
 hilt = "2.50"
 ksp = "1.9.22-1.0.17"
 media3 = "1.2.1"
+coil = "2.5.0"
+coil-svg = "2.5.0"
+google-fonts = "1.6.0"
+datastore = "1.0.0"
+protobuf-plugin = "0.9.4"
+protobuf = "3.25.2"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-library" }
@@ -18,8 +25,10 @@ kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidLibrary = { id = "com.android.library", version.ref = "android-library" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 
 [libraries]
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
@@ -39,3 +48,9 @@ hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.re
 androidx-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil-svg" }
+google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "google-fonts" }
+datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
+protobuf-protoc = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }

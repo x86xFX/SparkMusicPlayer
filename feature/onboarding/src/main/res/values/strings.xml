@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="next">Next</string>
+    <string name="welcome_screen_background_image">Welcome screen background image</string>
+    <string name="welcome_screen_picture">Welcome screen picture</string>
+</resources>

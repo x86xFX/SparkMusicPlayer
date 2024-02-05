@@ -1,4 +1,4 @@
-package me.theek.spark.ui.theme
+package me.theek.spark.core.design_system.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
