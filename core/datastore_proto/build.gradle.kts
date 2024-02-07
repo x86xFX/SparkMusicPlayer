@@ -1,12 +1,11 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
+    alias(libs.plugins.protobuf)
 }
 
 android {
-    namespace = "me.theek.spark.core.datastore"
+    namespace = "me.theek.spark.core.datastore_proto"
     compileSdk = 34
 
     defaultConfig {
@@ -34,19 +33,25 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                register("java") {
+                    option("lite")
+                }
+                register("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
 dependencies {
-
-    implementation(libs.androidx.core.ktx)
-
-    implementation(libs.datastore)
-
-    implementation(libs.hilt)
-    ksp(libs.hilt.compiler)
-
-    implementation(project(":core:model"))
-    implementation(project(":core:datastore_proto"))
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    api(libs.protobuf.kotlin.lite)
 }

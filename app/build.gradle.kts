@@ -62,12 +62,14 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.coil.compose)
-
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.compose.navigation)
 
     implementation(project(":core:design_system"))
     implementation(project(":feature:onboarding"))
     implementation(project(":core:network"))
+    implementation(project(":core:datastore"))
+    implementation(project(":core:model"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

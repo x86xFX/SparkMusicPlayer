@@ -1,5 +1,10 @@
 package me.theek.spark.feature.onboarding
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +24,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,20 +41,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import me.theek.spark.core.design_system.components.SparkCircleButton
 import me.theek.spark.core.design_system.components.SparkImageLoader
 import me.theek.spark.core.design_system.ui.theme.InriaSansFontFamily
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(
+    onNavigateToHomeScreen: () -> Unit,
+    onboardingViewModel: OnboardingViewModel = hiltViewModel()
+) {
+    var featureListScreenVisibility by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color(0xFF000000))
     ) {
         SparkImageLoader(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .navigationBarsPadding()
+                .fillMaxSize(),
             imageUrl = "https://i.imgur.com/fxHVmkg.png",
             contentDescription = stringResource(R.string.welcome_screen_background_image)
         )
@@ -79,7 +96,8 @@ fun WelcomeScreen() {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            val rainbowColors = remember { listOf(Color(0xFFFD5CD0), Color(0xFF4590EC), Color(0xFF9F32FF)) }
+            val rainbowColors =
+                remember { listOf(Color(0xFFFD5CD0), Color(0xFF4590EC), Color(0xFF9F32FF)) }
 
             Text(
                 text = buildAnnotatedString {
@@ -123,15 +141,28 @@ fun WelcomeScreen() {
                 .navigationBarsPadding()
                 .padding(end = 20.dp, bottom = 20.dp)
                 .align(Alignment.BottomEnd),
-            onClick = { },
+            onClick = { featureListScreenVisibility = true },
             icon = Icons.AutoMirrored.Filled.ArrowForward,
             contentDescription = stringResource(R.string.next)
         )
+
+        AnimatedVisibility(
+            visible = featureListScreenVisibility,
+            enter = slideIn(tween(500, easing = LinearOutSlowInEasing)) { fullSize ->
+                IntOffset(fullSize.width, 0)
+            },
+            exit = slideOutHorizontally()
+        ) {
+            FeatureListScreen(
+                onboardingViewModel = onboardingViewModel,
+                onNavigateToHomeScreen = onNavigateToHomeScreen
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun WelcomeScreenPreview() {
-    WelcomeScreen()
+    WelcomeScreen(onNavigateToHomeScreen = {})
 }

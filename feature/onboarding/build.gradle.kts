@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -49,6 +51,11 @@ dependencies {
     implementation(libs.material3)
 
     implementation(project(":core:design_system"))
+    implementation(project(":core:datastore"))
+
+    implementation(libs.hilt)
+    implementation(libs.hilt.navigation)
+    ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

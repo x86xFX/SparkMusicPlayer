@@ -12,8 +12,8 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import me.theek.spark.core.datastore.UserPreferences
 import me.theek.spark.core.datastore.UserPreferencesSerializer
+import me.theek.spark.core.datastore_proto.UserPreferences
 import javax.inject.Singleton
 
 @Module

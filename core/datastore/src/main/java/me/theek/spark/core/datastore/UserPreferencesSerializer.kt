@@ -3,6 +3,7 @@ package me.theek.spark.core.datastore
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
+import me.theek.spark.core.datastore_proto.UserPreferences
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject

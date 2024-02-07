@@ -3,4 +3,7 @@
     <string name="next">Next</string>
     <string name="welcome_screen_background_image">Welcome screen background image</string>
     <string name="welcome_screen_picture">Welcome screen picture</string>
+    <string name="feature_list_background">Feature list background</string>
+    <string name="audio_file_icon">Audio file icon</string>
+    <string name="audio_file_permission_alert_description">Granting permission to access your local music files is required for this app to function properly. Please navigate to your device settings and enable the necessary permission</string>
 </resources>

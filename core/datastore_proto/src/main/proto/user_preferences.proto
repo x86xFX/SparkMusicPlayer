@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "me.theek.spark.core.datastore";
+option java_package = "me.theek.spark.core.datastore_proto";
 option java_multiple_files = true;
 
 message UserPreferences {

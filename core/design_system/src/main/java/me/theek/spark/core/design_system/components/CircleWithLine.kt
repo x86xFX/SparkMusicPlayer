@@ -26,13 +26,13 @@ fun CircleWithLine(
                 color = color,
                 start = Offset(x = size.width.div(8).times(7), y = size.height.div(16)),
                 end = Offset(x = size.width.div(8).times(7), y = size.height.div(7).times(3)),
-                strokeWidth = 20f,
+                strokeWidth = 12f,
                 cap = StrokeCap.Round
             )
             drawCircle(
                 color = color,
                 center = Offset(x = size.width.div(8).times(7), y = size.height.div(7).times(3)),
-                radius = 30f
+                radius = 20f
             )
         }
     }

@@ -3,6 +3,8 @@ package me.theek.spark.core.datastore
 import androidx.datastore.core.DataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import me.theek.spark.core.datastore_proto.UserPreferences
+import me.theek.spark.core.datastore_proto.copy
 import me.theek.spark.core.model.data.UserData
 import javax.inject.Inject
 import javax.inject.Singleton

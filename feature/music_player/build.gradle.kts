@@ -1,12 +1,10 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
 }
 
 android {
-    namespace = "me.theek.spark.core.datastore"
+    namespace = "me.theek.spark.feature.music_player"
     compileSdk = 34
 
     defaultConfig {
@@ -35,17 +33,7 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
-
-    implementation(libs.datastore)
-
-    implementation(libs.hilt)
-    ksp(libs.hilt.compiler)
-
-    implementation(project(":core:model"))
-    implementation(project(":core:datastore_proto"))
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
