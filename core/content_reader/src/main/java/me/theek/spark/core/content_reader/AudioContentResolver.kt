@@ -3,11 +3,17 @@ package me.theek.spark.core.content_reader
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import me.theek.spark.core.model.data.Audio
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -59,6 +65,7 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
                 } else {
                     while (cursor.moveToNext()) {
                         val id = cursor.getLong(idColumn)
+                        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
 
                         audioList += Audio(
                             id = id,
@@ -68,7 +75,8 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
                             duration = cursor.getInt(durationColumn),
                             title = cursor.getString(titleColumn),
                             albumId = cursor.getInt(albumIdColumn),
-                            trackNumber = cursor.getInt(trackColumn)
+                            trackNumber = cursor.getInt(trackColumn),
+                            albumArt = getAlbumArt(context, contentUri)
                         )
                     }
                 }
@@ -76,5 +84,13 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
         }
 
         emit(audioList)
+    }
+
+    private suspend fun getAlbumArt(context: Context, uri: Uri) : Bitmap? = withContext(Dispatchers.IO) {
+        val mmr = MediaMetadataRetriever()
+        mmr.setDataSource(context, uri)
+        val data = mmr.embeddedPicture
+        if (data != null)
+            BitmapFactory.decodeByteArray(data, 0, data.size) else null
     }
 }

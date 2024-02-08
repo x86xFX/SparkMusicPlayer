@@ -23,9 +23,17 @@ val InriaSansFontFamily = FontFamily(
     )
 )
 
+val Nunito = GoogleFont(name = "Nunito")
+val NunitoFontFamily = FontFamily(
+    Font(
+        googleFont = Nunito,
+        fontProvider = provider
+    )
+)
+
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = NunitoFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,

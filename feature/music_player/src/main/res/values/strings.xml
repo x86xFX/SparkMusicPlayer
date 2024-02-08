@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="song_option_icon">Song option icon</string>
+    <string name="search_icon">Search icon</string>
+    <string name="play_icon">play icon</string>
+    <string name="shuffle_icon">shuffle icon</string>
+    <string name="sort_icon">sort icon</string>
+    <string name="album_art">album art</string>
+</resources>

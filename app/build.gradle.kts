@@ -67,6 +67,7 @@ dependencies {
 
     implementation(project(":core:design_system"))
     implementation(project(":feature:onboarding"))
+    implementation(project(":feature:music_player"))
     implementation(project(":core:network"))
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))

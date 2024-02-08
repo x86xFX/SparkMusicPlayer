@@ -1,17 +1,13 @@
 package me.theek.spark.navigation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.theek.spark.MainActivityUiState
+import me.theek.spark.feature.music_player.MusicListScreen
 import me.theek.spark.feature.onboarding.WelcomeScreen
 
 @Composable
@@ -38,7 +34,7 @@ fun SparkNavigation(uiState: MainActivityUiState.Success) {
         }
         
         composable(route = Screen.Home.route) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Red))
+            MusicListScreen()
         }
     }
 }
