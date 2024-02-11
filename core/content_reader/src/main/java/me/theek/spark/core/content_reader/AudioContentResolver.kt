@@ -3,17 +3,13 @@ package me.theek.spark.core.content_reader
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
 import me.theek.spark.core.model.data.Audio
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,6 +34,8 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
     private val selectArgs: Array<String> = arrayOf("1")
 
     private val sortOrder: String = "${MediaStore.Audio.AudioColumns.DATE_ADDED} ASC"
+
+    private val mediaMetadataRetriever = MediaMetadataRetriever()
 
     override fun getAudioData(): Flow<List<Audio>> = flow {
         val audioList: MutableList<Audio> = mutableListOf()
@@ -79,18 +77,15 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
                             albumArt = getAlbumArt(context, contentUri)
                         )
                     }
+                    mediaMetadataRetriever.release()
                 }
             }
         }
-
         emit(audioList)
     }
 
-    private suspend fun getAlbumArt(context: Context, uri: Uri) : Bitmap? = withContext(Dispatchers.IO) {
-        val mmr = MediaMetadataRetriever()
-        mmr.setDataSource(context, uri)
-        val data = mmr.embeddedPicture
-        if (data != null)
-            BitmapFactory.decodeByteArray(data, 0, data.size) else null
+    private fun getAlbumArt(context: Context, uri: Uri) : ByteArray? {
+        mediaMetadataRetriever.setDataSource(context, uri)
+        return mediaMetadataRetriever.embeddedPicture
     }
 }

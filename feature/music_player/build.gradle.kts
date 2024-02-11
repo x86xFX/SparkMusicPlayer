@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.material3)
 
     implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.coil.compose)
 
     implementation(libs.hilt)
     implementation(libs.hilt.navigation)

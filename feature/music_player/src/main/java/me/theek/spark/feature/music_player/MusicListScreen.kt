@@ -68,7 +68,7 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
 private fun SparkPlayerTopAppBar(onSearch: () -> Unit) {
     TopAppBar(
         title = {
-            Text(text = "Spark Music")
+            Text(text = "Music Player")
         },
         actions = {
             IconButton(onClick = onSearch) {
