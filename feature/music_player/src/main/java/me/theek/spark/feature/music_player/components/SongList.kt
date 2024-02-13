@@ -25,12 +25,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.theek.spark.core.design_system.icons.rememberShuffle
 import me.theek.spark.core.design_system.icons.rememberSort
-import me.theek.spark.core.model.data.Audio
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun SongListUi(
-    songs: List<Audio>,
+    songs: List<Song>,
     modifier: Modifier = Modifier
 ) {
     Column(

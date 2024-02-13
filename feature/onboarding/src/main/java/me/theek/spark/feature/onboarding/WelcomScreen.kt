@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.theek.spark.core.design_system.components.SparkCircleButton
 import me.theek.spark.core.design_system.components.SparkImageLoader
 import me.theek.spark.core.design_system.ui.theme.InriaSansFontFamily
@@ -53,7 +55,12 @@ fun WelcomeScreen(
     onNavigateToHomeScreen: () -> Unit,
     onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
+    val uiState by onboardingViewModel.uiState.collectAsStateWithLifecycle()
     var featureListScreenVisibility by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = onboardingViewModel.shouldNavigateToHome) {
+        if (onboardingViewModel.shouldNavigateToHome) onNavigateToHomeScreen()
+    }
 
     Box(
         modifier = Modifier
@@ -153,9 +160,12 @@ fun WelcomeScreen(
             },
             exit = slideOutHorizontally()
         ) {
-            FeatureListScreen(
-                onboardingViewModel = onboardingViewModel,
-                onNavigateToHomeScreen = onNavigateToHomeScreen
+            MediaScanScreen(
+                uiState = uiState,
+                shouldShowScanner = onboardingViewModel.shouldShowScanner,
+                onPermissionResult = onboardingViewModel::onPermissionResult,
+                shouldShowPermissionAlert = onboardingViewModel.shouldShowPermissionAlert,
+                onDismissPermissionAlert = onboardingViewModel::onDismissPermissionAlert
             )
         }
     }

@@ -7,24 +7,37 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import me.theek.spark.core.content_reader.ContentResolverHelper
-import me.theek.spark.core.model.data.Audio
+import me.theek.spark.core.data.repository.SongRepository
+import me.theek.spark.core.data.repository.SongStreamState
+import me.theek.spark.core.model.data.Song
 import javax.inject.Inject
 
 @HiltViewModel
-class MusicListScreenViewModel @Inject constructor(contentResolverHelper: ContentResolverHelper) :
-    ViewModel() {
+class MusicListScreenViewModel @Inject constructor(songRepository: SongRepository) : ViewModel() {
 
-    val uiState: StateFlow<UiState> = contentResolverHelper.getAudioData().map { audios ->
-        UiState.Success(audios)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = UiState.Loading
-    )
+    val uiState: StateFlow<Any> = songRepository.getSongs()
+        .map { songStreamState ->
+            when (songStreamState) {
+                is SongStreamState.Failure -> {
+                    UiState.Failure(message = songStreamState.message)
+                }
+                is SongStreamState.Progress -> {
+                    UiState.Loading
+                }
+                is SongStreamState.Success -> {
+                    UiState.Success(songStreamState.songs)
+                }
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = UiState.Loading
+        )
 }
 
 sealed interface UiState {
     data object Loading : UiState
-    data class Success(val audios: List<Audio>) : UiState
+    data class Failure(val message: String?) : UiState
+    data class Success(val songs: List<Song>) : UiState
 }

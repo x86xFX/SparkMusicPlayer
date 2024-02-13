@@ -41,13 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import me.theek.spark.core.model.data.Audio
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun SongRow(
     modifier: Modifier = Modifier,
-    song: Audio
+    song: Song
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -80,7 +80,7 @@ internal fun SongRow(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = song.title,
+                    text = song.title ?: "Unknown",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -90,7 +90,7 @@ internal fun SongRow(
                     )
                 )
                 Text(
-                    text = song.artistName,
+                    text = song.artistName ?: "Unknown",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -195,16 +195,15 @@ private fun SongOptionMenu(modifier: Modifier = Modifier) {
 @Composable
 private fun SongRowPreview() {
     SongRow(
-        song = Audio(
-            id = 0L,
-            uri = "".toUri(),
-            displayName = "Save Your Name.mp3",
+        song = Song(
+            id = 0,
+            path = "",
             artistName = "The Weenknd",
             duration = 300,
             title = "Save Your Tears",
             albumId = 2,
             trackNumber = 8,
-            albumArt = null
+            albumArt = "".toUri()
         )
     )
 }

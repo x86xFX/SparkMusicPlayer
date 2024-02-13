@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -57,8 +57,8 @@ dependencies {
     implementation(libs.hilt.navigation)
     ksp(libs.hilt.compiler)
 
-    implementation(project(":core:content_reader"))
     implementation(project(":core:model"))
+    implementation(project(":core:data"))
     implementation(project(":core:design_system"))
 
     testImplementation(libs.junit)

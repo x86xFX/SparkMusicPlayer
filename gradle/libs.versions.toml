@@ -8,27 +8,28 @@ junit = "4.13.2"
 lifecycle-runtime-ktx = "2.7.0"
 core-ktx = "1.12.0"
 kotlin = "1.9.22"
-androidx-compose-bom = "2024.01.00"
-material3 = "1.2.0-rc01"
+androidx-compose-bom = "2024.02.00"
+material3 = "1.2.0"
 hilt = "2.50"
 ksp = "1.9.22-1.0.17"
 media3 = "1.2.1"
 coil = "2.5.0"
 coil-svg = "2.5.0"
-google-fonts = "1.6.0"
+google-fonts = "1.6.1"
 datastore = "1.0.0"
 protobuf-plugin = "0.9.4"
 protobuf = "3.25.2"
 hilt-navigation = "1.1.0"
-navigation = "2.7.6"
+navigation = "2.7.7"
 androidx-lifecycle-runtime = "2.7.0"
+room = "2.6.1"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-library" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-androidLibrary = { id = "com.android.library", version.ref = "android-library" }
+android-library = { id = "com.android.library", version.ref = "android-library" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
 
 [libraries]
@@ -61,3 +62,6 @@ protobuf-protoc = { module = "com.google.protobuf:protoc", version.ref = "protob
 hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle-runtime" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }

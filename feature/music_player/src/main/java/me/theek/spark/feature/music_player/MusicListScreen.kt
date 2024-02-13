@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
-import me.theek.spark.core.model.data.Audio
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.SongListUi
 import me.theek.spark.feature.music_player.util.MusicUiTabs
 
@@ -55,7 +55,7 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = innerPadding.calculateTopPadding()),
-                        songs = (uiState as UiState.Success).audios
+                        songs = (uiState as UiState.Success).songs
                     )
                 }
             }
@@ -68,7 +68,7 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
 private fun SparkPlayerTopAppBar(onSearch: () -> Unit) {
     TopAppBar(
         title = {
-            Text(text = "Music Player")
+            Text(text = "Spark Player")
         },
         actions = {
             IconButton(onClick = onSearch) {
@@ -85,7 +85,7 @@ private fun SparkPlayerTopAppBar(onSearch: () -> Unit) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MusicUi(
-    songs: List<Audio>,
+    songs: List<Song>,
     modifier: Modifier = Modifier
 ) {
 

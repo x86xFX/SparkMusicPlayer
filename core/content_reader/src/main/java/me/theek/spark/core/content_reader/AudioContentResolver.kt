@@ -2,90 +2,80 @@ package me.theek.spark.core.content_reader
 
 import android.content.ContentUris
 import android.content.Context
-import android.database.Cursor
-import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
-import me.theek.spark.core.model.data.Audio
+import kotlinx.coroutines.isActive
+import me.theek.spark.core.model.data.Song
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AudioContentResolver @Inject constructor(@ApplicationContext private val context: Context) : ContentResolverHelper {
 
-    private var mCursor: Cursor? = null
+    override fun getAudioData(): SongFlow = flow {
+        val songs: MutableList<Song> = mutableListOf()
 
-    private val projection: Array<String> = arrayOf(
-        MediaStore.Audio.AudioColumns._ID,
-        MediaStore.Audio.AudioColumns.DISPLAY_NAME,
-        MediaStore.Audio.AudioColumns.ARTIST,
-        MediaStore.Audio.AudioColumns.DURATION,
-        MediaStore.Audio.AudioColumns.TITLE,
-        MediaStore.Audio.AudioColumns.ALBUM_ID,
-        MediaStore.Audio.AudioColumns.TRACK
-    )
-
-    private val selectionClause: String = "${MediaStore.Audio.AudioColumns.IS_MUSIC} = ?"
-
-    private val selectArgs: Array<String> = arrayOf("1")
-
-    private val sortOrder: String = "${MediaStore.Audio.AudioColumns.DATE_ADDED} ASC"
-
-    private val mediaMetadataRetriever = MediaMetadataRetriever()
-
-    override fun getAudioData(): Flow<List<Audio>> = flow {
-        val audioList: MutableList<Audio> = mutableListOf()
-
-        mCursor = context.contentResolver.query(
+        val songCursor = context.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, // External storage
-            projection,
-            selectionClause,
-            selectArgs,
-            sortOrder
+            arrayOf(
+                MediaStore.Audio.AudioColumns._ID,
+                MediaStore.Audio.AudioColumns.DATA,
+                MediaStore.Audio.AudioColumns.ARTIST,
+                MediaStore.Audio.AudioColumns.DURATION,
+                MediaStore.Audio.AudioColumns.TITLE,
+                MediaStore.Audio.AudioColumns.ALBUM_ID,
+                MediaStore.Audio.AudioColumns.TRACK
+            ),
+            "${MediaStore.Audio.AudioColumns.IS_MUSIC} = ?",
+            arrayOf("1"),
+            "${MediaStore.Audio.AudioColumns.DATE_ADDED} ASC"
         )
 
-        mCursor?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns._ID)
-            val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DISPLAY_NAME)
+        songCursor?.use { cursor ->
+            var progress = 0
+            val size = cursor.count
+            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA)
             val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ARTIST)
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)
             val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM_ID)
             val trackColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TRACK)
 
-            cursor.apply {
-                if (count == 0) {
-                    Log.d("Cursor", "get cursor data: Cursor is empty")
-                } else {
-                    while (cursor.moveToNext()) {
-                        val id = cursor.getLong(idColumn)
-                        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+            while (currentCoroutineContext().isActive && cursor.moveToNext()) {
+                val song = Song(
+                    id = 0,
+                    path = songCursor.getString(dataColumn),
+                    artistName = cursor.getString(artistColumn),
+                    duration = cursor.getInt(durationColumn),
+                    title = cursor.getString(titleColumn),
+                    albumId = cursor.getInt(albumIdColumn),
+                    trackNumber = cursor.getInt(trackColumn),
+                    albumArt = ContentUris.withAppendedId(
+                        "content://media/external/audio/albumart".toUri(),
+                        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM_ID))
+                    )
+                )
 
-                        audioList += Audio(
-                            id = id,
-                            uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id),
-                            displayName = cursor.getString(displayNameColumn),
-                            artistName = cursor.getString(artistColumn),
-                            duration = cursor.getInt(durationColumn),
-                            title = cursor.getString(titleColumn),
-                            albumId = cursor.getInt(albumIdColumn),
-                            trackNumber = cursor.getInt(trackColumn),
-                            albumArt = getAlbumArt(context, contentUri)
+                songs.add(song)
+                progress++
+                emit(
+                    FlowEvent.Progress(
+                        RetrieveProgress(
+                            message = "${song.title} • ${song.artistName}",
+                            progress = RetrieveProgress.Progress(
+                                size = size,
+                                currentProgress = progress
+                            )
                         )
-                    }
-                    mediaMetadataRetriever.release()
-                }
+                    )
+                )
+                delay(100)
             }
         }
-        emit(audioList)
-    }
-
-    private fun getAlbumArt(context: Context, uri: Uri) : ByteArray? {
-        mediaMetadataRetriever.setDataSource(context, uri)
-        return mediaMetadataRetriever.embeddedPicture
+        emit(FlowEvent.Success(songs))
     }
 }
