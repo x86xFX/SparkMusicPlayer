@@ -45,9 +45,9 @@ import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun SongRow(
-    modifier: Modifier = Modifier,
     song: Song,
-    imageLoader: (String) -> ByteArray?
+    imageLoader: (String) -> ByteArray?,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),

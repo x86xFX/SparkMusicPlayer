@@ -7,7 +7,7 @@ import me.theek.spark.core.database.entity.SongEntity
 @Database(
     entities = [SongEntity::class],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
 abstract class SparkDatabase : RoomDatabase() {
     abstract fun songDao() : SongDao
