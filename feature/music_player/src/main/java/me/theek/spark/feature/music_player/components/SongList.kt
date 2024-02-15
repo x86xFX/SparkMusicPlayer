@@ -31,6 +31,7 @@ import me.theek.spark.feature.music_player.R
 @Composable
 internal fun SongListUi(
     songs: List<Song>,
+    imageLoader: (String) -> ByteArray?,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -97,7 +98,10 @@ internal fun SongListUi(
                 items = songs,
                 key = { it.id }
             ) {
-                SongRow(song = it)
+                SongRow(
+                    song = it,
+                    imageLoader = imageLoader
+                )
             }
         }
     }

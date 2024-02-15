@@ -55,7 +55,8 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = innerPadding.calculateTopPadding()),
-                        songs = (uiState as UiState.Success).songs
+                        songs = (uiState as UiState.Success).songs,
+                        imageLoader = viewModel::getSongCoverArt
                     )
                 }
             }
@@ -86,6 +87,7 @@ private fun SparkPlayerTopAppBar(onSearch: () -> Unit) {
 @Composable
 private fun MusicUi(
     songs: List<Song>,
+    imageLoader: (String) -> ByteArray?,
     modifier: Modifier = Modifier
 ) {
 
@@ -121,7 +123,10 @@ private fun MusicUi(
         ) { currentTab ->
             when (currentTab) {
                0 -> {
-                    SongListUi(songs = songs)
+                    SongListUi(
+                        songs = songs,
+                        imageLoader = imageLoader
+                    )
                }
 
                 1 -> Unit

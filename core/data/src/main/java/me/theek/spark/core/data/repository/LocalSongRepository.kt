@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import me.theek.spark.core.content_reader.ContentResolverHelper
 import me.theek.spark.core.content_reader.FlowEvent
+import me.theek.spark.core.content_reader.KTaglibImageLoader
 import me.theek.spark.core.data.mapper.toSong
 import me.theek.spark.core.data.mapper.toSongEntity
 import me.theek.spark.core.database.SongDao
@@ -14,6 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class LocalSongRepository @Inject constructor(
     private val contentResolverHelper: ContentResolverHelper,
+    private val kTaglibImageLoader: KTaglibImageLoader,
     private val songDao: SongDao
 ) : SongRepository {
 
@@ -64,5 +66,9 @@ class LocalSongRepository @Inject constructor(
                 )
             )
         }
+    }
+
+    override fun getSongCoverArt(songPath: String): ByteArray? {
+        return kTaglibImageLoader.getArt(songPath)
     }
 }

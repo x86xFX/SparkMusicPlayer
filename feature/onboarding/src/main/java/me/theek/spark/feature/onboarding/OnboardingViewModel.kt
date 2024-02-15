@@ -46,7 +46,6 @@ class OnboardingViewModel @Inject constructor(
 
     private fun onImportSongs() {
         viewModelScope.launch(Dispatchers.IO) {
-
             songRepository.getSongs().collect { songStreamState ->
                 when (songStreamState) {
                     is SongStreamState.Failure -> {

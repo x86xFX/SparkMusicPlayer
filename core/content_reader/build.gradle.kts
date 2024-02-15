@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
 
     implementation(project(":core:model"))
+    implementation("com.github.timusus:ktaglib:1.4.1")
 
     implementation(libs.hilt)
     ksp(libs.hilt.compiler)

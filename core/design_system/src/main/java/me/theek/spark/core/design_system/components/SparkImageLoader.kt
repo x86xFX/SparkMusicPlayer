@@ -1,6 +1,5 @@
 package me.theek.spark.core.design_system.components
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,10 +35,6 @@ fun SparkImageLoader(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        if (isLoading) {
-            Log.d("SparkImageLoader", "Image loading...")
-        }
-        
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = imageLoader,

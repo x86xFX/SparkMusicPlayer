@@ -12,6 +12,5 @@ data class SongEntity(
     val title: String?,
     val albumId: Int?,
     val trackNumber: Int,
-    val albumArtLocation: String?,
     val location: String
 )

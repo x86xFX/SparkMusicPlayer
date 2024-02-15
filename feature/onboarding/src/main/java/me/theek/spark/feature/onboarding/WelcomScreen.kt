@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +44,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.theek.spark.core.design_system.components.SparkCircleButton
 import me.theek.spark.core.design_system.components.SparkImageLoader
@@ -56,7 +57,11 @@ fun WelcomeScreen(
     onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val uiState by onboardingViewModel.uiState.collectAsStateWithLifecycle()
-    var featureListScreenVisibility by remember { mutableStateOf(false) }
+    var shouldShowScannerScreen by remember { mutableStateOf(false) }
+
+    LifecycleEventEffect(event = Lifecycle.Event.ON_RESUME) {
+        if (onboardingViewModel.shouldNavigateToHome) onNavigateToHomeScreen()
+    }
 
     LaunchedEffect(key1 = onboardingViewModel.shouldNavigateToHome) {
         if (onboardingViewModel.shouldNavigateToHome) onNavigateToHomeScreen()
@@ -103,8 +108,7 @@ fun WelcomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            val rainbowColors =
-                remember { listOf(Color(0xFFFD5CD0), Color(0xFF4590EC), Color(0xFF9F32FF)) }
+            val rainbowColors = remember { listOf(Color(0xFFFD5CD0), Color(0xFF4590EC), Color(0xFF9F32FF)) }
 
             Text(
                 text = buildAnnotatedString {
@@ -148,17 +152,16 @@ fun WelcomeScreen(
                 .navigationBarsPadding()
                 .padding(end = 20.dp, bottom = 20.dp)
                 .align(Alignment.BottomEnd),
-            onClick = { featureListScreenVisibility = true },
+            onClick = { shouldShowScannerScreen = true },
             icon = Icons.AutoMirrored.Filled.ArrowForward,
             contentDescription = stringResource(R.string.next)
         )
 
         AnimatedVisibility(
-            visible = featureListScreenVisibility,
+            visible = shouldShowScannerScreen,
             enter = slideIn(tween(500, easing = LinearOutSlowInEasing)) { fullSize ->
                 IntOffset(fullSize.width, 0)
-            },
-            exit = slideOutHorizontally()
+            }
         ) {
             MediaScanScreen(
                 uiState = uiState,

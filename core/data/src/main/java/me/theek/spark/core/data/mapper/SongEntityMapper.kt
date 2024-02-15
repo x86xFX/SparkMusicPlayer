@@ -1,6 +1,5 @@
 package me.theek.spark.core.data.mapper
 
-import androidx.core.net.toUri
 import me.theek.spark.core.database.entity.SongEntity
 import me.theek.spark.core.model.data.Song
 
@@ -12,8 +11,7 @@ fun SongEntity.toSong() : Song {
         duration = duration,
         title = title,
         albumId = albumId,
-        trackNumber = trackNumber,
-        albumArt = albumArtLocation?.toUri()
+        trackNumber = trackNumber
     )
 }
 
@@ -24,7 +22,6 @@ fun Song.toSongEntity() : SongEntity {
         title = title,
         albumId = albumId,
         trackNumber = trackNumber,
-        albumArtLocation = albumArt.toString(),
         location = path
     )
 }

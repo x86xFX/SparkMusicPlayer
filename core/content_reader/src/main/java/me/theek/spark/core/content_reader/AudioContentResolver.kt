@@ -1,9 +1,7 @@
 package me.theek.spark.core.content_reader
 
-import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
-import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -32,7 +30,7 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
             ),
             "${MediaStore.Audio.AudioColumns.IS_MUSIC} = ?",
             arrayOf("1"),
-            "${MediaStore.Audio.AudioColumns.DATE_ADDED} ASC"
+            "${MediaStore.Audio.AudioColumns.TITLE} ASC"
         )
 
         songCursor?.use { cursor ->
@@ -46,18 +44,15 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
             val trackColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TRACK)
 
             while (currentCoroutineContext().isActive && cursor.moveToNext()) {
+                val path = songCursor.getString(dataColumn)
                 val song = Song(
                     id = 0,
-                    path = songCursor.getString(dataColumn),
+                    path = path,
                     artistName = cursor.getString(artistColumn),
                     duration = cursor.getInt(durationColumn),
                     title = cursor.getString(titleColumn),
                     albumId = cursor.getInt(albumIdColumn),
-                    trackNumber = cursor.getInt(trackColumn),
-                    albumArt = ContentUris.withAppendedId(
-                        "content://media/external/audio/albumart".toUri(),
-                        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM_ID))
-                    )
+                    trackNumber = cursor.getInt(trackColumn)
                 )
 
                 songs.add(song)
@@ -73,7 +68,7 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
                         )
                     )
                 )
-                delay(100)
+               delay(50)
             }
         }
         emit(FlowEvent.Success(songs))

@@ -13,7 +13,7 @@ import me.theek.spark.core.model.data.Song
 import javax.inject.Inject
 
 @HiltViewModel
-class MusicListScreenViewModel @Inject constructor(songRepository: SongRepository) : ViewModel() {
+class MusicListScreenViewModel @Inject constructor(private val songRepository: SongRepository) : ViewModel() {
 
     val uiState: StateFlow<Any> = songRepository.getSongs()
         .map { songStreamState ->
@@ -34,6 +34,10 @@ class MusicListScreenViewModel @Inject constructor(songRepository: SongRepositor
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = UiState.Loading
         )
+
+    fun getSongCoverArt(songPath: String) : ByteArray? {
+        return songRepository.getSongCoverArt(songPath)
+    }
 }
 
 sealed interface UiState {

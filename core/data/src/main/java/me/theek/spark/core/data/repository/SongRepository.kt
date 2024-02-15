@@ -5,6 +5,8 @@ import me.theek.spark.core.model.data.Song
 
 interface SongRepository {
     fun getSongs() : Flow<SongStreamState>
+
+    fun getSongCoverArt(songPath: String) : ByteArray?
 }
 
 sealed interface SongStreamState {

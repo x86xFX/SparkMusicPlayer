@@ -38,7 +38,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import me.theek.spark.core.model.data.Song
@@ -47,7 +46,8 @@ import me.theek.spark.feature.music_player.R
 @Composable
 internal fun SongRow(
     modifier: Modifier = Modifier,
-    song: Song
+    song: Song,
+    imageLoader: (String) -> ByteArray?
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -62,7 +62,7 @@ internal fun SongRow(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(song.albumArt)
+                    .data(imageLoader(song.path))
                     .crossfade(enable = true)
                     .build(),
                 contentDescription = stringResource(R.string.album_art),
@@ -202,8 +202,8 @@ private fun SongRowPreview() {
             duration = 300,
             title = "Save Your Tears",
             albumId = 2,
-            trackNumber = 8,
-            albumArt = "".toUri()
-        )
+            trackNumber = 8
+        ),
+        imageLoader = { null }
     )
 }
