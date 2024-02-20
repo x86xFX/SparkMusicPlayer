@@ -6,14 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.theek.spark.core.data.repository.SongRepository
-import me.theek.spark.core.data.repository.SongStreamState
 import me.theek.spark.core.data.repository.UserDataRepository
+import me.theek.spark.core.model.data.FlowEvent
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,22 +44,16 @@ class OnboardingViewModel @Inject constructor(
     fun onDismissPermissionAlert() { shouldShowPermissionAlert = false }
 
     private fun onImportSongs() {
-        viewModelScope.launch(Dispatchers.IO) {
-            songRepository.getSongs().collect { songStreamState ->
-                when (songStreamState) {
-                    is SongStreamState.Failure -> {
-                        _uiState.value = UiState.Failure(songStreamState.message)
-                    }
-
-                    is SongStreamState.Progress -> {
-                        shouldShowScanner = true
+        viewModelScope.launch {
+            songRepository.getSongs().collect { state ->
+                when (state) {
+                    is FlowEvent.Progress -> {
                         _uiState.value = UiState.Progress(
-                            hint = songStreamState.retrieveHint,
-                            progress = songStreamState.progress
+                            message = state.message,
+                            progress = state.asFloat()
                         )
                     }
-
-                    is SongStreamState.Success -> {
+                    is FlowEvent.Success -> {
                         onHideOnboardingScreen()
                         onNavigateToHomeScreen()
                     }
@@ -85,7 +78,7 @@ sealed interface UiState {
     data object Idle : UiState
     data class Failure(val message: String?) : UiState
     data class Progress(
-        val hint: String,
+        val message: String?,
         val progress: Float
     ) : UiState
 }

@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -50,6 +49,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.theek.spark.core.design_system.components.SparkCircleButton
 import me.theek.spark.core.design_system.components.SparkImageLoader
 import me.theek.spark.core.design_system.ui.theme.InriaSansFontFamily
+import me.theek.spark.core.design_system.ui.theme.md_theme_dark_shadow
+import me.theek.spark.core.design_system.ui.theme.onboarding_screen_rainbow_color_1
+import me.theek.spark.core.design_system.ui.theme.onboarding_screen_rainbow_color_2
+import me.theek.spark.core.design_system.ui.theme.onboarding_screen_rainbow_color_3
 
 @Composable
 fun WelcomeScreen(
@@ -70,7 +73,7 @@ fun WelcomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFF000000))
+            .background(color = md_theme_dark_shadow)
     ) {
         SparkImageLoader(
             modifier = Modifier
@@ -108,7 +111,13 @@ fun WelcomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            val rainbowColors = remember { listOf(Color(0xFFFD5CD0), Color(0xFF4590EC), Color(0xFF9F32FF)) }
+            val rainbowColors = remember {
+                listOf(
+                    onboarding_screen_rainbow_color_1,
+                    onboarding_screen_rainbow_color_2,
+                    onboarding_screen_rainbow_color_3
+                )
+            }
 
             Text(
                 text = buildAnnotatedString {

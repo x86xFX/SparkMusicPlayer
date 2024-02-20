@@ -52,6 +52,7 @@ dependencies {
 
     implementation(project(":core:design_system"))
     implementation(project(":core:data"))
+    implementation(project(":core:model"))
 
     implementation(libs.androidx.lifecycle.runtime)
 

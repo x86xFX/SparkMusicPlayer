@@ -23,6 +23,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import me.theek.spark.core.design_system.ui.theme.InriaSansFontFamily
+import me.theek.spark.core.design_system.ui.theme.media_scanner_background
+import me.theek.spark.core.design_system.ui.theme.media_scanner_content
+import me.theek.spark.core.design_system.ui.theme.media_scanner_progress_color
+import me.theek.spark.core.design_system.ui.theme.media_scanner_progress_track_color
 
 @Composable
 internal fun MediaScanProgressCard(
@@ -33,7 +37,7 @@ internal fun MediaScanProgressCard(
     Column(
         modifier = modifier
             .background(
-                color = Color(0xFF1A1A1A),
+                color = media_scanner_background,
                 shape = RoundedCornerShape(18.dp)
             )
             .padding(
@@ -64,7 +68,7 @@ internal fun MediaScanProgressCard(
         ) {
             Text(
                 text = "Scanning...",
-                color = Color(0xFFFFFFFF),
+                color = media_scanner_content,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontFamily = InriaSansFontFamily,
@@ -74,13 +78,13 @@ internal fun MediaScanProgressCard(
                 modifier = Modifier.fillMaxWidth(),
                 progress = { currentProgress },
                 strokeCap = StrokeCap.Round,
-                color = Color(0xFF26FF03),
-                trackColor = Color(0xFF444444)
+                color = media_scanner_progress_color,
+                trackColor = media_scanner_progress_track_color
             )
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = progressMessage,
-                color = Color(0xFFFFFFFF),
+                color = media_scanner_content,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

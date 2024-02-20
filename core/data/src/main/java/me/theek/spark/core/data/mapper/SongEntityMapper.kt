@@ -9,7 +9,7 @@ fun SongEntity.toSong() : Song {
         path = location,
         artistName = artistName,
         duration = duration,
-        title = title,
+        songName = songName,
         albumId = albumId,
         trackNumber = trackNumber
     )
@@ -19,7 +19,7 @@ fun Song.toSongEntity() : SongEntity {
     return SongEntity(
         artistName = artistName,
         duration = duration,
-        title = title,
+        songName = songName,
         albumId = albumId,
         trackNumber = trackNumber,
         location = path

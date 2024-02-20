@@ -24,6 +24,8 @@ hilt-navigation = "1.1.0"
 navigation = "2.7.7"
 androidx-lifecycle-runtime = "2.7.0"
 room = "2.6.1"
+kTagLib = "1.4.1"
+palette = "1.0.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-library" }
@@ -67,3 +69,5 @@ androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-co
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+kTagLib = { module = "com.github.timusus:ktaglib", version.ref = "kTagLib" }
+androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "palette" }

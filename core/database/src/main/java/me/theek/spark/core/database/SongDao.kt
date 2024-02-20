@@ -1,7 +1,6 @@
 package me.theek.spark.core.database
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -16,7 +15,4 @@ interface SongDao {
 
     @Query("SELECT * FROM songs")
     fun getSongs() : Flow<List<SongEntity>>
-
-    @Delete(entity = SongEntity::class)
-    suspend fun deleteSong(song: SongEntity)
 }

@@ -63,5 +63,17 @@ val md_theme_dark_shadow = Color(0xFF000000)
 val md_theme_dark_surfaceTint = Color(0xFFABC7FF)
 val md_theme_dark_outlineVariant = Color(0xFF44474E)
 val md_theme_dark_scrim = Color(0xFF000000)
-
 val seed = Color(0xFF2D5EA7)
+
+val media_scanner_background = Color(0xFF1A1A1A)
+val media_scanner_content = Color(0xFFFFFFFF)
+val media_scanner_progress_color = Color(0xFF26FF03)
+val media_scanner_progress_track_color = Color(0xFF444444)
+val spark_circular_button_background = Color(0xFF89F28D)
+val spark_circular_button_content = Color(0xFF005317)
+val spark_circular_button_background_2 = Color(0xFF60FF5C)
+val onboarding_screen_icon_tint = Color(0xFF10440F)
+
+val onboarding_screen_rainbow_color_1 =Color(0xFFFD5CD0)
+val onboarding_screen_rainbow_color_2 = Color(0xFF4590EC)
+val onboarding_screen_rainbow_color_3 = Color(0xFF9F32FF)

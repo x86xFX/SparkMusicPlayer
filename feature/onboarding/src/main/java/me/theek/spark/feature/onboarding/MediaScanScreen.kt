@@ -45,6 +45,10 @@ import me.theek.spark.core.design_system.components.CircleWithLine
 import me.theek.spark.core.design_system.components.SparkCircleButton
 import me.theek.spark.core.design_system.icons.roundedAudioFile
 import me.theek.spark.core.design_system.ui.theme.InriaSansFontFamily
+import me.theek.spark.core.design_system.ui.theme.md_theme_dark_shadow
+import me.theek.spark.core.design_system.ui.theme.media_scanner_content
+import me.theek.spark.core.design_system.ui.theme.onboarding_screen_icon_tint
+import me.theek.spark.core.design_system.ui.theme.spark_circular_button_background_2
 
 @Composable
 internal fun MediaScanScreen(
@@ -66,7 +70,7 @@ internal fun MediaScanScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
             .fillMaxSize()
-            .background(color = Color(0xFF000000)),
+            .background(color = md_theme_dark_shadow),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -76,7 +80,7 @@ internal fun MediaScanScreen(
                 .wrapContentSize(),
             painter = painterResource(id = R.drawable.ic_placeholder),
             contentDescription = stringResource(R.string.feature_list_background),
-            tint = Color(0xFF10440F)
+            tint = onboarding_screen_icon_tint
         )
         Column(
             modifier = Modifier
@@ -89,7 +93,7 @@ internal fun MediaScanScreen(
                 modifier = Modifier.padding(top = 20.dp, bottom = 10.dp),
                 text = "Take control of your music:",
                 maxLines = 2,
-                color = Color(0xFFFFFFFF),
+                color = media_scanner_content,
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(
                     fontSize = MaterialTheme.typography.displaySmall.fontSize.div(1.45f),
@@ -103,7 +107,7 @@ internal fun MediaScanScreen(
                     .fillMaxWidth(fraction = 0.68f)
                     .padding(top = 40.dp, bottom = 10.dp),
                 text = "Chop,\nTrim,\nand edit to create\nyour perfect\nlistening\nexperience.",
-                color = Color(0xFFFFFFFF),
+                color = media_scanner_content,
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(
                     fontSize = MaterialTheme.typography.displaySmall.fontSize.div(1.45f),
@@ -123,7 +127,7 @@ internal fun MediaScanScreen(
             is UiState.Progress -> {
                 MediaScanner(
                     shouldShowScanner = shouldShowScanner,
-                    hint = uiState.hint,
+                    hint = uiState.message ?: "~~~",
                     progress = uiState.progress
                 )
             }
@@ -144,8 +148,8 @@ internal fun MediaScanScreen(
                 }
             },
             icon = Icons.AutoMirrored.Filled.ArrowForward,
-            backgroundColor = Color(0xFF60FF5C),
-            tint = Color(0xFF000000),
+            backgroundColor = spark_circular_button_background_2,
+            tint = md_theme_dark_shadow,
             contentDescription = stringResource(R.string.next),
             isLoading = shouldShowScanner
         )

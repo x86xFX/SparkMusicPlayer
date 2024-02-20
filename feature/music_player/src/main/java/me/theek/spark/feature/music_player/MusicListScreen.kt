@@ -1,5 +1,6 @@
 package me.theek.spark.feature.music_player
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -9,35 +10,36 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.palette.graphics.Palette
 import kotlinx.coroutines.launch
 import me.theek.spark.core.model.data.Song
-import me.theek.spark.feature.music_player.components.SongListUi
+import me.theek.spark.feature.music_player.components.CurrentPlayingSongBar
+import me.theek.spark.feature.music_player.components.EmptySongComposable
+import me.theek.spark.feature.music_player.components.ProgressSongComposable
+import me.theek.spark.feature.music_player.components.SongListComposable
+import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
 import me.theek.spark.feature.music_player.util.MusicUiTabs
 
 @Composable
 fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val currentPlayingSong = viewModel.currentPlayingSong
+    val currentPlayingSongCover = viewModel.currentPlayingSongCover
 
     Scaffold(
         modifier = Modifier
@@ -48,35 +50,35 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
             SparkPlayerTopAppBar(onSearch = {})
         },
         content = { innerPadding ->
-            when (uiState) {
+            when (val state = uiState) {
                 UiState.Loading -> Unit
-                is UiState.Success -> {
-                    MusicUi(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = innerPadding.calculateTopPadding()),
-                        songs = (uiState as UiState.Success).songs,
-                        imageLoader = viewModel::getSongCoverArt
+                is UiState.Progress -> {
+                    ProgressSongComposable(
+                        modifier = Modifier.fillMaxSize(),
+                        progress = state.progress,
+                        message = state.status
                     )
                 }
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SparkPlayerTopAppBar(onSearch: () -> Unit) {
-    TopAppBar(
-        title = {
-            Text(text = "Spark Player")
-        },
-        actions = {
-            IconButton(onClick = onSearch) {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = stringResource(R.string.search_icon)
-                )
+                is UiState.Success -> {
+                    if (state.songs.isEmpty()) {
+                        EmptySongComposable(modifier = Modifier.fillMaxSize())
+                    } else {
+                        MusicUi(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = innerPadding.calculateTopPadding()),
+                            songs = state.songs,
+                            imageLoader = viewModel::getSongCoverArt,
+                            onSongClick = viewModel::onSongClick,
+                            currentPlayingSong = currentPlayingSong,
+                            currentPlayingSongCoverArt = currentPlayingSongCover,
+                            currentPlayingSongPalette = viewModel.currentPlayingSongPalette,
+                            onPausePlayClick = {},
+                            onSkipNextClick = {},
+                            onSkipPreviousClick = {}
+                        )
+                    }
+                }
             }
         }
     )
@@ -87,7 +89,14 @@ private fun SparkPlayerTopAppBar(onSearch: () -> Unit) {
 @Composable
 private fun MusicUi(
     songs: List<Song>,
-    imageLoader: (String) -> ByteArray?,
+    imageLoader: suspend (String) -> ByteArray?,
+    onSongClick: (Song) -> Unit,
+    currentPlayingSong: Song?,
+    currentPlayingSongCoverArt: ByteArray?,
+    currentPlayingSongPalette: Palette?,
+    onSkipPreviousClick: () -> Unit,
+    onPausePlayClick: () -> Unit,
+    onSkipNextClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -117,23 +126,32 @@ private fun MusicUi(
                 )
             }
         }
-
         HorizontalPager(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.weight(9.3f),
             state = pagerState
         ) { currentTab ->
             when (currentTab) {
-               0 -> {
-                    SongListUi(
+                0 -> {
+                    SongListComposable(
                         songs = songsList,
-                        imageLoader = imageLoader
+                        songRetriever = imageLoader,
+                        onSongClick = onSongClick
                     )
-               }
-
-                1 -> Unit
-
-                2 -> Unit
+                }
+                else -> Unit
             }
+        }
+
+        AnimatedVisibility(visible = currentPlayingSong != null) {
+            CurrentPlayingSongBar(
+                modifier = Modifier.weight(0.7f),
+                currentPlayingSong = currentPlayingSong!!,
+                currentPlayingSongCoverArt = currentPlayingSongCoverArt,
+                currentPlayingSongPalette = currentPlayingSongPalette,
+                onPausePlayClick = onPausePlayClick,
+                onSkipNextClick = onSkipNextClick,
+                onSkipPreviousClick = onSkipPreviousClick
+            )
         }
     }
 }

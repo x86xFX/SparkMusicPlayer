@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import me.theek.spark.core.design_system.ui.theme.spark_circular_button_background
+import me.theek.spark.core.design_system.ui.theme.spark_circular_button_content
 
 /**
  * Circular shape button that used in mainly onboarding screen.
@@ -34,8 +36,8 @@ fun SparkCircleButton(
     icon: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color(0xFF89F28D),
-    tint: Color = Color(0xFF005317),
+    backgroundColor: Color = spark_circular_button_background,
+    tint: Color = spark_circular_button_content,
     isLoading: Boolean = false
 ) {
     Box(

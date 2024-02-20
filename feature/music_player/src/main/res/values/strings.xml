@@ -6,4 +6,8 @@
     <string name="shuffle_icon">shuffle icon</string>
     <string name="sort_icon">sort icon</string>
     <string name="album_art">album art</string>
+    <string name="current_playing_song_cover_art">Current playing song cover art</string>
+    <string name="skip_previous_icon">Skip previous icon</string>
+    <string name="skip_next_icon">Skip next icon</string>
+    <string name="music_listener_icon">music listener icon</string>
 </resources>

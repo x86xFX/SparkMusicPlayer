@@ -1,76 +1,58 @@
 package me.theek.spark.core.data.repository
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
-import me.theek.spark.core.content_reader.ContentResolverHelper
-import me.theek.spark.core.content_reader.FlowEvent
-import me.theek.spark.core.content_reader.KTaglibImageLoader
+import kotlinx.coroutines.flow.flowOn
+import me.theek.spark.core.model.data.FlowEvent
+import me.theek.spark.core.content_reader.MediaStoreReader
 import me.theek.spark.core.data.mapper.toSong
 import me.theek.spark.core.data.mapper.toSongEntity
 import me.theek.spark.core.database.SongDao
+import me.theek.spark.core.model.data.Song
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class LocalSongRepository @Inject constructor(
-    private val contentResolverHelper: ContentResolverHelper,
-    private val kTaglibImageLoader: KTaglibImageLoader,
+    private val mediaStoreReader: MediaStoreReader,
     private val songDao: SongDao
 ) : SongRepository {
 
-    override fun getSongs(): Flow<SongStreamState> = flow {
-        /**
-         * Initially check local database for existing songs.
-         */
+    override fun getSongs(): Flow<FlowEvent<List<Song>>> = flow<FlowEvent<List<Song>>> {
+
+        Log.d("LocalSongRepository", "Flow executed on ${Thread.currentThread().name}")
+
         val existingSongs = songDao.getSongs().first()
 
-        /**
-         * If local database is empty, request content resolvers to querying local songs metadata.
-         */
         if (existingSongs.isEmpty()) {
-            contentResolverHelper.getAudioData().collect { songStreamResult ->
-                when (songStreamResult) {
-                    /**
-                     * Something went wrong with content resolvers
-                     */
-                    is FlowEvent.Failure -> {
-                        emit(SongStreamState.Failure(songStreamResult.message))
-                    }
-                    /**
-                     * Content resolvers emit song meta data in each iteration.
-                     */
+            mediaStoreReader.getAudioData().collect { state ->
+                when (state) {
                     is FlowEvent.Progress -> {
                         emit(
-                            SongStreamState.Progress(
-                                retrieveHint = songStreamResult.data.message,
-                                progress = songStreamResult.data.progress.asFloat()
+                            FlowEvent.Progress(
+                                size = state.size,
+                                progress = state.progress,
+                                message = state.message
                             )
                         )
                     }
-                    /**
-                     * Trigger when retrieving all album details, songs list. Use room to cache result.
-                     */
                     is FlowEvent.Success -> {
-                        songStreamResult.result.onEach { song ->
-                            songDao.insertSong(song = song.toSongEntity())
+                        state.data.onEach { song ->
+                            songDao.insertSong(song.toSongEntity())
                         }
-                        emit(SongStreamState.Success(songStreamResult.result))
+                        emit(FlowEvent.Success(state.data))
                     }
                 }
             }
         } else {
-            emit(
-                SongStreamState.Success(
-                    songs = existingSongs.map { it.toSong() }
-                )
-            )
+            emit(FlowEvent.Success(existingSongs.map { it.toSong() }))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun getSongCoverArt(songPath: String): ByteArray? {
-        return kTaglibImageLoader.getArt(songPath)
+        return mediaStoreReader.getSongCover(songPath)
     }
 }
