@@ -1,8 +1,10 @@
 package me.theek.spark.core.data.repository
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import me.theek.spark.core.content_reader.ContentResolverHelper
 import me.theek.spark.core.content_reader.FlowEvent
 import me.theek.spark.core.content_reader.KTaglibImageLoader
@@ -68,7 +70,7 @@ class LocalSongRepository @Inject constructor(
         }
     }
 
-    override fun getSongCoverArt(songPath: String): ByteArray? {
+    override suspend fun getSongCoverArt(songPath: String): ByteArray? {
         return kTaglibImageLoader.getArt(songPath)
     }
 }

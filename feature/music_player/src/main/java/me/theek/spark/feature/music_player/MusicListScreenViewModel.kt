@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.runBlocking
 import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.data.repository.SongStreamState
 import me.theek.spark.core.model.data.Song

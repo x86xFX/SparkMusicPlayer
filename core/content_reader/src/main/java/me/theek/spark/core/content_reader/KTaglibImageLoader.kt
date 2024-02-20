@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import com.simplecityapps.ktaglib.KTagLib
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,14 +16,14 @@ class KTaglibImageLoader @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    fun getArt(songPath: String): ByteArray? {
+    suspend fun getArt(songPath: String): ByteArray? = withContext(Dispatchers.IO) {
         val uri: Uri = if (songPath.startsWith("content://")) {
             Uri.parse(songPath)
         } else {
             Uri.fromFile(File(songPath))
         }
 
-        return try {
+        try {
             context.contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
                 kTagLib.getArtwork(pfd.detachFd())
             }

@@ -60,18 +60,18 @@ internal fun SongRow(
                 .padding(start = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageLoader(song.path))
-                    .crossfade(enable = true)
-                    .build(),
-                contentDescription = stringResource(R.string.album_art),
-                error = painterResource(id = R.drawable.round_music_note_24),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
+//            AsyncImage(
+//                model = ImageRequest.Builder(LocalContext.current)
+//                    .data(imageLoader(song.path))
+//                    .crossfade(enable = true)
+//                    .build(),
+//                contentDescription = stringResource(R.string.album_art),
+//                error = painterResource(id = R.drawable.round_music_note_24),
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier
+//                    .size(50.dp)
+//                    .clip(RoundedCornerShape(8.dp))
+//            )
             Column(
                 modifier = Modifier
                     .weight(7f)

@@ -94,6 +94,7 @@ private fun MusicUi(
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { MusicUiTabs.size })
     val selectedIndex by remember { derivedStateOf { pagerState.currentPage } }
+    val songsList = remember { songs }
 
     Column(modifier = modifier) {
         ScrollableTabRow(
@@ -124,7 +125,7 @@ private fun MusicUi(
             when (currentTab) {
                0 -> {
                     SongListUi(
-                        songs = songs,
+                        songs = songsList,
                         imageLoader = imageLoader
                     )
                }

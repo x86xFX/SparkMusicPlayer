@@ -4,7 +4,6 @@ import android.content.Context
 import android.provider.MediaStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import me.theek.spark.core.model.data.Song
@@ -68,7 +67,6 @@ class AudioContentResolver @Inject constructor(@ApplicationContext private val c
                         )
                     )
                 )
-               delay(50)
             }
         }
         emit(FlowEvent.Success(songs))
