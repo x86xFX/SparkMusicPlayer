@@ -7,4 +7,5 @@
     <string name="audio_file_icon">Audio file icon</string>
     <string name="audio_file_permission_alert_description">Granting permission to access your local music files is required for this app to function properly. Please navigate to your device settings and enable the necessary permission</string>
     <string name="audio_scanner_icon">audio scanner icon</string>
+    <string name="scanner_icon">Scanner icon</string>
 </resources>

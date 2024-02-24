@@ -53,7 +53,6 @@ import me.theek.spark.core.design_system.ui.theme.spark_circular_button_backgrou
 @Composable
 internal fun MediaScanScreen(
     uiState: UiState,
-    shouldShowScanner: Boolean,
     onPermissionResult: (Boolean) -> Unit,
     shouldShowPermissionAlert: Boolean,
     onDismissPermissionAlert: () -> Unit
@@ -126,7 +125,6 @@ internal fun MediaScanScreen(
             is UiState.Failure, UiState.Idle -> Unit
             is UiState.Progress -> {
                 MediaScanner(
-                    shouldShowScanner = shouldShowScanner,
                     hint = uiState.message ?: "~~~",
                     progress = uiState.progress
                 )
@@ -151,7 +149,7 @@ internal fun MediaScanScreen(
             backgroundColor = spark_circular_button_background_2,
             tint = md_theme_dark_shadow,
             contentDescription = stringResource(R.string.next),
-            isLoading = shouldShowScanner
+            isLoading = uiState is UiState.Progress
         )
     }
 
@@ -167,12 +165,11 @@ internal fun MediaScanScreen(
 
 @Composable
 private fun MediaScanner(
-    shouldShowScanner: Boolean,
     hint: String,
     progress: Float
 ) {
     AnimatedVisibility(
-        visible = shouldShowScanner,
+        visible = true,
         enter = expandVertically(),
         exit = shrinkVertically()
     ) {

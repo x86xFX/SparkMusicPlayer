@@ -45,15 +45,15 @@ import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun SongRow(
-    song: Song,
+    songWithIndex: Pair<Int, Song>,
     songRetriever: suspend (String) -> ByteArray?,
-    onSongClick: (Song) -> Unit,
+    onSongClick: (Pair<Int, Song>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var image by remember { mutableStateOf<ByteArray?>(null) }
 
-    LaunchedEffect(key1 = song) {
-        image = songRetriever(song.path)
+    LaunchedEffect(key1 = songWithIndex) {
+        image = songRetriever(songWithIndex.second.path)
     }
 
     Column(
@@ -65,7 +65,7 @@ internal fun SongRow(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(start = 15.dp)
-                .clickable { onSongClick(song) },
+                .clickable { onSongClick(songWithIndex) },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(
@@ -85,7 +85,7 @@ internal fun SongRow(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = song.songName ?: "Unknown",
+                    text = songWithIndex.second.songName ?: "Unknown",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -95,7 +95,7 @@ internal fun SongRow(
                     )
                 )
                 Text(
-                    text = song.artistName ?: "Unknown",
+                    text = songWithIndex.second.artistName ?: "Unknown",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -201,14 +201,18 @@ private fun SongOptionMenu(modifier: Modifier = Modifier) {
 @Composable
 private fun SongRowPreview() {
     SongRow(
-        song = Song(
-            id = 0,
-            path = "",
-            artistName = "The Weenknd",
-            duration = 300,
-            songName = "Save Your Tears",
-            albumId = 2,
-            trackNumber = 8
+        songWithIndex = Pair(
+            1,
+            Song(
+                id = 0,
+                path = "",
+                artistName = "The Weenknd",
+                duration = 300,
+                songName = "Save Your Tears",
+                albumId = 2,
+                trackNumber = 8,
+                releaseYear = 2020
+            )
         ),
         songRetriever = { null },
         onSongClick = {}

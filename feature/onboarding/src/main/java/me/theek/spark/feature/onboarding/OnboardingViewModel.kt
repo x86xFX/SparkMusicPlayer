@@ -27,9 +27,6 @@ class OnboardingViewModel @Inject constructor(
     var shouldShowPermissionAlert by mutableStateOf(false)
         private set
 
-    var shouldShowScanner by mutableStateOf(false)
-        private set
-
     var shouldNavigateToHome by mutableStateOf(false)
         private set
 

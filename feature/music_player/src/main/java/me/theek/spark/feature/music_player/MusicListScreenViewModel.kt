@@ -18,10 +18,16 @@ import kotlinx.coroutines.withContext
 import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.model.data.FlowEvent
 import me.theek.spark.core.model.data.Song
+import me.theek.spark.core.player.AudioService
+import me.theek.spark.core.player.MusicPlayerState
+import me.theek.spark.core.player.PlayerEvent
 import javax.inject.Inject
 
 @HiltViewModel
-class MusicListScreenViewModel @Inject constructor(private val songRepository: SongRepository) : ViewModel() {
+class MusicListScreenViewModel @Inject constructor(
+    private val songRepository: SongRepository,
+    private val audioService: AudioService
+) : ViewModel() {
 
     val uiState: StateFlow<UiState> = songRepository.getSongs()
         .map { state ->
@@ -33,6 +39,7 @@ class MusicListScreenViewModel @Inject constructor(private val songRepository: S
                     )
                 }
                 is FlowEvent.Success -> {
+                    setMediaItems(state.data)
                     UiState.Success(state.data)
                 }
             }
@@ -41,34 +48,60 @@ class MusicListScreenViewModel @Inject constructor(private val songRepository: S
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = UiState.Loading
         )
-    var currentPlayingSong by mutableStateOf<Song?>(null)
+    val musicPlayerState: StateFlow<MusicPlayerState> = audioService.musicPlayStateStream
+
+    var currentSelectedSong by mutableStateOf<Song?>(null)
         private set
-    var currentPlayingSongCover by mutableStateOf<ByteArray?>(null)
+
+    var currentSelectedSongCover by mutableStateOf<ByteArray?>(null)
         private set
-    var currentPlayingSongPalette by mutableStateOf<Palette?>(null)
+    var currentSelectedSongPalette by mutableStateOf<Palette?>(null)
         private set
+
+    fun onSongClick(songWithIndex: Pair<Int, Song>) {
+        viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songWithIndex.first)) }
+        currentSelectedSong = songWithIndex.second
+        getCurrentPlayingSongCoverArt(songWithIndex.second.path)
+    }
+
+    fun onPausePlayClick() {
+        viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.PlayPause) }
+    }
+
+    fun onSkipNextClick() {
+        viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.Forward) }
+    }
+
+    fun onSkipPreviousClick() {
+        viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.Backward) }
+    }
 
 
     suspend fun getSongCoverArt(songPath: String) : ByteArray? {
         return songRepository.getSongCoverArt(songPath)
     }
 
-    fun onSongClick(song: Song) {
-        currentPlayingSong = song
-        getCurrentPlayingSongCoverArt(song.path)
+    private fun setMediaItems(songs: List<Song>) {
+        audioService.setMediaItemList(mediaItems = songs)
     }
 
     private fun getCurrentPlayingSongCoverArt(songPath: String) {
         viewModelScope.launch {
-            currentPlayingSongCover = songRepository.getSongCoverArt(songPath)
-            currentPlayingSongColorPalette(coverArtData = currentPlayingSongCover)
+            currentSelectedSongCover = songRepository.getSongCoverArt(songPath)
+            currentPlayingSongColorPalette(coverArtData = currentSelectedSongCover)
         }
     }
 
     private suspend fun currentPlayingSongColorPalette(coverArtData: ByteArray?) = withContext(Dispatchers.IO) {
         if (coverArtData != null) {
             val bitmap = BitmapFactory.decodeByteArray(coverArtData, 0, coverArtData.size)
-            currentPlayingSongPalette = Palette.from(bitmap).generate()
+            currentSelectedSongPalette = Palette.from(bitmap).generate()
         }
+    }
+
+    override fun onCleared() {
+        audioService.stopPlayer()
+        println("vm cleared")
+        super.onCleared()
     }
 }

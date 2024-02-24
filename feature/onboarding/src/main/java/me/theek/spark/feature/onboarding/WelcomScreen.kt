@@ -174,7 +174,6 @@ fun WelcomeScreen(
         ) {
             MediaScanScreen(
                 uiState = uiState,
-                shouldShowScanner = onboardingViewModel.shouldShowScanner,
                 onPermissionResult = onboardingViewModel::onPermissionResult,
                 shouldShowPermissionAlert = onboardingViewModel.shouldShowPermissionAlert,
                 onDismissPermissionAlert = onboardingViewModel::onDismissPermissionAlert

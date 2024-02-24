@@ -60,6 +60,8 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:data"))
     implementation(project(":core:design_system"))
+    implementation(project(":core:player"))
+
     implementation(libs.androidx.palette.ktx)
 
     testImplementation(libs.junit)

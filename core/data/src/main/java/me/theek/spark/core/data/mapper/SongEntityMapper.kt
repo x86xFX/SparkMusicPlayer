@@ -11,6 +11,7 @@ fun SongEntity.toSong() : Song {
         duration = duration,
         songName = songName,
         albumId = albumId,
+        releaseYear = releasedYear,
         trackNumber = trackNumber
     )
 }
@@ -22,6 +23,7 @@ fun Song.toSongEntity() : SongEntity {
         songName = songName,
         albumId = albumId,
         trackNumber = trackNumber,
+        releasedYear = releaseYear,
         location = path
     )
 }

@@ -10,6 +10,7 @@ import com.simplecityapps.ktaglib.KTagLib
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -36,13 +37,13 @@ class MediaStoreReader @Inject constructor(
         val songCursor = context.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             arrayOf(
-                MediaStore.Audio.AudioColumns._ID,
-                MediaStore.Audio.AudioColumns.DATA,
-                MediaStore.Audio.AudioColumns.ARTIST,
-                MediaStore.Audio.AudioColumns.DURATION,
                 MediaStore.Audio.AudioColumns.TITLE,
+                MediaStore.Audio.AudioColumns.ARTIST,
                 MediaStore.Audio.AudioColumns.ALBUM_ID,
-                MediaStore.Audio.AudioColumns.TRACK
+                MediaStore.Audio.AudioColumns.DURATION,
+                MediaStore.Audio.AudioColumns.TRACK,
+                MediaStore.Audio.AudioColumns.YEAR,
+                MediaStore.Audio.AudioColumns.DATA
             ),
             "${MediaStore.Audio.AudioColumns.IS_MUSIC} = ?",
             arrayOf("1"),
@@ -60,6 +61,7 @@ class MediaStoreReader @Inject constructor(
                     albumId = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM_ID)),
                     duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)),
                     trackNumber = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TRACK)),
+                    releaseYear = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.YEAR)),
                     path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA))
                 )
 
@@ -73,6 +75,7 @@ class MediaStoreReader @Inject constructor(
                         message = "${song.songName} • ${song.artistName}"
                     )
                 )
+                delay(50)
             }
         }
         emit(FlowEvent.Success(songs))

@@ -27,7 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.launch
 import me.theek.spark.core.model.data.Song
-import me.theek.spark.feature.music_player.components.CurrentPlayingSongBar
+import me.theek.spark.core.player.MusicPlayerState
+import me.theek.spark.feature.music_player.components.CurrentSelectedSongBar
 import me.theek.spark.feature.music_player.components.EmptySongComposable
 import me.theek.spark.feature.music_player.components.ProgressSongComposable
 import me.theek.spark.feature.music_player.components.SongListComposable
@@ -38,8 +39,9 @@ import me.theek.spark.feature.music_player.util.MusicUiTabs
 fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val currentPlayingSong = viewModel.currentPlayingSong
-    val currentPlayingSongCover = viewModel.currentPlayingSongCover
+    val musicPlayerState by viewModel.musicPlayerState.collectAsStateWithLifecycle()
+    val currentSelectedSong = viewModel.currentSelectedSong
+    val currentSelectedSongCover = viewModel.currentSelectedSongCover
 
     Scaffold(
         modifier = Modifier
@@ -70,12 +72,13 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
                             songs = state.songs,
                             imageLoader = viewModel::getSongCoverArt,
                             onSongClick = viewModel::onSongClick,
-                            currentPlayingSong = currentPlayingSong,
-                            currentPlayingSongCoverArt = currentPlayingSongCover,
-                            currentPlayingSongPalette = viewModel.currentPlayingSongPalette,
-                            onPausePlayClick = {},
-                            onSkipNextClick = {},
-                            onSkipPreviousClick = {}
+                            musicPlayerState = musicPlayerState,
+                            currentSelectedSong = currentSelectedSong,
+                            currentSelectedSongCoverArt = currentSelectedSongCover,
+                            currentSelectedSongPalette = viewModel.currentSelectedSongPalette,
+                            onPausePlayClick = viewModel::onPausePlayClick,
+                            onSkipNextClick = viewModel::onSkipNextClick,
+                            onSkipPreviousClick = viewModel::onSkipPreviousClick
                         )
                     }
                 }
@@ -90,10 +93,11 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
 private fun MusicUi(
     songs: List<Song>,
     imageLoader: suspend (String) -> ByteArray?,
-    onSongClick: (Song) -> Unit,
-    currentPlayingSong: Song?,
-    currentPlayingSongCoverArt: ByteArray?,
-    currentPlayingSongPalette: Palette?,
+    onSongClick: (Pair<Int, Song>) -> Unit,
+    musicPlayerState: MusicPlayerState,
+    currentSelectedSong: Song?,
+    currentSelectedSongCoverArt: ByteArray?,
+    currentSelectedSongPalette: Palette?,
     onSkipPreviousClick: () -> Unit,
     onPausePlayClick: () -> Unit,
     onSkipNextClick: () -> Unit,
@@ -142,12 +146,13 @@ private fun MusicUi(
             }
         }
 
-        AnimatedVisibility(visible = currentPlayingSong != null) {
-            CurrentPlayingSongBar(
+        AnimatedVisibility(visible = currentSelectedSong != null) {
+            CurrentSelectedSongBar(
                 modifier = Modifier.weight(0.7f),
-                currentPlayingSong = currentPlayingSong!!,
-                currentPlayingSongCoverArt = currentPlayingSongCoverArt,
-                currentPlayingSongPalette = currentPlayingSongPalette,
+                musicPlayerState = musicPlayerState,
+                currentSelectedSong = currentSelectedSong!!,
+                currentSelectedSongCoverArt = currentSelectedSongCoverArt,
+                currentSelectedSongPalette = currentSelectedSongPalette,
                 onPausePlayClick = onPausePlayClick,
                 onSkipNextClick = onSkipNextClick,
                 onSkipPreviousClick = onSkipPreviousClick
