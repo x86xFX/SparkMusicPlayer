@@ -1,5 +1,6 @@
 package me.theek.spark.feature.music_player.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.FilledTonalIconButton
@@ -35,7 +37,13 @@ internal fun SongListComposable(
     onSongClick: (Pair<Int, Song>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .background(
+                shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -49,7 +57,7 @@ internal fun SongListComposable(
                         modifier = Modifier.size(24.dp),
                         imageVector = rememberSort(),
                         contentDescription = stringResource(R.string.sort_icon),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "Date added",
@@ -57,7 +65,7 @@ internal fun SongListComposable(
                         overflow = TextOverflow.Ellipsis,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -75,7 +83,7 @@ internal fun SongListComposable(
                         modifier = Modifier.size(24.dp),
                         imageVector = rememberShuffle(),
                         contentDescription = stringResource(R.string.shuffle_icon),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -86,7 +94,7 @@ internal fun SongListComposable(
                     Icon(
                         imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = stringResource(R.string.play_icon),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -29,6 +30,15 @@ class MusicListScreenViewModel @Inject constructor(
     private val audioService: AudioService
 ) : ViewModel() {
 
+    private var songList by mutableStateOf<List<Song>>(emptyList())
+    var currentSelectedSong by mutableStateOf<Song?>(null)
+        private set
+    var currentSelectedSongCover by mutableStateOf<ByteArray?>(null)
+        private set
+    var currentSelectedSongPalette by mutableStateOf<Palette?>(null)
+        private set
+    var isPlaying by mutableStateOf(false)
+        private set
     val uiState: StateFlow<UiState> = songRepository.getSongs()
         .map { state ->
             when (state) {
@@ -38,8 +48,10 @@ class MusicListScreenViewModel @Inject constructor(
                         status = state.message
                     )
                 }
+
                 is FlowEvent.Success -> {
-                    setMediaItems(state.data)
+                    songList = state.data
+                    setMediaItems()
                     UiState.Success(state.data)
                 }
             }
@@ -48,24 +60,40 @@ class MusicListScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = UiState.Loading
         )
-    val musicPlayerState: StateFlow<MusicPlayerState> = audioService.musicPlayStateStream
 
-    var currentSelectedSong by mutableStateOf<Song?>(null)
-        private set
+    init {
+        viewModelScope.launch {
+            audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
+                println("MusicPlayerState: $musicPlayerState")
+                when (musicPlayerState) {
+                    is MusicPlayerState.CurrentPlaying -> {
+                        if (currentSelectedSong == null || currentSelectedSong != songList[musicPlayerState.mediaItemIndex]) {
+                            getCurrentPlayingSongCoverArt(songList[musicPlayerState.mediaItemIndex].path)
+                        }
+                        currentSelectedSong = songList[musicPlayerState.mediaItemIndex]
+                        isPlaying = true
 
-    var currentSelectedSongCover by mutableStateOf<ByteArray?>(null)
-        private set
-    var currentSelectedSongPalette by mutableStateOf<Palette?>(null)
-        private set
+                    }
+                    is MusicPlayerState.Playing -> {
+                        isPlaying = musicPlayerState.isPlaying
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
 
     fun onSongClick(songWithIndex: Pair<Int, Song>) {
-        viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songWithIndex.first)) }
-        currentSelectedSong = songWithIndex.second
-        getCurrentPlayingSongCoverArt(songWithIndex.second.path)
+        viewModelScope.launch {
+            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songWithIndex.first))
+        }
     }
 
     fun onPausePlayClick() {
-        viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.PlayPause) }
+        viewModelScope.launch {
+            audioService.onPlayerEvent(PlayerEvent.PlayPause)
+            isPlaying = false
+        }
     }
 
     fun onSkipNextClick() {
@@ -76,13 +104,12 @@ class MusicListScreenViewModel @Inject constructor(
         viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.Backward) }
     }
 
-
-    suspend fun getSongCoverArt(songPath: String) : ByteArray? {
+    suspend fun getSongCoverArt(songPath: String): ByteArray? {
         return songRepository.getSongCoverArt(songPath)
     }
 
-    private fun setMediaItems(songs: List<Song>) {
-        audioService.setMediaItemList(mediaItems = songs)
+    private fun setMediaItems() {
+        audioService.setMediaItemList(mediaItems = songList)
     }
 
     private fun getCurrentPlayingSongCoverArt(songPath: String) {
@@ -92,12 +119,13 @@ class MusicListScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun currentPlayingSongColorPalette(coverArtData: ByteArray?) = withContext(Dispatchers.IO) {
-        if (coverArtData != null) {
-            val bitmap = BitmapFactory.decodeByteArray(coverArtData, 0, coverArtData.size)
-            currentSelectedSongPalette = Palette.from(bitmap).generate()
+    private suspend fun currentPlayingSongColorPalette(coverArtData: ByteArray?) =
+        withContext(Dispatchers.IO) {
+            if (coverArtData != null) {
+                val bitmap = BitmapFactory.decodeByteArray(coverArtData, 0, coverArtData.size)
+                currentSelectedSongPalette = Palette.from(bitmap).generate()
+            }
         }
-    }
 
     override fun onCleared() {
         audioService.stopPlayer()

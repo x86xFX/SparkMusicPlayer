@@ -42,13 +42,12 @@ import me.theek.spark.core.design_system.icons.rememberPause
 import me.theek.spark.core.design_system.icons.rememberSkipNext
 import me.theek.spark.core.design_system.icons.rememberSkipPrevious
 import me.theek.spark.core.model.data.Song
-import me.theek.spark.core.player.MusicPlayerState
 import me.theek.spark.feature.music_player.R
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun CurrentSelectedSongBar(
-    musicPlayerState: MusicPlayerState,
+    isPlaying: Boolean,
     currentSelectedSong: Song,
     currentSelectedSongCoverArt: ByteArray?,
     currentSelectedSongPalette: Palette?,
@@ -124,7 +123,7 @@ internal fun CurrentSelectedSongBar(
             modifier = Modifier
                 .weight(3.5f)
                 .fillMaxWidth(),
-            musicPlayerState = musicPlayerState,
+            isPlaying = isPlaying,
             onPausePlayClick = onPausePlayClick,
             onSkipNextClick = onSkipNextClick,
             onSkipPreviousClick = onSkipPreviousClick
@@ -135,14 +134,12 @@ internal fun CurrentSelectedSongBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlayerControls(
-    musicPlayerState: MusicPlayerState,
+    isPlaying: Boolean,
     onSkipPreviousClick: () -> Unit,
     onPausePlayClick: () -> Unit,
     onSkipNextClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isPlaying = musicPlayerState is MusicPlayerState.Playing
-
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,

@@ -7,11 +7,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.theek.spark.MainActivityUiState
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.MusicListScreen
+import me.theek.spark.feature.music_player.MusicListScreenViewModel
 import me.theek.spark.feature.onboarding.WelcomeScreen
 
 @Composable
-fun SparkNavigation(uiState: MainActivityUiState.Success) {
+fun SparkNavigation(
+    uiState: MainActivityUiState.Success,
+    viewModel: MusicListScreenViewModel,
+    onSongClick: (Pair<Int, Song>) -> Unit
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -34,7 +40,10 @@ fun SparkNavigation(uiState: MainActivityUiState.Success) {
         }
         
         composable(route = Screen.Home.route) {
-            MusicListScreen()
+            MusicListScreen(
+                viewModel = viewModel,
+                onSongClick = onSongClick
+            )
         }
     }
 }

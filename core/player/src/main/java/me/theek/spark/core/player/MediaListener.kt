@@ -1,5 +1,6 @@
 package me.theek.spark.core.player
 
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -63,6 +64,31 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         }
     }
 
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        when (playbackState) {
+            Player.STATE_IDLE -> {
+                Log.d("ExoplayerState", "State Idle")
+            }
+
+            Player.STATE_BUFFERING -> {
+                Log.d("ExoplayerState", "State Buffering")
+            }
+
+            Player.STATE_ENDED -> {
+                Log.d("ExoplayerState", "State Ended")
+            }
+
+            Player.STATE_READY -> {
+                Log.d("ExoplayerState", "State Ready")
+            }
+        }
+    }
+
+    override fun onIsPlayingChanged(isPlaying: Boolean) {
+        _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = isPlaying)
+        _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(exoPlayer.currentMediaItemIndex)
+    }
+
     override fun stopPlayer() {
         exoPlayer.release()
     }
@@ -73,10 +99,10 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     private fun playOrPause() {
         if (exoPlayer.isPlaying) {
             exoPlayer.pause()
-            _musicPlayStateStream.value = MusicPlayerState.Pause
+            _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = false)
         } else {
             exoPlayer.play()
-            _musicPlayStateStream.value = MusicPlayerState.Playing
+            _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex)
         }
     }
 
@@ -89,8 +115,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         } else {
             exoPlayer.seekToDefaultPosition(targetIndex)
             exoPlayer.playWhenReady = true
-            _musicPlayStateStream.value = MusicPlayerState.Playing
+            _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = true)
         }
     }
-
 }

@@ -14,13 +14,14 @@ material3 = "1.2.0"
 hilt = "2.50"
 ksp = "1.9.22-1.0.17"
 media3 = "1.2.1"
+legacy-support-v4 = "1.0.0"
 coil = "2.5.0"
 coil-svg = "2.5.0"
 google-fonts = "1.6.1"
 datastore = "1.0.0"
 protobuf-plugin = "0.9.4"
 protobuf = "3.25.2"
-hilt-navigation = "1.1.0"
+hilt-navigation = "1.2.0"
 navigation = "2.7.7"
 androidx-lifecycle-runtime = "2.7.0"
 room = "2.6.1"
@@ -59,6 +60,7 @@ androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", versi
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
+androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacy-support-v4" }
 
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil-svg" }

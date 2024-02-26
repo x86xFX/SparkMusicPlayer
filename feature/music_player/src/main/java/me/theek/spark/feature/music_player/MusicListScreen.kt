@@ -21,13 +21,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.launch
 import me.theek.spark.core.model.data.Song
-import me.theek.spark.core.player.MusicPlayerState
 import me.theek.spark.feature.music_player.components.CurrentSelectedSongBar
 import me.theek.spark.feature.music_player.components.EmptySongComposable
 import me.theek.spark.feature.music_player.components.ProgressSongComposable
@@ -36,17 +36,19 @@ import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
 import me.theek.spark.feature.music_player.util.MusicUiTabs
 
 @Composable
-fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
+fun MusicListScreen(
+    viewModel: MusicListScreenViewModel,
+    onSongClick: (Pair<Int, Song>) -> Unit
+) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val musicPlayerState by viewModel.musicPlayerState.collectAsStateWithLifecycle()
     val currentSelectedSong = viewModel.currentSelectedSong
     val currentSelectedSongCover = viewModel.currentSelectedSongCover
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .navigationBarsPadding(),
         topBar = {
             SparkPlayerTopAppBar(onSearch = {})
@@ -68,11 +70,12 @@ fun MusicListScreen(viewModel: MusicListScreenViewModel = hiltViewModel()) {
                         MusicUi(
                             modifier = Modifier
                                 .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                                 .padding(top = innerPadding.calculateTopPadding()),
                             songs = state.songs,
                             imageLoader = viewModel::getSongCoverArt,
-                            onSongClick = viewModel::onSongClick,
-                            musicPlayerState = musicPlayerState,
+                            onSongClick = onSongClick,
+                            isPlaying = viewModel.isPlaying,
                             currentSelectedSong = currentSelectedSong,
                             currentSelectedSongCoverArt = currentSelectedSongCover,
                             currentSelectedSongPalette = viewModel.currentSelectedSongPalette,
@@ -94,7 +97,7 @@ private fun MusicUi(
     songs: List<Song>,
     imageLoader: suspend (String) -> ByteArray?,
     onSongClick: (Pair<Int, Song>) -> Unit,
-    musicPlayerState: MusicPlayerState,
+    isPlaying: Boolean,
     currentSelectedSong: Song?,
     currentSelectedSongCoverArt: ByteArray?,
     currentSelectedSongPalette: Palette?,
@@ -113,8 +116,10 @@ private fun MusicUi(
         ScrollableTabRow(
             modifier = Modifier.fillMaxWidth(),
             divider = { },
+            indicator = {},
             edgePadding = 0.dp,
-            selectedTabIndex = selectedIndex
+            selectedTabIndex = selectedIndex,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
         ) {
             MusicUiTabs.forEachIndexed { index, tab ->
                 Tab(
@@ -125,7 +130,15 @@ private fun MusicUi(
                         }
                     },
                     text = {
-                        Text(text = tab)
+                        Text(
+                            text = tab,
+                            fontSize = if (selectedIndex == index) MaterialTheme.typography.titleMedium.fontSize else MaterialTheme.typography.bodyMedium.fontSize,
+                            maxLines = 1,
+                            overflow = TextOverflow.Clip,
+                            fontWeight = if (selectedIndex == index) FontWeight.SemiBold else FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+
+                        )
                     }
                 )
             }
@@ -149,7 +162,7 @@ private fun MusicUi(
         AnimatedVisibility(visible = currentSelectedSong != null) {
             CurrentSelectedSongBar(
                 modifier = Modifier.weight(0.7f),
-                musicPlayerState = musicPlayerState,
+                isPlaying = isPlaying,
                 currentSelectedSong = currentSelectedSong!!,
                 currentSelectedSongCoverArt = currentSelectedSongCoverArt,
                 currentSelectedSongPalette = currentSelectedSongPalette,
