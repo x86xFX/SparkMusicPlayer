@@ -93,7 +93,7 @@ internal fun SongListComposable(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.PlayArrow,
-                        contentDescription = stringResource(R.string.play_icon),
+                        contentDescription = stringResource(me.theek.spark.core.design_system.R.string.play_pause_icon),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }

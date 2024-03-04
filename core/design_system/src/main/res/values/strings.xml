@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="circle_with_line">Circle with line</string>
+    <string name="skip_previous_icon">Skip Previous icon</string>
+    <string name="play_pause_icon">play pause icon</string>
+    <string name="skip_next_icon">skip next icon</string>
 </resources>

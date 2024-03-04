@@ -2,6 +2,8 @@ package me.theek.spark.feature.music_player
 
 import android.graphics.BitmapFactory
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -23,6 +25,7 @@ import me.theek.spark.core.player.AudioService
 import me.theek.spark.core.player.MusicPlayerState
 import me.theek.spark.core.player.PlayerEvent
 import javax.inject.Inject
+import kotlin.math.floor
 
 @HiltViewModel
 class MusicListScreenViewModel @Inject constructor(
@@ -39,6 +42,12 @@ class MusicListScreenViewModel @Inject constructor(
         private set
     var isPlaying by mutableStateOf(false)
         private set
+    var progress by mutableFloatStateOf(0f)
+        private set
+    var processString by mutableStateOf("00:00")
+        private set
+    var duration by mutableLongStateOf(0L)
+        private set
     val uiState: StateFlow<UiState> = songRepository.getSongs()
         .map { state ->
             when (state) {
@@ -48,7 +57,6 @@ class MusicListScreenViewModel @Inject constructor(
                         status = state.message
                     )
                 }
-
                 is FlowEvent.Success -> {
                     songList = state.data
                     setMediaItems()
@@ -64,7 +72,6 @@ class MusicListScreenViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
-                println("MusicPlayerState: $musicPlayerState")
                 when (musicPlayerState) {
                     is MusicPlayerState.CurrentPlaying -> {
                         if (currentSelectedSong == null || currentSelectedSong != songList[musicPlayerState.mediaItemIndex]) {
@@ -72,12 +79,12 @@ class MusicListScreenViewModel @Inject constructor(
                         }
                         currentSelectedSong = songList[musicPlayerState.mediaItemIndex]
                         isPlaying = true
-
                     }
-                    is MusicPlayerState.Playing -> {
-                        isPlaying = musicPlayerState.isPlaying
-                    }
-                    else -> {}
+                    is MusicPlayerState.Playing -> { isPlaying = musicPlayerState.isPlaying }
+                    is MusicPlayerState.Progress -> { calculateProgress(musicPlayerState.progress) }
+                    is MusicPlayerState.Buffering -> { calculateProgress(musicPlayerState.progress) }
+                    MusicPlayerState.Initial -> {}
+                    is MusicPlayerState.Ready -> { duration = musicPlayerState.duration }
                 }
             }
         }
@@ -104,12 +111,30 @@ class MusicListScreenViewModel @Inject constructor(
         viewModelScope.launch { audioService.onPlayerEvent(PlayerEvent.Backward) }
     }
 
+    fun onProgressChange(position: Float) {
+        viewModelScope.launch {
+            audioService.onPlayerEvent(PlayerEvent.SeekTo(position.toLong()))
+        }
+    }
+
     suspend fun getSongCoverArt(songPath: String): ByteArray? {
         return songRepository.getSongCoverArt(songPath)
     }
 
     private fun setMediaItems() {
         audioService.setMediaItemList(mediaItems = songList)
+    }
+
+    private fun calculateProgress(currentProgress: Long) {
+        progress = if (currentProgress > 0) ((currentProgress.toFloat() / duration.toFloat()) * 100f) else 0f
+        processString = formatDuration(currentProgress)
+    }
+
+    private fun formatDuration(duration: Long) : String {
+        val totalSecond = floor(duration / 1E3).toInt()
+        val minutes = totalSecond / 60
+        val remainingSeconds = totalSecond - (minutes * 60)
+        return if (duration < 0) "--:--" else "%d:%02d".format(minutes, remainingSeconds)
     }
 
     private fun getCurrentPlayingSongCoverArt(songPath: String) {
@@ -129,7 +154,6 @@ class MusicListScreenViewModel @Inject constructor(
 
     override fun onCleared() {
         audioService.stopPlayer()
-        println("vm cleared")
         super.onCleared()
     }
 }

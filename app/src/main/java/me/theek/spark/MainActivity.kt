@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
 
     private val musicListScreenViewModel: MusicListScreenViewModel by viewModels()
     private var isServiceRunning: Boolean = false
+    private var intent: Intent? = null
     private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,12 +69,18 @@ class MainActivity : ComponentActivity() {
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!isServiceRunning) {
-                val intent = Intent(this, MediaService::class.java)
+                intent = Intent(this, MediaService::class.java)
                 startForegroundService(intent)
+
             } else {
                 startService(intent)
             }
             isServiceRunning = true
         }
+    }
+
+    override fun onDestroy() {
+        stopService(intent)
+        super.onDestroy()
     }
 }

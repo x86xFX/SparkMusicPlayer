@@ -15,6 +15,7 @@ sealed interface PlayerEvent {
     data object Forward : PlayerEvent
     data object PlayPause : PlayerEvent
     data class SelectedSongChange(val changedSongIndex: Int) : PlayerEvent
+    data class SeekTo(val seekTo: Long) : PlayerEvent
 }
 
 sealed interface MusicPlayerState {

@@ -1,13 +1,17 @@
 package me.theek.spark.core.player
 
-import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import me.theek.spark.core.model.data.Song
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,10 +25,14 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     private val _musicPlayStateStream: MutableStateFlow<MusicPlayerState> = MutableStateFlow(MusicPlayerState.Initial)
     override val musicPlayStateStream: StateFlow<MusicPlayerState> = _musicPlayStateStream.asStateFlow()
 
+    private val progressJob: Job? = null
+
     /**
      * Initialize exoplayer and add listener
      */
-    init { exoPlayer.addListener(this) }
+    init {
+        exoPlayer.addListener(this)
+    }
 
     /**
      * Add songs to exoplayer's mediaItems and set exoplayer's state as **COMMAND_PREPARE**
@@ -61,32 +69,35 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
             PlayerEvent.Forward -> exoPlayer.seekToNext()
             PlayerEvent.PlayPause -> playOrPause()
             is PlayerEvent.SelectedSongChange -> onSelectedSongChange(playerEvent.changedSongIndex)
+            is PlayerEvent.SeekTo -> exoPlayer.seekTo(playerEvent.seekTo)
         }
     }
 
     override fun onPlaybackStateChanged(playbackState: Int) {
         when (playbackState) {
-            Player.STATE_IDLE -> {
-                Log.d("ExoplayerState", "State Idle")
-            }
-
-            Player.STATE_BUFFERING -> {
-                Log.d("ExoplayerState", "State Buffering")
-            }
-
-            Player.STATE_ENDED -> {
-                Log.d("ExoplayerState", "State Ended")
-            }
-
-            Player.STATE_READY -> {
-                Log.d("ExoplayerState", "State Ready")
-            }
+            Player.STATE_BUFFERING -> { _musicPlayStateStream.value = MusicPlayerState.Buffering(progress = exoPlayer.currentPosition) }
+            Player.STATE_READY -> { _musicPlayStateStream.value = MusicPlayerState.Ready(duration = exoPlayer.duration) }
+            else -> Unit
         }
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = isPlaying)
         _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(exoPlayer.currentMediaItemIndex)
+        if (isPlaying) {
+            CoroutineScope(Dispatchers.Main).launch { startProgressUpdate() }
+        } else {
+            stopProgressUpdate()
+        }
+    }
+
+    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        when (reason) {
+            Player.MEDIA_ITEM_TRANSITION_REASON_AUTO -> {
+                _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex)
+            }
+            else -> Unit
+        }
     }
 
     override fun stopPlayer() {
@@ -96,22 +107,38 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     /**
      * Determine exoplayer is currently playing or not and update [musicPlayStateStream].
      */
-    private fun playOrPause() {
+    private suspend fun playOrPause() {
         if (exoPlayer.isPlaying) {
             exoPlayer.pause()
-            _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = false)
+            stopProgressUpdate()
         } else {
             exoPlayer.play()
             _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex)
+            startProgressUpdate()
         }
+    }
+
+    /**
+     * Get current playing song's progress. Delay is automatically cancelled in new emit.
+     */
+    private suspend fun startProgressUpdate() = progressJob.run {
+        while (true) {
+            delay(500)
+            _musicPlayStateStream.value = MusicPlayerState.Progress(progress = exoPlayer.currentPosition)
+        }
+    }
+
+    private fun stopProgressUpdate() {
+        progressJob?.cancel()
+        _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = false)
     }
 
     /**
      * Exoplayer play user selected song from song list.
      */
-    private fun onSelectedSongChange(targetIndex: Int) {
+    private suspend fun onSelectedSongChange(targetIndex: Int) {
         if (targetIndex == exoPlayer.currentMediaItemIndex) {
-                playOrPause()
+            playOrPause()
         } else {
             exoPlayer.seekToDefaultPosition(targetIndex)
             exoPlayer.playWhenReady = true
