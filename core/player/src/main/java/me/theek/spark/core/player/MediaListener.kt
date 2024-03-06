@@ -65,11 +65,11 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
      */
     override suspend fun onPlayerEvent(playerEvent: PlayerEvent) {
         when (playerEvent) {
-            PlayerEvent.Backward -> exoPlayer.seekToPrevious()
-            PlayerEvent.Forward -> exoPlayer.seekToNext()
-            PlayerEvent.PlayPause -> playOrPause()
-            is PlayerEvent.SelectedSongChange -> onSelectedSongChange(playerEvent.changedSongIndex)
-            is PlayerEvent.SeekTo -> exoPlayer.seekTo(playerEvent.seekTo)
+            PlayerEvent.Backward -> { exoPlayer.seekToPrevious() }
+            PlayerEvent.Forward -> { exoPlayer.seekToNext() }
+            PlayerEvent.PlayPause -> { playOrPause() }
+            is PlayerEvent.SelectedSongChange -> { onSelectedSongChange(playerEvent.changedSongIndex) }
+            is PlayerEvent.SeekTo -> { exoPlayer.seekTo(playerEvent.seekTo) }
         }
     }
 

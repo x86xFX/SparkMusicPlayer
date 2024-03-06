@@ -6,8 +6,11 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
+import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.palette.graphics.Palette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,10 +30,12 @@ import me.theek.spark.core.player.PlayerEvent
 import javax.inject.Inject
 import kotlin.math.floor
 
+@OptIn(SavedStateHandleSaveableApi::class)
 @HiltViewModel
 class MusicListScreenViewModel @Inject constructor(
     private val songRepository: SongRepository,
-    private val audioService: AudioService
+    private val audioService: AudioService,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private var songList by mutableStateOf<List<Song>>(emptyList())
@@ -40,13 +45,13 @@ class MusicListScreenViewModel @Inject constructor(
         private set
     var currentSelectedSongPalette by mutableStateOf<Palette?>(null)
         private set
-    var isPlaying by mutableStateOf(false)
+    var isPlaying by savedStateHandle.saveable { mutableStateOf(false) }
         private set
-    var progress by mutableFloatStateOf(0f)
+    var progress by savedStateHandle.saveable { mutableFloatStateOf(0f) }
         private set
-    var processString by mutableStateOf("00:00")
+    var processString by savedStateHandle.saveable { mutableStateOf("00:00") }
         private set
-    var duration by mutableLongStateOf(0L)
+    var duration by savedStateHandle.saveable { mutableLongStateOf(0L) }
         private set
     val uiState: StateFlow<UiState> = songRepository.getSongs()
         .map { state ->
@@ -83,7 +88,7 @@ class MusicListScreenViewModel @Inject constructor(
                     is MusicPlayerState.Playing -> { isPlaying = musicPlayerState.isPlaying }
                     is MusicPlayerState.Progress -> { calculateProgress(musicPlayerState.progress) }
                     is MusicPlayerState.Buffering -> { calculateProgress(musicPlayerState.progress) }
-                    MusicPlayerState.Initial -> {}
+                    MusicPlayerState.Initial -> Unit
                     is MusicPlayerState.Ready -> { duration = musicPlayerState.duration }
                 }
             }
