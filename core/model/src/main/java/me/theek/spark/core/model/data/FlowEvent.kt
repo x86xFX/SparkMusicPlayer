@@ -15,7 +15,6 @@ sealed interface FlowEvent<T> {
         }
     }
 
-    data class Success<T>(
-        val data: T
-    ) : FlowEvent<T>
+    data class Success<T>(val data: T) : FlowEvent<T>
+    data class Failure<T>(val message: String) : FlowEvent<T>
 }

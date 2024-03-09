@@ -11,22 +11,23 @@ core-ktx = "1.12.0"
 kotlin = "1.9.22"
 androidx-compose-bom = "2024.02.01"
 material3 = "1.2.0"
-hilt = "2.50"
+hilt = "2.51"
 ksp = "1.9.22-1.0.17"
 media3 = "1.2.1"
 legacy-support-v4 = "1.0.0"
-coil = "2.5.0"
-coil-svg = "2.5.0"
+coil = "2.6.0"
+coil-svg = "2.6.0"
 google-fonts = "1.6.2"
 datastore = "1.0.0"
 protobuf-plugin = "0.9.4"
-protobuf = "3.25.2"
+protobuf = "3.25.3"
 hilt-navigation = "1.2.0"
 navigation = "2.7.7"
 androidx-lifecycle-runtime = "2.7.0"
 room = "2.6.1"
 kTagLib = "1.4.1"
 palette = "1.0.0"
+ktor = "2.3.9"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-library" }
@@ -35,6 +36,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-library = { id = "com.android.library", version.ref = "android-library" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
+kotlin-serialiation = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
@@ -55,13 +57,11 @@ androidx-compose-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 hilt = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
-
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacy-support-v4" }
-
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil-svg" }
 google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "google-fonts" }
@@ -76,3 +76,8 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 kTagLib = { module = "com.github.timusus:ktaglib", version.ref = "kTagLib" }
 androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "palette" }
+ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-content-negotation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }

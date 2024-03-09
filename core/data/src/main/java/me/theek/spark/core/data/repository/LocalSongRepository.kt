@@ -1,16 +1,16 @@
 package me.theek.spark.core.data.repository
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import me.theek.spark.core.model.data.FlowEvent
+import kotlinx.coroutines.withContext
 import me.theek.spark.core.content_reader.MediaStoreReader
 import me.theek.spark.core.data.mapper.toSong
 import me.theek.spark.core.data.mapper.toSongEntity
-import me.theek.spark.core.database.SongDao
+import me.theek.spark.core.database.dao.SongDao
+import me.theek.spark.core.model.data.FlowEvent
 import me.theek.spark.core.model.data.Song
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,9 +21,7 @@ class LocalSongRepository @Inject constructor(
     private val songDao: SongDao
 ) : SongRepository {
 
-    override fun getSongs(): Flow<FlowEvent<List<Song>>> = flow<FlowEvent<List<Song>>> {
-
-        Log.d("LocalSongRepository", "Flow executed on ${Thread.currentThread().name}")
+    override fun getSongImportStream(): Flow<FlowEvent<List<Song>>> = flow<FlowEvent<List<Song>>> {
 
         val existingSongs = songDao.getSongs().first()
 
@@ -45,12 +43,42 @@ class LocalSongRepository @Inject constructor(
                         }
                         emit(FlowEvent.Success(state.data))
                     }
+
+                    is FlowEvent.Failure -> {
+                        emit(FlowEvent.Failure(state.message))
+                    }
                 }
             }
         } else {
             emit(FlowEvent.Success(existingSongs.map { it.toSong() }))
         }
     }.flowOn(Dispatchers.IO)
+
+    override suspend fun getSongs(): Response<List<Song>> = withContext(Dispatchers.IO) {
+
+        val existingSongs = songDao.getSongs().first()
+
+        if (existingSongs.isEmpty()) {
+            when (val mediaData = mediaStoreReader.getAudioData().first()) {
+                is FlowEvent.Progress -> {
+                    Response.Loading(
+                        size = mediaData.size,
+                        progress = mediaData.asFloat(),
+                        message = mediaData.message
+                    )
+                }
+                is FlowEvent.Success -> {
+                    Response.Success(mediaData.data)
+                }
+
+                is FlowEvent.Failure -> {
+                    Response.Failure(mediaData.message)
+                }
+            }
+        } else {
+            Response.Success(existingSongs.map { it.toSong() })
+        }
+    }
 
     override suspend fun getSongCoverArt(songPath: String): ByteArray? {
         return mediaStoreReader.getSongCover(songPath)

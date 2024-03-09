@@ -3,15 +3,14 @@ package me.theek.spark.core.content_reader
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import com.simplecityapps.ktaglib.KTagLib
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
@@ -30,26 +29,27 @@ class MediaStoreReader @Inject constructor(
 
     fun getAudioData(): Flow<FlowEvent<List<Song>>> = flow<FlowEvent<List<Song>>> {
 
-        Log.d("MediaStoreReader", "Flow executed on ${Thread.currentThread().name}")
-
-        val songs: MutableList<Song> = mutableListOf()
+        var songs: MutableList<Song> = mutableListOf()
 
         val songCursor = context.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             arrayOf(
+                MediaStore.Audio.Media._ID,
                 MediaStore.Audio.AudioColumns.TITLE,
                 MediaStore.Audio.AudioColumns.ARTIST,
                 MediaStore.Audio.AudioColumns.ALBUM_ID,
                 MediaStore.Audio.AudioColumns.DURATION,
                 MediaStore.Audio.AudioColumns.TRACK,
                 MediaStore.Audio.AudioColumns.YEAR,
-                MediaStore.Audio.AudioColumns.DATA
+                MediaStore.Audio.AudioColumns.DATA,
+                MediaStore.Audio.AudioColumns.SIZE,
+                MediaStore.Audio.AudioColumns.DATE_MODIFIED,
+                MediaStore.Audio.AudioColumns.MIME_TYPE
             ),
             "${MediaStore.Audio.AudioColumns.IS_MUSIC} = ?",
             arrayOf("1"),
             "${MediaStore.Audio.AudioColumns.TITLE} ASC"
         )
-
         songCursor?.use { cursor ->
             var progress = 0
 
@@ -62,9 +62,13 @@ class MediaStoreReader @Inject constructor(
                     duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)),
                     trackNumber = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TRACK)),
                     releaseYear = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.YEAR)),
-                    path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA))
+                    genres = emptyList(),
+                    mimeType = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.MIME_TYPE)),
+                    lastModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)),
+                    size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)),
+                    path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA)),
+                    externalId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)).toString()
                 )
-
                 songs.add(song)
                 progress++
 
@@ -75,12 +79,47 @@ class MediaStoreReader @Inject constructor(
                         message = "${song.songName} • ${song.artistName}"
                     )
                 )
-                delay(50)
+            }
+        }
+
+        // Extract song genres
+        context.contentResolver.query(
+            MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Audio.Genres._ID, MediaStore.Audio.Genres.NAME),
+            null,
+            null,
+            null
+        )?.use { genreCursor ->
+            while (currentCoroutineContext().isActive && genreCursor.moveToNext()) {
+                val id = genreCursor.getLong(genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres._ID))
+                val genre = genreCursor.getString(genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME))
+
+                context.contentResolver.query(
+                    MediaStore.Audio.Genres.Members.getContentUri("external", id),
+                    arrayOf(MediaStore.Audio.Media._ID),
+                    null,
+                    null,
+                    null
+                )?.use { songGenreCursor ->
+                    while (currentCoroutineContext().isActive && songGenreCursor.moveToNext()) {
+                        val songId = songGenreCursor.getLong(songGenreCursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)).toString()
+                        songs = songs.map { song ->
+                            if (song.externalId == songId) {
+                                song.copy(genres = song.genres + genre)
+                            } else {
+                                song
+                            }
+                        }.toMutableList()
+                    }
+                }
             }
         }
         emit(FlowEvent.Success(songs))
-
-    }.flowOn(Dispatchers.IO)
+    }
+    .catch {
+        emit(FlowEvent.Failure(it.message ?: "Unknown"))
+    }
+    .flowOn(Dispatchers.IO)
 
     suspend fun getSongCover(songPath: String): ByteArray? = withContext(Dispatchers.IO) {
         val uri: Uri = if (songPath.startsWith("content://")) {
@@ -95,7 +134,6 @@ class MediaStoreReader @Inject constructor(
             }
 
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
     }

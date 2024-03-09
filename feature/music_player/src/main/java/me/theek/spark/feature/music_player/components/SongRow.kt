@@ -215,7 +215,12 @@ private fun SongRowPreview() {
                 songName = "Save Your Tears",
                 albumId = 2,
                 trackNumber = 8,
-                releaseYear = 2020
+                releaseYear = 2020,
+                genres = emptyList(),
+                mimeType = null,
+                lastModified = 0L,
+                size = 2,
+                externalId = null
             )
         ),
         songRetriever = { null },

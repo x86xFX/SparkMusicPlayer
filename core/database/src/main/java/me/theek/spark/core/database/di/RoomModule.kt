@@ -7,8 +7,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import me.theek.spark.core.database.SongDao
 import me.theek.spark.core.database.SparkDatabase
+import me.theek.spark.core.database.dao.PlaylistDao
+import me.theek.spark.core.database.dao.SongDao
+import me.theek.spark.core.database.dao.SongInPlaylistDao
 import javax.inject.Singleton
 
 @Module
@@ -29,5 +31,17 @@ object RoomModule {
     @Singleton
     fun provideSongDao(sparkDatabase: SparkDatabase) : SongDao {
         return sparkDatabase.songDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSongInPlaylistDao(sparkDatabase: SparkDatabase) : SongInPlaylistDao {
+        return sparkDatabase.songInPlaylistDao()
+    }
+
+    @Provides
+    @Singleton
+    fun providePlaylistDao(sparkDatabase: SparkDatabase) : PlaylistDao {
+        return sparkDatabase.playlistDao()
     }
 }

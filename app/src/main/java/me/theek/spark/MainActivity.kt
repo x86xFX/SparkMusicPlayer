@@ -17,15 +17,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.ui.theme.SparkMusicPlayerTheme
 import me.theek.spark.core.service.MediaService
-import me.theek.spark.feature.music_player.MusicListScreenViewModel
 import me.theek.spark.navigation.SparkNavigation
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val musicListScreenViewModel: MusicListScreenViewModel by viewModels()
     private var isServiceRunning: Boolean = false
-    private var intent: Intent? = null
     private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,11 +41,7 @@ class MainActivity : ComponentActivity() {
                 SparkMusicPlayerTheme {
                     SparkNavigation(
                         uiState = mainActivityUiState,
-                        viewModel = musicListScreenViewModel,
-                        onSongClick = {
-                            musicListScreenViewModel.onSongClick(it)
-                            startService()
-                        }
+                        onSongServiceStart = { startService() }
                     )
                 }
             }
@@ -69,7 +62,7 @@ class MainActivity : ComponentActivity() {
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!isServiceRunning) {
-                intent = Intent(this, MediaService::class.java)
+                val intent = Intent(this, MediaService::class.java)
                 startForegroundService(intent)
 
             } else {
@@ -77,10 +70,5 @@ class MainActivity : ComponentActivity() {
             }
             isServiceRunning = true
         }
-    }
-
-    override fun onDestroy() {
-        stopService(intent)
-        super.onDestroy()
     }
 }

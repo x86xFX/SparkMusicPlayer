@@ -5,5 +5,5 @@ val MusicUiTabs: Array<String> = arrayOf(
     "Albums",
     "Artists",
     "Playlists",
-    "Favourite"
+    "Favourites"
 )

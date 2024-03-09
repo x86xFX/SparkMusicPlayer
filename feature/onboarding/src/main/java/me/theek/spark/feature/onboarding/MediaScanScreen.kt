@@ -122,7 +122,15 @@ internal fun MediaScanScreen(
         )
 
         when (uiState) {
-            is UiState.Failure, UiState.Idle -> Unit
+            UiState.Idle -> Unit
+            is UiState.Failure -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Something went wrong")
+                }
+            }
             is UiState.Progress -> {
                 MediaScanner(
                     hint = uiState.message ?: "~~~",

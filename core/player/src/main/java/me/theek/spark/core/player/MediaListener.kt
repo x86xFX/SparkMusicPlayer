@@ -73,6 +73,18 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         }
     }
 
+    override fun setRepeatMode(@RepeatMode repeatMode: Int) {
+        when (repeatMode) {
+            RepeatMode.REPEAT_MODE_ALL -> { exoPlayer.repeatMode = Player.REPEAT_MODE_ALL }
+            RepeatMode.REPEAT_MODE_OFF -> { exoPlayer.repeatMode = Player.REPEAT_MODE_OFF }
+            RepeatMode.REPEAT_MODE_ONE -> { exoPlayer.repeatMode = Player.REPEAT_MODE_ONE }
+        }
+    }
+
+    override fun onRepeatModeChanged(repeatMode: Int) {
+        _musicPlayStateStream.value = MusicPlayerState.CurrentRepeatMode(repeatMode)
+    }
+
     override fun onPlaybackStateChanged(playbackState: Int) {
         when (playbackState) {
             Player.STATE_BUFFERING -> { _musicPlayStateStream.value = MusicPlayerState.Buffering(progress = exoPlayer.currentPosition) }
@@ -113,7 +125,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
             stopProgressUpdate()
         } else {
             exoPlayer.play()
-            _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex)
+            _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = true)
             startProgressUpdate()
         }
     }
@@ -125,6 +137,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         while (true) {
             delay(500)
             _musicPlayStateStream.value = MusicPlayerState.Progress(progress = exoPlayer.currentPosition)
+            _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex)
         }
     }
 
@@ -140,9 +153,13 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         if (targetIndex == exoPlayer.currentMediaItemIndex) {
             playOrPause()
         } else {
-            exoPlayer.seekToDefaultPosition(targetIndex)
-            exoPlayer.playWhenReady = true
-            _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = true)
+            startPlaying(targetIndex)
         }
+    }
+
+    private fun startPlaying(targetIndex: Int) {
+        exoPlayer.seekToDefaultPosition(targetIndex)
+        exoPlayer.playWhenReady = true
+        _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = true)
     }
 }

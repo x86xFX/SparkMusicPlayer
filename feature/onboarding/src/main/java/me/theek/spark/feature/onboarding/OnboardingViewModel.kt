@@ -42,7 +42,7 @@ class OnboardingViewModel @Inject constructor(
 
     private fun onImportSongs() {
         viewModelScope.launch {
-            songRepository.getSongs().collect { state ->
+            songRepository.getSongImportStream().collect { state ->
                 when (state) {
                     is FlowEvent.Progress -> {
                         _uiState.value = UiState.Progress(
@@ -53,6 +53,10 @@ class OnboardingViewModel @Inject constructor(
                     is FlowEvent.Success -> {
                         onHideOnboardingScreen()
                         onNavigateToHomeScreen()
+                    }
+
+                    is FlowEvent.Failure -> {
+                        _uiState.value = UiState.Failure(state.message)
                     }
                 }
             }

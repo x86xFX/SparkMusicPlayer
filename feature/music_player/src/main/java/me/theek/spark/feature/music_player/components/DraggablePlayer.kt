@@ -19,6 +19,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,8 +47,9 @@ import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
 import me.theek.spark.core.design_system.components.BasicPlaybackControls
 import me.theek.spark.core.design_system.components.draggable_state.PlayerDraggableState
+import me.theek.spark.core.design_system.icons.rememberPause
 import me.theek.spark.core.model.data.Song
-import me.theek.spark.feature.music_player.CurrentPlayingSongDetailView
+import me.theek.spark.core.player.RepeatMode
 import me.theek.spark.feature.music_player.R
 import kotlin.math.abs
 import kotlin.math.max
@@ -55,7 +60,7 @@ import kotlin.math.roundToInt
 internal fun DraggablePlayer(
     isPlaying: Boolean,
     isFavourite: Boolean,
-    isOnRepeat: Boolean,
+    repeatState: @RepeatMode Int,
     progress: Float,
     progressString: () -> String,
     onProgressChange: (Float) -> Unit,
@@ -66,6 +71,7 @@ internal fun DraggablePlayer(
     onSkipPreviousClick: () -> Unit,
     onPausePlayClick: () -> Unit,
     onSkipNextClick: () -> Unit,
+    onRepeatClick: (@RepeatMode Int) -> Unit,
     draggableState: PlayerDraggableState,
     maxWidth: Float,
     maxHeight: Float,
@@ -181,10 +187,23 @@ internal fun DraggablePlayer(
                     modifier = Modifier
                         .weight(3.5f)
                         .fillMaxWidth(),
-                    isPlaying = isPlaying,
-                    onPausePlayClick = onPausePlayClick,
                     onSkipNextClick = onSkipNextClick,
-                    onSkipPreviousClick = onSkipPreviousClick
+                    onSkipPreviousClick = onSkipPreviousClick,
+                    skipPreviousIconSize = 28.dp,
+                    skipNextIconSize = 28.dp,
+                    playPauseIcon = {
+                        IconButton(
+                            modifier = Modifier.size(28.dp),
+                            onClick = onPausePlayClick
+                        ) {
+                            Icon(
+                                modifier = Modifier.fillMaxSize(),
+                                imageVector = if (isPlaying) rememberPause() else Icons.Rounded.PlayArrow,
+                                contentDescription = stringResource(me.theek.spark.core.design_system.R.string.play_pause_icon),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -215,9 +234,10 @@ internal fun DraggablePlayer(
             CurrentPlayingSongDetailView(
                 isPlaying = isPlaying,
                 isFavourite = isFavourite,
-                isOnRepeat = isOnRepeat,
+                repeatState = repeatState,
                 progress = { progress },
                 songTitle = currentSelectedSong.songName,
+                songGenre = currentSelectedSong.genres,
                 songArtistName = currentSelectedSong.artistName,
                 songDuration = songDuration,
                 currentSelectedSongCoverArt = currentSelectedSongCoverArt,
@@ -232,7 +252,7 @@ internal fun DraggablePlayer(
                 onPlayerMinimizeClick = { /*TODO*/ },
                 onPlayerQueueClick = { /*TODO*/ },
                 onFavouriteClick = { /*TODO*/ },
-                onRepeatClick = { /*TODO*/ }
+                onRepeatClick = onRepeatClick,
             )
         }
     }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialiation)
 }
 
 android {
@@ -46,4 +47,10 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.svg)
+
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.android)
+    implementation(libs.ktor.content.negotation)
+    implementation(libs.ktor.json)
+    implementation(libs.ktor.logging)
 }

@@ -10,4 +10,9 @@
     <string name="playlist_down_action_icon">Playlist down action icon</string>
     <string name="player_queue_icon">player queue icon</string>
     <string name="favourite_icon">Favourite icon</string>
+    <string name="repeat_off_icon">repeat off icon</string>
+    <string name="repeat_one_icon">repeat one icon</string>
+    <string name="repeat_all_icon">repeat all icon</string>
+    <string name="create_playlist_icon">Create playlist icon</string>
+    <string name="playlist_image">playlist image</string>
 </resources>

@@ -27,29 +27,33 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.components.draggable_state.BottomSheetStates
 import me.theek.spark.core.design_system.components.draggable_state.rememberPlayerDraggableState
+import me.theek.spark.core.model.data.Playlist
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.DraggablePlayer
-import me.theek.spark.feature.music_player.components.EmptySongComposable
-import me.theek.spark.feature.music_player.components.ProgressSongComposable
-import me.theek.spark.feature.music_player.components.SongListComposable
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
+import me.theek.spark.feature.music_player.tabs.PlaylistComposable
+import me.theek.spark.feature.music_player.tabs.SongListComposable
 import me.theek.spark.feature.music_player.util.MusicUiTabs
+import me.theek.spark.feature.music_player.util.UiState
+import me.theek.spark.feature.music_player.viewmodels.MusicListScreenViewModel
+import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 
 @Composable
 fun MusicListScreen(
-    viewModel: MusicListScreenViewModel,
-    onSongClick: (Pair<Int, Song>) -> Unit
+    musicListViewModel: MusicListScreenViewModel = hiltViewModel(),
+    playlistViewModel: PlaylistViewModel = hiltViewModel(),
+    onSongServiceStart: () -> Unit
 ) {
-
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val currentSelectedSong = viewModel.currentSelectedSong
+    val currentSelectedSong = musicListViewModel.currentSelectedSong
+    val musicListState = musicListViewModel.uiState
+    val playlistState by playlistViewModel.uiState.collectAsStateWithLifecycle()
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-
         val draggableState = rememberPlayerDraggableState(constraintsScope = this)
         val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
         val maxWidth = with(LocalDensity.current) { maxWidth.toPx() }
@@ -63,32 +67,28 @@ fun MusicListScreen(
                 SparkPlayerTopAppBar(onSearch = {})
             },
             content = { innerPadding ->
-                when (val state = uiState) {
-                    UiState.Loading -> Unit
-                    is UiState.Progress -> {
-                        ProgressSongComposable(
-                            modifier = Modifier.fillMaxSize(),
-                            progress = state.progress,
-                            message = state.status
-                        )
+                MusicUi(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                        .padding(top = innerPadding.calculateTopPadding()),
+                    musicListState = musicListState,
+                    playlistsState = playlistState,
+                    shouldOpenCreatePlaylistDialog = playlistViewModel.shouldOpenCreatePlaylistDialog,
+                    onCreatePlaylistAlertOpen = playlistViewModel::onCreatePlaylistAlertOpen,
+                    onCreatePlaylistDismiss = playlistViewModel::onCreatePlaylistDismiss,
+                    newPlaylistName = playlistViewModel.newPlaylistName,
+                    onNewPlaylistNameChange = playlistViewModel::onNewPlaylistNameChange,
+                    onPlaylistSave = playlistViewModel::onPlaylistSave,
+                    imageLoader = musicListViewModel::getSongCoverArt,
+                    onSongClick = {
+                        musicListViewModel.onSongClick(it)
+                        onSongServiceStart()
+                    },
+                    onPlaylistViewClick = {
+                        println(it)
                     }
-
-                    is UiState.Success -> {
-                        if (state.songs.isEmpty()) {
-                            EmptySongComposable(modifier = Modifier.fillMaxSize())
-                        } else {
-                            MusicUi(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                                    .padding(top = innerPadding.calculateTopPadding()),
-                                songs = state.songs,
-                                imageLoader = viewModel::getSongCoverArt,
-                                onSongClick = onSongClick
-                            )
-                        }
-                    }
-                }
+                )
             }
         )
 
@@ -103,19 +103,20 @@ fun MusicListScreen(
             visible = currentSelectedSong != null
         ) {
             DraggablePlayer(
-                isPlaying = viewModel.isPlaying,
+                isPlaying = musicListViewModel.isPlaying,
                 isFavourite = true,
-                isOnRepeat = true,
-                progress = viewModel.progress,
-                onProgressChange = viewModel::onProgressChange,
-                progressString = { viewModel.processString },
+                repeatState = musicListViewModel.repeatMode,
+                progress = musicListViewModel.progress,
+                onProgressChange = musicListViewModel::onProgressChange,
+                progressString = { musicListViewModel.processString },
                 currentSelectedSong = currentSelectedSong!!,
-                songDuration = viewModel.duration.toFloat(),
-                currentSelectedSongCoverArt = viewModel.currentSelectedSongCover,
-                currentSelectedSongPalette = viewModel.currentSelectedSongPalette,
-                onPausePlayClick = viewModel::onPausePlayClick,
-                onSkipNextClick = viewModel::onSkipNextClick,
-                onSkipPreviousClick = viewModel::onSkipPreviousClick,
+                songDuration = musicListViewModel.duration.toFloat(),
+                currentSelectedSongCoverArt = musicListViewModel.currentSelectedSongCover,
+                currentSelectedSongPalette = musicListViewModel.currentSelectedSongPalette,
+                onPausePlayClick = musicListViewModel::onPausePlayClick,
+                onSkipNextClick = musicListViewModel::onSkipNextClick,
+                onSkipPreviousClick = musicListViewModel::onSkipPreviousClick,
+                onRepeatClick = musicListViewModel::onRepeatModeChange,
                 draggableState = draggableState,
                 maxWidth = maxWidth,
                 maxHeight = maxHeight
@@ -128,16 +129,22 @@ fun MusicListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MusicUi(
-    songs: List<Song>,
+    musicListState: UiState<List<Song>>,
+    playlistsState: UiState<List<Playlist>>,
+    shouldOpenCreatePlaylistDialog: Boolean,
+    onCreatePlaylistAlertOpen: () -> Unit,
+    onCreatePlaylistDismiss: () -> Unit,
+    newPlaylistName: String,
+    onNewPlaylistNameChange: (String) -> Unit,
+    onPlaylistSave: () -> Unit,
     imageLoader: suspend (String) -> ByteArray?,
     onSongClick: (Pair<Int, Song>) -> Unit,
+    onPlaylistViewClick: (Playlist) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { MusicUiTabs.size })
     val selectedIndex by remember { derivedStateOf { pagerState.currentPage } }
-    val songsList = remember { songs }
 
     Column(modifier = modifier) {
         ScrollableTabRow(
@@ -151,10 +158,7 @@ private fun MusicUi(
             MusicUiTabs.forEachIndexed { index, tab ->
                 Tab(
                     selected = selectedIndex == index,
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(page = index)
-                        }
+                    onClick = { scope.launch { pagerState.animateScrollToPage(page = index) }
                     },
                     text = {
                         Text(
@@ -163,7 +167,7 @@ private fun MusicUi(
                             maxLines = 1,
                             overflow = TextOverflow.Clip,
                             fontWeight = if (selectedIndex == index) FontWeight.SemiBold else FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = if (selectedIndex == index) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
                 )
@@ -174,15 +178,40 @@ private fun MusicUi(
             state = pagerState
         ) { currentTab ->
             when (currentTab) {
-                0 -> {
+                0 -> { //Tracks
                     SongListComposable(
-                        songs = songsList,
+                        modifier = Modifier.fillMaxSize(),
+                        musicListState = musicListState,
                         songRetriever = imageLoader,
                         onSongClick = onSongClick
                     )
                 }
 
-                else -> Unit
+                1 -> { //Albums
+
+                }
+
+                2 -> { //Artists
+
+                }
+
+                3 -> { // Playlist
+                    PlaylistComposable(
+                        modifier = Modifier.fillMaxSize(),
+                        playlistsState = playlistsState,
+                        shouldOpenCreatePlaylistDialog = shouldOpenCreatePlaylistDialog,
+                        onCreatePlaylistClick = onCreatePlaylistAlertOpen,
+                        onCreatePlaylistDismiss = onCreatePlaylistDismiss,
+                        newPlaylistName = newPlaylistName,
+                        onNewPlaylistNameChange = onNewPlaylistNameChange,
+                        onPlaylistSave = onPlaylistSave,
+                        onPlaylistViewClick = onPlaylistViewClick
+                    )
+                }
+
+                4 -> { // Favourites
+
+                }
             }
         }
     }
