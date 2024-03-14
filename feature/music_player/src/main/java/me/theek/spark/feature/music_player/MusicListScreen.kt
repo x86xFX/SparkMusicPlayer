@@ -32,10 +32,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.components.draggable_state.BottomSheetStates
 import me.theek.spark.core.design_system.components.draggable_state.rememberPlayerDraggableState
+import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.Playlist
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.DraggablePlayer
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
+import me.theek.spark.feature.music_player.tabs.ArtistsComposable
 import me.theek.spark.feature.music_player.tabs.PlaylistComposable
 import me.theek.spark.feature.music_player.tabs.SongListComposable
 import me.theek.spark.feature.music_player.util.MusicUiTabs
@@ -52,6 +54,7 @@ fun MusicListScreen(
     val currentSelectedSong = musicListViewModel.currentSelectedSong
     val musicListState = musicListViewModel.uiState
     val playlistState by playlistViewModel.uiState.collectAsStateWithLifecycle()
+    val artistDetailsStream by musicListViewModel.artistDetailsStream.collectAsStateWithLifecycle()
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val draggableState = rememberPlayerDraggableState(constraintsScope = this)
@@ -74,13 +77,13 @@ fun MusicListScreen(
                         .padding(top = innerPadding.calculateTopPadding()),
                     musicListState = musicListState,
                     playlistsState = playlistState,
+                    artistDetailsStream = artistDetailsStream,
                     shouldOpenCreatePlaylistDialog = playlistViewModel.shouldOpenCreatePlaylistDialog,
                     onCreatePlaylistAlertOpen = playlistViewModel::onCreatePlaylistAlertOpen,
                     onCreatePlaylistDismiss = playlistViewModel::onCreatePlaylistDismiss,
                     newPlaylistName = playlistViewModel.newPlaylistName,
                     onNewPlaylistNameChange = playlistViewModel::onNewPlaylistNameChange,
                     onPlaylistSave = playlistViewModel::onPlaylistSave,
-                    imageLoader = musicListViewModel::getSongCoverArt,
                     onSongClick = {
                         musicListViewModel.onSongClick(it)
                         onSongServiceStart()
@@ -131,14 +134,14 @@ fun MusicListScreen(
 private fun MusicUi(
     musicListState: UiState<List<Song>>,
     playlistsState: UiState<List<Playlist>>,
+    artistDetailsStream: Map<String, ArtistDetails>,
     shouldOpenCreatePlaylistDialog: Boolean,
     onCreatePlaylistAlertOpen: () -> Unit,
     onCreatePlaylistDismiss: () -> Unit,
     newPlaylistName: String,
     onNewPlaylistNameChange: (String) -> Unit,
     onPlaylistSave: () -> Unit,
-    imageLoader: suspend (String) -> ByteArray?,
-    onSongClick: (Pair<Int, Song>) -> Unit,
+    onSongClick: (Song) -> Unit,
     onPlaylistViewClick: (Playlist) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -182,7 +185,6 @@ private fun MusicUi(
                     SongListComposable(
                         modifier = Modifier.fillMaxSize(),
                         musicListState = musicListState,
-                        songRetriever = imageLoader,
                         onSongClick = onSongClick
                     )
                 }
@@ -192,7 +194,11 @@ private fun MusicUi(
                 }
 
                 2 -> { //Artists
-
+                    ArtistsComposable(
+                        modifier = Modifier.fillMaxSize(),
+                        artistDetailsStream = artistDetailsStream,
+                        onArtistClick = { /*TODO*/ }
+                    )
                 }
 
                 3 -> { // Playlist

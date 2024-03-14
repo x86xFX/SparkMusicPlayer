@@ -1,5 +1,6 @@
 package me.theek.spark.core.network.dto
 
+import kotlinx.serialization.Required
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,9 +13,9 @@ data class ArtistInfoDto(
         val href: String,
         val items: List<ArtistData>,
         val limit: Int,
-        val next: String?,
+        @Required val next: String?,
         val offset: Int,
-        val previous: String?,
+        @Required val previous: String?,
         val total: Int
     ) {
         @Serializable
@@ -36,14 +37,14 @@ data class ArtistInfoDto(
             )
             @Serializable
             data class Followers(
-                val href: String?,
-                val total: Long
+                @Required val href: String?,
+                val total: Int
             )
             @Serializable
             data class ArtistImage(
-                val height: Int,
+                @Required val height: Int?,
                 val url: String,
-                val width: Int,
+                @Required val width: Int?,
             )
         }
     }

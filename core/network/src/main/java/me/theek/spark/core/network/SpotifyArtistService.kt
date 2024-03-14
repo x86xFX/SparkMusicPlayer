@@ -18,7 +18,7 @@ class SpotifyArtistService @Inject constructor(private val httpClient: HttpClien
     /**
      * https://open.spotify.com/get_access_token?reason=transport&productType=web_player
      */
-    private suspend fun getSpotifyUnauthorizedKey() : SpotifyAuthDto {
+    suspend fun getSpotifyUnauthorizedKey(): SpotifyAuthDto {
         return httpClient.get {
             url {
                 protocol = URLProtocol.HTTPS
@@ -36,13 +36,13 @@ class SpotifyArtistService @Inject constructor(private val httpClient: HttpClien
     suspend fun getSongArtistImages(
         accessToken: String,
         artistName: String
-    ) : ArtistInfoDto {
+    ): ArtistInfoDto {
         return httpClient.get {
             url {
                 protocol = URLProtocol.HTTPS
                 host = "api.spotify.com"
                 bearerAuth(accessToken)
-                path("search")
+                path("v1", "search")
                 parameters.append(name = "type", value = "artist")
                 parameter(key = "q", value = artistName)
                 parameter(key = "decorate_restrictions", value = false)

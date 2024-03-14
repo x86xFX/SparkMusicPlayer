@@ -42,10 +42,16 @@ dependencies {
 
     implementation(project(":core:content_reader"))
     implementation(project(":core:model"))
+    implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation(project(":core:datastore"))
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.ktor.core)
 }

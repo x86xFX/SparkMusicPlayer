@@ -25,7 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -42,22 +42,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun SongRow(
-    songWithIndex: Pair<Int, Song>,
-    songRetriever: suspend (String) -> ByteArray?,
-    onSongClick: (Pair<Int, Song>) -> Unit,
+    song: Song,
+    onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var image by remember { mutableStateOf<ByteArray?>(null) }
-
-    LaunchedEffect(key1 = songWithIndex) {
-        image = songRetriever(songWithIndex.second.path)
-    }
-
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
@@ -68,12 +62,15 @@ internal fun SongRow(
                 .fillMaxWidth()
                 .padding(horizontal = 5.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .clickable { onSongClick(songWithIndex) },
+                .clickable { onSongClick(song) },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.width(10.dp))
             AsyncImage(
-                model = image,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(song)
+                    .memoryCacheKey(song.path)
+                    .build(),
                 contentDescription = stringResource(R.string.album_art),
                 error = painterResource(id = R.drawable.round_music_note_24),
                 contentScale = ContentScale.Crop,
@@ -89,7 +86,7 @@ internal fun SongRow(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = songWithIndex.second.songName ?: "Unknown",
+                    text = song.songName ?: "Unknown",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -99,7 +96,7 @@ internal fun SongRow(
                     )
                 )
                 Text(
-                    text = songWithIndex.second.artistName ?: "Unknown",
+                    text = song.artistName ?: "Unknown",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -205,25 +202,21 @@ private fun SongOptionMenu(modifier: Modifier = Modifier) {
 @Composable
 private fun SongRowPreview() {
     SongRow(
-        songWithIndex = Pair(
-            1,
-            Song(
-                id = 0,
-                path = "",
-                artistName = "The Weenknd",
-                duration = 300,
-                songName = "Save Your Tears",
-                albumId = 2,
-                trackNumber = 8,
-                releaseYear = 2020,
-                genres = emptyList(),
-                mimeType = null,
-                lastModified = 0L,
-                size = 2,
-                externalId = null
-            )
+        song = Song(
+            id = 0,
+            path = "",
+            artistName = "The Weenknd",
+            duration = 300,
+            songName = "Save Your Tears",
+            albumId = 2,
+            trackNumber = 8,
+            releaseYear = 2020,
+            genres = emptyList(),
+            mimeType = null,
+            lastModified = 0L,
+            size = 2,
+            externalId = null
         ),
-        songRetriever = { null },
         onSongClick = {}
     )
 }

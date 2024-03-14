@@ -45,9 +45,6 @@ dependencies {
     implementation(libs.hilt)
     ksp(libs.hilt.compiler)
 
-    implementation(libs.coil.compose)
-    implementation(libs.coil.svg)
-
     implementation(libs.ktor.core)
     implementation(libs.ktor.android)
     implementation(libs.ktor.content.negotation)

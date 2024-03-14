@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.data.repository.UserDataRepository
-import me.theek.spark.core.model.data.FlowEvent
+import me.theek.spark.core.model.util.FlowEvent
 import javax.inject.Inject
 
 @HiltViewModel

@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
-import me.theek.spark.core.model.data.FlowEvent
 import me.theek.spark.core.model.data.Song
+import me.theek.spark.core.model.util.FlowEvent
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -122,6 +122,7 @@ class MediaStoreReader @Inject constructor(
     .flowOn(Dispatchers.IO)
 
     suspend fun getSongCover(songPath: String): ByteArray? = withContext(Dispatchers.IO) {
+        println("Called TagLib")
         val uri: Uri = if (songPath.startsWith("content://")) {
             Uri.parse(songPath)
         } else {

@@ -15,12 +15,15 @@ import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.palette.graphics.Palette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.theek.spark.core.data.repository.Response
 import me.theek.spark.core.data.repository.SongRepository
+import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.Song
+import me.theek.spark.core.model.util.Response
 import me.theek.spark.core.player.AudioService
 import me.theek.spark.core.player.MusicPlayerState
 import me.theek.spark.core.player.PlayerEvent
@@ -38,6 +41,8 @@ class MusicListScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var songList by mutableStateOf(listOf<Song>())
+    private val _artistDetailsStream = MutableStateFlow<Map<String, ArtistDetails>>(emptyMap())
+    val artistDetailsStream = _artistDetailsStream.asStateFlow()
     var uiState by mutableStateOf<UiState<List<Song>>>(UiState.Loading)
         private set
     var currentSelectedSong by mutableStateOf<Song?>(null)
@@ -80,9 +85,9 @@ class MusicListScreenViewModel @Inject constructor(
         }
     }
 
-    fun onSongClick(songWithIndex: Pair<Int, Song>) {
+    fun onSongClick(song: Song) {
         viewModelScope.launch {
-            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songWithIndex.first))
+            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = song.id.toInt() - 1))
         }
     }
 
@@ -111,10 +116,6 @@ class MusicListScreenViewModel @Inject constructor(
         audioService.setRepeatMode(repeatMode)
     }
 
-    suspend fun getSongCoverArt(songPath: String): ByteArray? {
-        return songRepository.getSongCoverArt(songPath)
-    }
-
     private fun loadSongData() {
         viewModelScope.launch {
             when (val songResponse = songRepository.getSongs()) {
@@ -125,6 +126,7 @@ class MusicListScreenViewModel @Inject constructor(
                     songList = songResponse.data
                     uiState = UiState.Success(songResponse.data)
                     setMediaItems()
+                    extractSongArtistsAndCounts()
                 }
 
                 is Response.Loading -> {
@@ -164,6 +166,22 @@ class MusicListScreenViewModel @Inject constructor(
         if (coverArtData != null) {
             val bitmap = BitmapFactory.decodeByteArray(coverArtData, 0, coverArtData.size)
             currentSelectedSongPalette = Palette.from(bitmap).generate()
+        }
+    }
+
+    private fun extractSongArtistsAndCounts() {
+        _artistDetailsStream.value = songList.groupBy { song ->
+            when (song.artistName?.lowercase()) {
+                "<unknown>" -> "Unknown"
+                else -> {
+                    song.artistName ?: "Unknown"
+                }
+            }
+        }.mapValues { (artistName, songs) ->
+            ArtistDetails(
+                artistName = artistName,
+                songs = songs
+            )
         }
     }
 

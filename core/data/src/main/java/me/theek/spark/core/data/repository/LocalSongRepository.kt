@@ -10,8 +10,9 @@ import me.theek.spark.core.content_reader.MediaStoreReader
 import me.theek.spark.core.data.mapper.toSong
 import me.theek.spark.core.data.mapper.toSongEntity
 import me.theek.spark.core.database.dao.SongDao
-import me.theek.spark.core.model.data.FlowEvent
 import me.theek.spark.core.model.data.Song
+import me.theek.spark.core.model.util.FlowEvent
+import me.theek.spark.core.model.util.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
