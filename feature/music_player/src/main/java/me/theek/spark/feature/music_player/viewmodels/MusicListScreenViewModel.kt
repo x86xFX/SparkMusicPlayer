@@ -150,6 +150,7 @@ class MusicListScreenViewModel @Inject constructor(
 
     private fun formatDuration(duration: Long) : String {
         val totalSecond = floor(duration / 1E3).toInt()
+
         val minutes = totalSecond / 60
         val remainingSeconds = totalSecond - (minutes * 60)
         return if (duration < 0) "--:--" else "%d:%02d".format(minutes, remainingSeconds)

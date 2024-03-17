@@ -9,10 +9,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import me.theek.spark.core.data.repository.ArtistRepository
 import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.data.util.ArtistCoverInterceptor
+import me.theek.spark.core.data.util.ArtistCoverNetworkInterceptor
 import me.theek.spark.core.data.util.CoverArtFetcher
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 @Module
@@ -23,14 +24,18 @@ object ImageModule {
     @Singleton
     fun provideCoilImageLoader(
         @ApplicationContext context: Context,
-        songRepository: SongRepository,
-        artistRepository: ArtistRepository
+        songRepository: SongRepository
     ) : ImageLoader {
         return ImageLoader.Builder(context)
             .components {
                 add(SvgDecoder.Factory())
                 add(CoverArtFetcher.ImageFactory(songRepository))
-                add(ArtistCoverInterceptor(artistRepository))
+                add(ArtistCoverInterceptor())
+            }
+            .okHttpClient {
+                OkHttpClient.Builder()
+                    .addInterceptor(ArtistCoverNetworkInterceptor())
+                    .build()
             }
             .crossfade(true)
             .crossfade(500)

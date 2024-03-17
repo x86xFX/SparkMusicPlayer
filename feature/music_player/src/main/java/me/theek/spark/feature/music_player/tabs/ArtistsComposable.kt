@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,12 +66,15 @@ internal fun ArtistItem(
             AsyncImage(
                 modifier = Modifier
                     .size(60.dp)
-                    .clip(RoundedCornerShape(12.dp)),
+                    .clip(RoundedCornerShape(12.dp))
+                    .aspectRatio(1f),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(artistDetails)
                     .memoryCacheKey(artistDetails.artistName)
                     .diskCacheKey(artistDetails.artistName)
                     .build(),
+                placeholder = painterResource(id = R.drawable.artist_placeholder),
+                error = painterResource(id = R.drawable.artist_placeholder),
                 contentDescription = stringResource(R.string.playlist_image),
                 contentScale = ContentScale.Crop
             )
