@@ -32,22 +32,22 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
     fun onCreatePlaylistAlertOpen() { shouldOpenCreatePlaylistDialog = true }
     fun onCreatePlaylistDismiss() { shouldOpenCreatePlaylistDialog = false }
     fun onNewPlaylistNameChange(value: String) {
-        if (value.isNotBlank()) {
-            newPlaylistName = value
-        }
+        newPlaylistName = value
     }
 
     fun onPlaylistSave() {
-        viewModelScope.launch {
-            playlistRepository.createPlayList(
-                Playlist(
-                    id = 0,
-                    name = newPlaylistName,
-                    createdAt = 0
+        if (newPlaylistName.isNotBlank()) {
+            viewModelScope.launch {
+                playlistRepository.createPlayList(
+                    Playlist(
+                        id = 0,
+                        name = newPlaylistName,
+                        createdAt = 0
+                    )
                 )
-            )
-            shouldOpenCreatePlaylistDialog = false
-            newPlaylistName = ""
+                shouldOpenCreatePlaylistDialog = false
+                newPlaylistName = ""
+            }
         }
     }
 }

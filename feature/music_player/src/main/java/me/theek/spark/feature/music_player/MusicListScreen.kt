@@ -47,9 +47,10 @@ import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 
 @Composable
 fun MusicListScreen(
+    onSongServiceStart: () -> Unit,
+    onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
     musicListViewModel: MusicListScreenViewModel = hiltViewModel(),
-    playlistViewModel: PlaylistViewModel = hiltViewModel(),
-    onSongServiceStart: () -> Unit
+    playlistViewModel: PlaylistViewModel = hiltViewModel()
 ) {
     val currentSelectedSong = musicListViewModel.currentSelectedSong
     val musicListState = musicListViewModel.uiState
@@ -84,6 +85,7 @@ fun MusicListScreen(
                     newPlaylistName = playlistViewModel.newPlaylistName,
                     onNewPlaylistNameChange = playlistViewModel::onNewPlaylistNameChange,
                     onPlaylistSave = playlistViewModel::onPlaylistSave,
+                    onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
                     onSongClick = {
                         musicListViewModel.onSongClick(it)
                         onSongServiceStart()
@@ -143,6 +145,7 @@ private fun MusicUi(
     onPlaylistSave: () -> Unit,
     onSongClick: (Song) -> Unit,
     onPlaylistViewClick: (Playlist) -> Unit,
+    onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -197,7 +200,7 @@ private fun MusicUi(
                     ArtistsComposable(
                         modifier = Modifier.fillMaxSize(),
                         artistDetailsStream = artistDetailsStream,
-                        onArtistClick = { /*TODO*/ }
+                        onArtistClick = onNavigateToArtistDetailScreen
                     )
                 }
 

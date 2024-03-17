@@ -15,4 +15,5 @@
     <string name="repeat_all_icon">repeat all icon</string>
     <string name="create_playlist_icon">Create playlist icon</string>
     <string name="playlist_image">playlist image</string>
+    <string name="navigate_to_artist_list_page">navigate to artist list page</string>
 </resources>

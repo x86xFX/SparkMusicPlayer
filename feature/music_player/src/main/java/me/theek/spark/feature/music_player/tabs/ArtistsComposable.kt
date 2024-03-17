@@ -33,7 +33,7 @@ import me.theek.spark.feature.music_player.R
 @Composable
 internal fun ArtistsComposable(
     artistDetailsStream: Map<String, ArtistDetails>,
-    onArtistClick: () -> Unit,
+    onArtistClick: (ArtistDetails) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
@@ -49,13 +49,13 @@ internal fun ArtistsComposable(
 @Composable
 internal fun ArtistItem(
     artistDetails: ArtistDetails,
-    onArtistClick: () -> Unit,
+    onArtistClick: (ArtistDetails) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onArtistClick() }
+            .clickable { onArtistClick(artistDetails) }
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
