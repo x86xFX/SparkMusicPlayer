@@ -15,22 +15,30 @@ import javax.inject.Singleton
 @Singleton
 class RemoteArtistRepository @Inject constructor(private val remoteArtistService: RemoteArtistService) : ArtistRepository {
 
+    private var artistCache: Pair<String, Response<ArtistRemoteData>>? = null
+
     override suspend fun getAristDetails(artistName: String): Response<ArtistRemoteData> = withContext(Dispatchers.IO) {
-        try {
-            val response = remoteArtistService.getSongArtistDetails(type = "details", artistName = artistName)
-            Response.Success(response.toArtistRemoteData())
+        if (artistCache == null || artistName != artistCache?.first) {
+            try {
+                val response = remoteArtistService.getSongArtistDetails(type = "details", artistName = artistName)
+                val result = Response.Success(response.toArtistRemoteData())
+                artistCache = Pair(artistName, result)
+                result
 
-        } catch(e: ClientRequestException) {
-            Response.Failure("Client side error occurred")
+            } catch(e: ClientRequestException) {
+                Response.Failure("Client side error occurred")
 
-        } catch (e: ServerResponseException) {
-            Response.Failure("Internal server error occurred")
+            } catch (e: ServerResponseException) {
+                Response.Failure("Internal server error occurred")
 
-        } catch (e: UnknownHostException) {
-            Response.Failure("Network error occurred")
+            } catch (e: UnknownHostException) {
+                Response.Failure("Network error occurred")
 
-        } catch (e: Exception) {
-            Response.Failure("Something went wrong")
+            } catch (e: Exception) {
+                Response.Failure("Something went wrong")
+            }
+        } else {
+            artistCache!!.second
         }
     }
 }

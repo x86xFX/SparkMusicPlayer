@@ -64,6 +64,8 @@ dependencies {
 
     implementation(libs.androidx.palette.ktx)
 
+    implementation(libs.cascade.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

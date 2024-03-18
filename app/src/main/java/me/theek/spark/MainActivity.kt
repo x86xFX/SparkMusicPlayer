@@ -9,6 +9,8 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,10 +41,12 @@ class MainActivity : ComponentActivity() {
 
             setContent {
                 SparkMusicPlayerTheme {
-                    SparkNavigation(
-                        uiState = mainActivityUiState,
-                        onSongServiceStart = { startService() }
-                    )
+                    Surface(color = MaterialTheme.colorScheme.background) {
+                        SparkNavigation(
+                            uiState = mainActivityUiState,
+                            onSongServiceStart = { startService() }
+                        )
+                    }
                 }
             }
         }

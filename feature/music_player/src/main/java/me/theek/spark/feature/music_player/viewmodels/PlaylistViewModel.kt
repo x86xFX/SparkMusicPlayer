@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.theek.spark.core.data.repository.PlaylistRepository
 import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.util.UiState
 import javax.inject.Inject
 
@@ -24,13 +25,21 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = UiState.Loading
     )
+    private var currentQueuedSong by mutableStateOf<Song?>(null)
     var newPlaylistName by mutableStateOf("")
         private set
     var shouldOpenCreatePlaylistDialog by mutableStateOf(false)
         private set
 
-    fun onCreatePlaylistAlertOpen() { shouldOpenCreatePlaylistDialog = true }
-    fun onCreatePlaylistDismiss() { shouldOpenCreatePlaylistDialog = false }
+    fun addToQueuedPlaylistSong(song: Song) {
+        currentQueuedSong = song
+        shouldOpenCreatePlaylistDialog = true
+    }
+
+    fun onCreatePlaylistDismiss() {
+        shouldOpenCreatePlaylistDialog = false
+    }
+
     fun onNewPlaylistNameChange(value: String) {
         newPlaylistName = value
     }
@@ -47,6 +56,7 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
                 )
                 shouldOpenCreatePlaylistDialog = false
                 newPlaylistName = ""
+                currentQueuedSong = null
             }
         }
     }

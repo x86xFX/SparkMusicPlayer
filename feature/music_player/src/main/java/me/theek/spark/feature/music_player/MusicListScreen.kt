@@ -11,7 +11,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -25,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -80,19 +86,21 @@ fun MusicListScreen(
                     playlistsState = playlistState,
                     artistDetailsStream = artistDetailsStream,
                     shouldOpenCreatePlaylistDialog = playlistViewModel.shouldOpenCreatePlaylistDialog,
-                    onCreatePlaylistAlertOpen = playlistViewModel::onCreatePlaylistAlertOpen,
                     onCreatePlaylistDismiss = playlistViewModel::onCreatePlaylistDismiss,
                     newPlaylistName = playlistViewModel.newPlaylistName,
                     onNewPlaylistNameChange = playlistViewModel::onNewPlaylistNameChange,
+                    onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
+                    onSongInfoClick = {},
+                    onShareClick = {},
+                    onPlaylistViewClick = {
+                        println(it)
+                    },
                     onPlaylistSave = playlistViewModel::onPlaylistSave,
                     onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
                     onSongClick = {
                         musicListViewModel.onSongClick(it)
                         onSongServiceStart()
                     },
-                    onPlaylistViewClick = {
-                        println(it)
-                    }
                 )
             }
         )
@@ -138,7 +146,6 @@ private fun MusicUi(
     playlistsState: UiState<List<Playlist>>,
     artistDetailsStream: Map<String, ArtistDetails>,
     shouldOpenCreatePlaylistDialog: Boolean,
-    onCreatePlaylistAlertOpen: () -> Unit,
     onCreatePlaylistDismiss: () -> Unit,
     newPlaylistName: String,
     onNewPlaylistNameChange: (String) -> Unit,
@@ -146,6 +153,9 @@ private fun MusicUi(
     onSongClick: (Song) -> Unit,
     onPlaylistViewClick: (Playlist) -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
+    onCreatePlaylistClick: (Song) -> Unit,
+    onSongInfoClick: () -> Unit,
+    onShareClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -188,7 +198,11 @@ private fun MusicUi(
                     SongListComposable(
                         modifier = Modifier.fillMaxSize(),
                         musicListState = musicListState,
-                        onSongClick = onSongClick
+                        playlistsState = playlistsState,
+                        onSongClick = onSongClick,
+                        onCreatePlaylistClick = onCreatePlaylistClick,
+                        onSongInfoClick = onSongInfoClick,
+                        onShareClick = onShareClick
                     )
                 }
 
@@ -208,12 +222,6 @@ private fun MusicUi(
                     PlaylistComposable(
                         modifier = Modifier.fillMaxSize(),
                         playlistsState = playlistsState,
-                        shouldOpenCreatePlaylistDialog = shouldOpenCreatePlaylistDialog,
-                        onCreatePlaylistClick = onCreatePlaylistAlertOpen,
-                        onCreatePlaylistDismiss = onCreatePlaylistDismiss,
-                        newPlaylistName = newPlaylistName,
-                        onNewPlaylistNameChange = onNewPlaylistNameChange,
-                        onPlaylistSave = onPlaylistSave,
                         onPlaylistViewClick = onPlaylistViewClick
                     )
                 }
@@ -223,5 +231,34 @@ private fun MusicUi(
                 }
             }
         }
+    }
+
+    if (shouldOpenCreatePlaylistDialog) {
+        AlertDialog(
+            onDismissRequest = onCreatePlaylistDismiss,
+            confirmButton = {
+                Button(onClick = onPlaylistSave) {
+                    Text(text = "Create")
+                }
+            },
+            title = {
+                Text(text = "Create playlist")
+            },
+            text = {
+                OutlinedTextField(
+                    value = newPlaylistName,
+                    onValueChange = onNewPlaylistNameChange,
+                    label = { Text(text = "Playlist name") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrect = false,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { onPlaylistSave() }
+                    )
+                )
+            }
+        )
     }
 }

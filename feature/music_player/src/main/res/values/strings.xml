@@ -16,4 +16,7 @@
     <string name="create_playlist_icon">Create playlist icon</string>
     <string name="playlist_image">playlist image</string>
     <string name="navigate_to_artist_list_page">navigate to artist list page</string>
+    <string name="no_internet_icon">No internet icon</string>
+    <string name="artist_spotify_profile">Artist Spotify profile</string>
+    <string name="artist_s_spotify_profile">Artist\'s Spotify Profile</string>
 </resources>

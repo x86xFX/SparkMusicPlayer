@@ -243,7 +243,7 @@ internal fun DraggablePlayer(
                 currentSelectedSongCoverArt = currentSelectedSongCoverArt,
                 thumbColor = MaterialTheme.colorScheme.onBackground,
                 activeTrackColor = MaterialTheme.colorScheme.onBackground,
-                inactiveTrackColor = titleTextColor,
+                inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                 onProgressChange = onProgressChange,
                 progressString = progressString,
                 onSkipPreviousClick = onSkipPreviousClick,

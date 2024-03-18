@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.theek.spark.core.design_system.icons.rememberShuffle
 import me.theek.spark.core.design_system.icons.rememberSort
+import me.theek.spark.core.model.data.Playlist
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.components.EmptySongComposable
@@ -38,7 +39,11 @@ import me.theek.spark.feature.music_player.util.UiState
 @Composable
 internal fun SongListComposable(
     musicListState: UiState<List<Song>>,
+    playlistsState: UiState<List<Playlist>>,
     onSongClick: (Song) -> Unit,
+    onCreatePlaylistClick: (Song) -> Unit,
+    onSongInfoClick: () -> Unit,
+    onShareClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -60,7 +65,7 @@ internal fun SongListComposable(
             }
         }
         is UiState.Success -> {
-            if (musicListState.songs.isEmpty()) {
+            if (musicListState.data.isEmpty()) {
                 EmptySongComposable(modifier = Modifier.fillMaxSize())
             } else {
                 Column(
@@ -128,12 +133,16 @@ internal fun SongListComposable(
                     }
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(
-                            items = musicListState.songs,
+                            items = musicListState.data,
                             key = { it.id }
                         ) {song ->
                             SongRow(
                                 song = song,
-                                onSongClick = onSongClick
+                                playlistsState = playlistsState,
+                                onSongClick = onSongClick,
+                                onCreatePlaylistClick = onCreatePlaylistClick,
+                                onSongInfoClick = onSongInfoClick,
+                                onShareClick = onShareClick
                             )
                         }
                     }

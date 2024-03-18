@@ -1,5 +1,9 @@
 package me.theek.spark.core.model.data
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Song(
     val id: Long,
     val songName: String?,
@@ -14,4 +18,4 @@ data class Song(
     val size: Long,
     val path: String,
     val externalId: String?
-)
+) : Parcelable

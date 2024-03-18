@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.theek.spark.core.model.data.Song
 import javax.inject.Inject
@@ -82,20 +83,20 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     }
 
     override fun onRepeatModeChanged(repeatMode: Int) {
-        _musicPlayStateStream.value = MusicPlayerState.CurrentRepeatMode(repeatMode)
+        _musicPlayStateStream.update { MusicPlayerState.CurrentRepeatMode(repeatMode) }
     }
 
     override fun onPlaybackStateChanged(playbackState: Int) {
         when (playbackState) {
-            Player.STATE_BUFFERING -> { _musicPlayStateStream.value = MusicPlayerState.Buffering(progress = exoPlayer.currentPosition) }
-            Player.STATE_READY -> { _musicPlayStateStream.value = MusicPlayerState.Ready(duration = exoPlayer.duration) }
+            Player.STATE_BUFFERING -> { _musicPlayStateStream.update { MusicPlayerState.Buffering(progress = exoPlayer.currentPosition) } }
+            Player.STATE_READY -> { _musicPlayStateStream.update { MusicPlayerState.Ready(duration = exoPlayer.duration) } }
             else -> Unit
         }
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
-        _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = isPlaying)
-        _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(exoPlayer.currentMediaItemIndex)
+        _musicPlayStateStream.update { MusicPlayerState.Playing(isPlaying = isPlaying) }
+        _musicPlayStateStream.update { MusicPlayerState.CurrentPlaying(exoPlayer.currentMediaItemIndex) }
         if (isPlaying) {
             CoroutineScope(Dispatchers.Main).launch { startProgressUpdate() }
         } else {
@@ -106,7 +107,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         when (reason) {
             Player.MEDIA_ITEM_TRANSITION_REASON_AUTO -> {
-                _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex)
+                _musicPlayStateStream.update { MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex) }
             }
             else -> Unit
         }
@@ -125,7 +126,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
             stopProgressUpdate()
         } else {
             exoPlayer.play()
-            _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = true)
+            _musicPlayStateStream.update { MusicPlayerState.Playing(isPlaying = true) }
             startProgressUpdate()
         }
     }
@@ -136,14 +137,14 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     private suspend fun startProgressUpdate() = progressJob.run {
         while (true) {
             delay(500)
-            _musicPlayStateStream.value = MusicPlayerState.Progress(progress = exoPlayer.currentPosition)
-            _musicPlayStateStream.value = MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex)
+            _musicPlayStateStream.update { MusicPlayerState.Progress(progress = exoPlayer.currentPosition) }
+            _musicPlayStateStream.update { MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex) }
         }
     }
 
     private fun stopProgressUpdate() {
         progressJob?.cancel()
-        _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = false)
+        _musicPlayStateStream.update { MusicPlayerState.Playing(isPlaying = false) }
     }
 
     /**
@@ -160,6 +161,6 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     private fun startPlaying(targetIndex: Int) {
         exoPlayer.seekToDefaultPosition(targetIndex)
         exoPlayer.playWhenReady = true
-        _musicPlayStateStream.value = MusicPlayerState.Playing(isPlaying = true)
+        _musicPlayStateStream.update { MusicPlayerState.Playing(isPlaying = true) }
     }
 }

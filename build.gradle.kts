@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.serialiation) apply false
+    alias(libs.plugins.androidTest) apply false
 }

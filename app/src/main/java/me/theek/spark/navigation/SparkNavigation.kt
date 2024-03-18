@@ -1,7 +1,8 @@
 package me.theek.spark.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
@@ -9,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.theek.spark.MainActivityUiState
+import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.feature.music_player.ArtistDetailScreen
 import me.theek.spark.feature.music_player.MusicListScreen
 import me.theek.spark.feature.onboarding.WelcomeScreen
@@ -40,38 +42,38 @@ fun SparkNavigation(
         }
         
         composable(
-            route = Screen.Home.route,
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(400)
-                )
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(400)
-                )
-            }
+            route = Screen.Home.route
         ) {
             MusicListScreen(
                 onSongServiceStart = onSongServiceStart,
                 onNavigateToArtistDetailScreen = {
                     if (navController.canGoBack) {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "artist_with_songs",
+                            value = it
+                        )
                         navController.navigate(Screen.ArtistDetailScreen.route)
                     }
                 }
             )
         }
 
-        composable(route = Screen.ArtistDetailScreen.route) {
-            ArtistDetailScreen(
-                onNavigateBackClick = {
-                    if (navController.canGoBack) {
-                        navController.popBackStack()
+        composable(
+            route = Screen.ArtistDetailScreen.route,
+            enterTransition = { slideInHorizontally(animationSpec = tween(500)) },
+            exitTransition = { slideOutHorizontally(animationSpec = tween(500)) }
+        ) {
+            val artistWithSongs = navController.previousBackStackEntry?.savedStateHandle?.get<ArtistDetails>(key = "artist_with_songs")
+            if (artistWithSongs != null) {
+                ArtistDetailScreen(
+                    artistDetails = artistWithSongs,
+                    onNavigateBackClick = {
+                        if (navController.canGoBack) {
+                            navController.popBackStack()
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
