@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.theek.spark.core.data.repository.PlaylistRepository
-import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.util.UiState
 import javax.inject.Inject
@@ -20,11 +20,17 @@ import javax.inject.Inject
 @HiltViewModel
 class PlaylistViewModel @Inject constructor(private val playlistRepository: PlaylistRepository) : ViewModel() {
 
-    val uiState: StateFlow<UiState<List<Playlist>>> = playlistRepository.getPlayLists().map { UiState.Success(it) }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = UiState.Loading
-    )
+    val uiState: StateFlow<UiState<List<PlaylistData>>> = playlistRepository.getAllPlayLists()
+        .map { playlists ->
+            playlists.distinctBy { it.playlistId } // Filter duplicates based on playlistId
+        }.map {
+            UiState.Success(it)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = UiState.Loading
+        )
+
     private var currentQueuedSong by mutableStateOf<Song?>(null)
     var newPlaylistName by mutableStateOf("")
         private set
@@ -44,16 +50,23 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
         newPlaylistName = value
     }
 
+    fun onAddToExistingPlaylistClick(data: Pair<Long, Long>) {
+        viewModelScope.launch {
+            playlistRepository.addSongToExistingPlaylist(
+                playListId = data.first,
+                songId = data.second
+            )
+        }
+    }
+
     fun onPlaylistSave() {
-        if (newPlaylistName.isNotBlank()) {
+        if (newPlaylistName.isNotBlank() && currentQueuedSong != null) {
             viewModelScope.launch {
-                playlistRepository.createPlayList(
-                    Playlist(
-                        id = 0,
-                        name = newPlaylistName,
-                        createdAt = 0
+                playlistRepository
+                    .createPlaylistWithSong(
+                        song = currentQueuedSong!!,
+                        playListName =  newPlaylistName
                     )
-                )
                 shouldOpenCreatePlaylistDialog = false
                 newPlaylistName = ""
                 currentQueuedSong = null

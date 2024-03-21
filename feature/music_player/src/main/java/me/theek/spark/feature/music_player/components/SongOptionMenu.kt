@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Add
@@ -27,15 +27,17 @@ import androidx.compose.ui.unit.dp
 import me.saket.cascade.CascadeDropdownMenu
 import me.theek.spark.core.design_system.icons.rememberPlaylistAdd
 import me.theek.spark.core.design_system.icons.rememberQueueMusic
-import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.util.UiState
 import androidx.compose.material3.DropdownMenuItem as MaterialDropDownMenuItem
 
 @Composable
 internal fun SongOptionMenu(
-    playlistsState: UiState<List<Playlist>>,
+    songId: Long,
+    playlistsState: UiState<List<PlaylistData>>,
     onCreatePlaylistClick: () -> Unit,
+    onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: () -> Unit,
     onShareClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -94,32 +96,42 @@ internal fun SongOptionMenu(
                         when (playlistsState) {
                             is UiState.Failure, is UiState.Progress, UiState.Loading -> Unit
                             is UiState.Success -> {
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(min = 100.dp, max = 250.dp)
-                                ) {
-                                    items(
-                                        items = playlistsState.data,
-                                        key = { it.id }
+                                if (playlistsState.data.isNotEmpty()) {
+                                    LazyColumn(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 100.dp, max = 250.dp)
                                     ) {
-                                        MaterialDropDownMenuItem(
-                                            text = {
-                                                Text(
-                                                    text = it.name,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                            },
-                                            leadingIcon = {
-                                                Icon(
-                                                    modifier = Modifier.size(26.dp),
-                                                    imageVector = rememberQueueMusic(),
-                                                    contentDescription = null
-                                                )
-                                            },
-                                            onClick = { /*TODO*/ }
-                                        )
+                                        itemsIndexed(
+                                            items = playlistsState.data,
+                                            key = { index, _ -> index }
+                                        ) { _, playlist ->
+                                            MaterialDropDownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        text = playlist.playlistName,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis
+                                                    )
+                                                },
+                                                leadingIcon = {
+                                                    Icon(
+                                                        modifier = Modifier.size(26.dp),
+                                                        imageVector = rememberQueueMusic(),
+                                                        contentDescription = null
+                                                    )
+                                                },
+                                                onClick = {
+                                                    onAddToExistingPlaylistClick(
+                                                        Pair(
+                                                            first = playlist.playlistId,
+                                                            second = songId
+                                                        )
+                                                    )
+                                                    shouldExpandDropDownMenu = false
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }

@@ -32,7 +32,6 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,13 +62,13 @@ import me.theek.spark.feature.music_player.viewmodels.ArtistDetailViewModel
 @Composable
 fun ArtistDetailScreen(
     artistDetails: ArtistDetails,
-    onNavigateBackClick: () -> Unit,
-    artistDetailViewModel: ArtistDetailViewModel = hiltViewModel()
+    onNavigateBackClick: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        artistDetailViewModel.getArtistDetails(artistDetails.artistName)
+    val viewModel = hiltViewModel<ArtistDetailViewModel, ArtistDetailViewModel.ArtistDetailViewModelFactory> { factory ->
+        factory.create(artistDetails.artistName)
     }
-    val artistRemoteState by artistDetailViewModel.artistRemoteDetails.collectAsStateWithLifecycle()
+
+    val artistRemoteState by viewModel.artistRemoteDetails.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -191,8 +190,7 @@ fun ArtistDetailScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             TextButton(
-                                onClick = {
-                                    artistDetailViewModel.getArtistDetails(artistDetails.artistName) }
+                                onClick = viewModel::getArtistDetails
                             ) {
                                 Icon(
                                     modifier = Modifier.size(28.dp),
@@ -245,8 +243,9 @@ fun ArtistDetailScreen(
                     SongRow(
                         song = it,
                         playlistsState = UiState.Loading, // Make sure to fix this
-                        onSongClick = artistDetailViewModel::onSongClick,
+                        onSongClick = viewModel::onSongClick,
                         onCreatePlaylistClick = {},
+                        onAddToExistingPlaylistClick = { },
                         onSongInfoClick = {},
                         onShareClick = {}
                     )

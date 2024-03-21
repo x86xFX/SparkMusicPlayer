@@ -24,14 +24,13 @@ fun SparkNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = if (uiState.userData.shouldHideOnboarding)
-            Screen.Home.route else Screen.Onboarding.route
+        startDestination = if (uiState.userData.shouldHideOnboarding) Route.HOME else Route.ONBOARDING
     ) {
-        composable(route = Screen.Onboarding.route) {
+        composable(route = Route.ONBOARDING) {
             WelcomeScreen(
                 onNavigateToHomeScreen = {
                     if (navController.canGoBack) {
-                        navController.navigate(Screen.Home.route) {
+                        navController.navigate(Route.HOME) {
                             popUpTo(navController.graph.id) {
                                 inclusive = true
                             }
@@ -42,7 +41,7 @@ fun SparkNavigation(
         }
         
         composable(
-            route = Screen.Home.route
+            route = Route.HOME
         ) {
             MusicListScreen(
                 onSongServiceStart = onSongServiceStart,
@@ -52,14 +51,17 @@ fun SparkNavigation(
                             key = "artist_with_songs",
                             value = it
                         )
-                        navController.navigate(Screen.ArtistDetailScreen.route)
+                        navController.navigate(Route.ARTIST_DETAILS)
                     }
+                },
+                onPlaylistViewClick = {
+                    println("Clicked playlist id: $it")
                 }
             )
         }
 
         composable(
-            route = Screen.ArtistDetailScreen.route,
+            route = Route.ARTIST_DETAILS,
             enterTransition = { slideInHorizontally(animationSpec = tween(500)) },
             exitTransition = { slideOutHorizontally(animationSpec = tween(500)) }
         ) {
@@ -81,8 +83,8 @@ fun SparkNavigation(
 private val NavHostController.canGoBack: Boolean
     get() = this.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED
 
-sealed class Screen(val route: String) {
-    data object Onboarding : Screen(route = "onboarding_screen")
-    data object Home : Screen(route = "home_screen")
-    data object ArtistDetailScreen : Screen(route = "artist_detail_screen")
+object Route {
+    const val ONBOARDING = "onboarding_screen"
+    const val HOME = "home_screen"
+    const val ARTIST_DETAILS = "artist_detail_screen"
 }

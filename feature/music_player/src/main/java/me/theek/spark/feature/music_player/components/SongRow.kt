@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.util.UiState
@@ -36,9 +36,10 @@ import me.theek.spark.feature.music_player.util.UiState
 @Composable
 internal fun SongRow(
     song: Song,
-    playlistsState: UiState<List<Playlist>>,
+    playlistsState: UiState<List<PlaylistData>>,
     onSongClick: (Song) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
+    onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: () -> Unit,
     onShareClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -99,8 +100,10 @@ internal fun SongRow(
             }
             SongOptionMenu(
                 modifier = Modifier.weight(1f),
+                songId = song.id,
                 playlistsState = playlistsState,
                 onCreatePlaylistClick = { onCreatePlaylistClick(song) },
+                onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
                 onSongInfoClick = onSongInfoClick,
                 onShareClick = onShareClick
             )
@@ -135,6 +138,7 @@ private fun SongRowPreview() {
         onSongClick = {},
         onCreatePlaylistClick = {},
         onSongInfoClick = {},
-        onShareClick = {}
+        onShareClick = {},
+        onAddToExistingPlaylistClick = {}
     )
 }

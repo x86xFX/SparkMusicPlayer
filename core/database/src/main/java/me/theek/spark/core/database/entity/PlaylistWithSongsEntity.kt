@@ -27,8 +27,8 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-data class SongInPlaylistEntity(
+data class PlaylistWithSongsEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "song_id") val songId: Long,
-    @ColumnInfo(name = "playlist_id") val playlistId: Long
+    @ColumnInfo(name = "playlist_id") val playlistId: Long,
+    @ColumnInfo(name = "song_id") val songId: Long
 )

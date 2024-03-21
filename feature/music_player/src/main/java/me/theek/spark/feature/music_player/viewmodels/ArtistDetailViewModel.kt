@@ -2,6 +2,9 @@ package me.theek.spark.feature.music_player.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,18 +16,25 @@ import me.theek.spark.core.model.util.Response
 import me.theek.spark.core.player.AudioService
 import me.theek.spark.core.player.PlayerEvent
 import me.theek.spark.feature.music_player.util.UiState
-import javax.inject.Inject
 
-@HiltViewModel
-class ArtistDetailViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = ArtistDetailViewModel.ArtistDetailViewModelFactory::class)
+class ArtistDetailViewModel @AssistedInject constructor(
+    @Assisted val artistName: String,
     private val artistRepository: ArtistRepository,
     private val audioService: AudioService
 ) : ViewModel() {
 
+    @AssistedFactory
+    interface ArtistDetailViewModelFactory {
+        fun create(artistName: String) : ArtistDetailViewModel
+    }
+
     private val _artistRemoteDetails = MutableStateFlow<UiState<ArtistRemoteData>>(UiState.Loading)
     val artistRemoteDetails = _artistRemoteDetails.asStateFlow()
 
-    fun getArtistDetails(artistName: String) {
+    init { getArtistDetails() }
+
+    fun getArtistDetails() {
         viewModelScope.launch {
             when (val response = artistRepository.getAristDetails(artistName)) {
                 is Response.Failure -> {

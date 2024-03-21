@@ -18,19 +18,20 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import me.theek.spark.core.model.data.Playlist
+import coil.request.ImageRequest
+import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun PlayListCard(
-    playlist: Playlist,
-    onPlaylistViewClick: (Playlist) -> Unit,
+    playlist: PlaylistData,
+    onPlaylistViewClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(modifier = modifier) {
@@ -39,7 +40,7 @@ internal fun PlayListCard(
                 .fillMaxSize()
                 .width(100.dp)
                 .height(150.dp)
-                .clickable { onPlaylistViewClick(playlist) }
+                .clickable { onPlaylistViewClick(playlist.playlistId) }
         ) {
             AsyncImage(
                 modifier = Modifier
@@ -49,7 +50,10 @@ internal fun PlayListCard(
                             drawContent()
                             drawRect(
                                 brush = Brush.verticalGradient(
-                                    colors = listOf(Color.Transparent, Color.Black),
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black,
+                                    ),
                                     startY = 0f,
                                     endY = size.height
                                 ),
@@ -57,7 +61,10 @@ internal fun PlayListCard(
                             )
                         }
                     },
-                model = "https://i1.sndcdn.com/avatars-000544239675-37shxr-t500x500.jpg", // Ariana Grande Blue Color image
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(playlist.songForCoverArt)
+                    .memoryCacheKey(playlist.songForCoverArt.path)
+                    .build(),
                 contentDescription = stringResource(R.string.playlist_image),
                 contentScale = ContentScale.Crop
             )
@@ -69,23 +76,14 @@ internal fun PlayListCard(
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = playlist.name,
+                    text = playlist.playlistName,
                     color = Color.White,
                     maxLines = 1,
-                    fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                    fontSize = MaterialTheme.typography.labelLarge.fontSize,
                     textAlign = TextAlign.Center,
                     overflow = TextOverflow.Clip
                 )
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PlayListCardPreview() {
-    PlayListCard(
-        playlist = Playlist(0,"Favourites", 0),
-        onPlaylistViewClick = {}
-    )
 }

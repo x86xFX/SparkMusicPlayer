@@ -1,5 +1,5 @@
 [versions]
-android-library = "8.3.0"
+android-library = "8.3.1"
 activity-compose = "1.8.2"
 cascadeCompose = "2.3.0"
 core-splashscreen = "1.0.1"
@@ -29,8 +29,8 @@ room = "2.6.1"
 kTagLib = "1.4.1"
 palette = "1.0.0"
 ktor = "2.3.9"
-uiautomator = "2.2.0"
-benchmarkMacroJunit4 = "1.2.0-beta01"
+uiautomator = "2.3.0"
+benchmarkMacroJunit4 = "1.2.3"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-library" }

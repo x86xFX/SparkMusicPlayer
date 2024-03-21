@@ -1,10 +1,16 @@
 package me.theek.spark.core.data.repository
 
 import kotlinx.coroutines.flow.Flow
-import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.PlaylistData
+import me.theek.spark.core.model.data.Song
+import me.theek.spark.core.model.data.SongInPlayList
 
 interface PlaylistRepository {
-    fun getPlayLists() : Flow<List<Playlist>>
-    suspend fun createPlayList(playlist: Playlist)
-    suspend fun removePlaylist(playlist: Playlist)
+    fun getAllPlayLists() : Flow<List<PlaylistData>>
+    suspend fun createPlaylistWithSong(
+        song: Song,
+        playListName: String
+    )
+    suspend fun createPlaylistWithSongs(playListWithSong: List<SongInPlayList>)
+    suspend fun addSongToExistingPlaylist(songId: Long, playListId: Long)
 }

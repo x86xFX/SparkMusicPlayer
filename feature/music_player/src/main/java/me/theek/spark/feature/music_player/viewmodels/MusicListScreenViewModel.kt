@@ -185,9 +185,4 @@ class MusicListScreenViewModel @Inject constructor(
             )
         }
     }
-
-    override fun onCleared() {
-        audioService.stopPlayer()
-        super.onCleared()
-    }
 }

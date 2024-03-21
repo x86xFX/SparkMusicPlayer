@@ -13,14 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.feature.music_player.components.PlayListCard
 import me.theek.spark.feature.music_player.util.UiState
 
 @Composable
 internal fun PlaylistComposable(
-    playlistsState: UiState<List<Playlist>>,
-    onPlaylistViewClick: (Playlist) -> Unit,
+    playlistsState: UiState<List<PlaylistData>>,
+    onPlaylistViewClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (playlistsState) {
@@ -39,20 +39,29 @@ internal fun PlaylistComposable(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LazyVerticalGrid(
-                    modifier = modifier.padding(12.dp),
-                    columns = GridCells.Adaptive(150.dp),
-                    horizontalArrangement = Arrangement.spacedBy(space = 12.dp, alignment = Alignment.CenterHorizontally),
-                    verticalArrangement = Arrangement.spacedBy(space = 12.dp, alignment = Alignment.Top)
-                ) {
-                    items(
-                        items = playlistsState.data,
-                        key = { it.id }
+                if (playlistsState.data.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        PlayListCard(
-                            playlist = it,
-                            onPlaylistViewClick = onPlaylistViewClick
-                        )
+                        Text(text = "Create playlist and add songs")
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        modifier = modifier.padding(12.dp),
+                        columns = GridCells.Adaptive(150.dp),
+                        horizontalArrangement = Arrangement.spacedBy(space = 12.dp, alignment = Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(space = 12.dp, alignment = Alignment.Top)
+                    ) {
+                        items(
+                            items = playlistsState.data,
+                            key = { it.playlistId }
+                        ) {playlist ->
+                            PlayListCard(
+                                playlist = playlist,
+                                onPlaylistViewClick = onPlaylistViewClick
+                            )
+                        }
                     }
                 }
             }

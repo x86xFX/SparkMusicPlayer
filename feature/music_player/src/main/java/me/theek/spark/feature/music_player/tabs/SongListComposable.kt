@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.theek.spark.core.design_system.icons.rememberShuffle
 import me.theek.spark.core.design_system.icons.rememberSort
-import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.components.EmptySongComposable
@@ -39,9 +39,10 @@ import me.theek.spark.feature.music_player.util.UiState
 @Composable
 internal fun SongListComposable(
     musicListState: UiState<List<Song>>,
-    playlistsState: UiState<List<Playlist>>,
+    playlistsState: UiState<List<PlaylistData>>,
     onSongClick: (Song) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
+    onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: () -> Unit,
     onShareClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -141,6 +142,7 @@ internal fun SongListComposable(
                                 playlistsState = playlistsState,
                                 onSongClick = onSongClick,
                                 onCreatePlaylistClick = onCreatePlaylistClick,
+                                onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
                                 onSongInfoClick = onSongInfoClick,
                                 onShareClick = onShareClick
                             )

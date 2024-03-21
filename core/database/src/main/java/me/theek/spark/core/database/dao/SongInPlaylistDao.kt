@@ -5,24 +5,26 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import me.theek.spark.core.database.entity.PlaylistData
-import me.theek.spark.core.database.entity.SongInPlaylistEntity
+import me.theek.spark.core.database.PlaylistWithSongs
+import me.theek.spark.core.database.entity.PlaylistWithSongsEntity
 
 @Dao
 interface SongInPlaylistDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(playlistEntity: SongInPlaylistEntity)
+    suspend fun insert(playlistWithSongsEntity: PlaylistWithSongsEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(playlistEntity: List<SongInPlaylistEntity>)
+    suspend fun insert(songInPlaylistEntities: List<PlaylistWithSongsEntity>)
 
     @Query("""
-        SELECT songs.*, song_in_playlist.id as playlistSongId FROM songs
-        LEFT JOIN song_in_playlist ON songs.id = song_in_playlist.song_id
-            WHERE song_in_playlist.playlist_id = :playListId
+        SELECT p.id as playlistId, p.playlist_name as playlistName, songs.*
+        FROM playlists AS p
+        INNER JOIN song_in_playlist AS sp ON p.id = sp.playlist_id
+        INNER JOIN songs ON sp.song_id = songs.id
+        ORDER BY p.playlist_name ASC
     """)
-    fun getSongsPlaylist(playListId: Long) : Flow<List<PlaylistData>>
+    fun getSongsPlaylists() : Flow<List<PlaylistWithSongs>>
 
     @Query("DELETE FROM song_in_playlist WHERE playlist_id = :playListId and id IN (:playlistSongIds)")
     suspend fun delete(

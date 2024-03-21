@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.components.draggable_state.BottomSheetStates
 import me.theek.spark.core.design_system.components.draggable_state.rememberPlayerDraggableState
 import me.theek.spark.core.model.data.ArtistDetails
-import me.theek.spark.core.model.data.Playlist
+import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.DraggablePlayer
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
@@ -55,6 +55,7 @@ import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 fun MusicListScreen(
     onSongServiceStart: () -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
+    onPlaylistViewClick: (Long) -> Unit,
     musicListViewModel: MusicListScreenViewModel = hiltViewModel(),
     playlistViewModel: PlaylistViewModel = hiltViewModel()
 ) {
@@ -90,17 +91,16 @@ fun MusicListScreen(
                     newPlaylistName = playlistViewModel.newPlaylistName,
                     onNewPlaylistNameChange = playlistViewModel::onNewPlaylistNameChange,
                     onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
+                    onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
                     onSongInfoClick = {},
                     onShareClick = {},
-                    onPlaylistViewClick = {
-                        println(it)
-                    },
+                    onPlaylistViewClick = onPlaylistViewClick,
                     onPlaylistSave = playlistViewModel::onPlaylistSave,
                     onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
                     onSongClick = {
                         musicListViewModel.onSongClick(it)
                         onSongServiceStart()
-                    },
+                    }
                 )
             }
         )
@@ -143,7 +143,7 @@ fun MusicListScreen(
 @Composable
 private fun MusicUi(
     musicListState: UiState<List<Song>>,
-    playlistsState: UiState<List<Playlist>>,
+    playlistsState: UiState<List<PlaylistData>>,
     artistDetailsStream: Map<String, ArtistDetails>,
     shouldOpenCreatePlaylistDialog: Boolean,
     onCreatePlaylistDismiss: () -> Unit,
@@ -151,9 +151,10 @@ private fun MusicUi(
     onNewPlaylistNameChange: (String) -> Unit,
     onPlaylistSave: () -> Unit,
     onSongClick: (Song) -> Unit,
-    onPlaylistViewClick: (Playlist) -> Unit,
+    onPlaylistViewClick: (Long) -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
+    onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: () -> Unit,
     onShareClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -201,6 +202,7 @@ private fun MusicUi(
                         playlistsState = playlistsState,
                         onSongClick = onSongClick,
                         onCreatePlaylistClick = onCreatePlaylistClick,
+                        onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
                         onSongInfoClick = onSongInfoClick,
                         onShareClick = onShareClick
                     )
