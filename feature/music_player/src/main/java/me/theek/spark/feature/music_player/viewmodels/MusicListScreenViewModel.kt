@@ -61,6 +61,8 @@ class MusicListScreenViewModel @Inject constructor(
         private set
     var repeatMode by savedStateHandle.saveable { mutableIntStateOf(RepeatMode.REPEAT_MODE_ALL) }
         private set
+    var songInfo by mutableStateOf(SongInfo())
+        private set
 
     init { loadSongData() }
 
@@ -114,6 +116,17 @@ class MusicListScreenViewModel @Inject constructor(
 
     fun onRepeatModeChange(@RepeatMode repeatMode: Int) {
         audioService.setRepeatMode(repeatMode)
+    }
+
+    fun onSongInfoClick(song: Song) {
+        songInfo = SongInfo(
+            shouldShowSheet = true,
+            song = song
+        )
+    }
+
+    fun onSongInfoSheetDismiss() {
+        songInfo = SongInfo(shouldShowSheet = false)
     }
 
     private fun loadSongData() {
@@ -186,3 +199,8 @@ class MusicListScreenViewModel @Inject constructor(
         }
     }
 }
+
+data class SongInfo(
+    val shouldShowSheet: Boolean = false,
+    val song: Song? = null
+)

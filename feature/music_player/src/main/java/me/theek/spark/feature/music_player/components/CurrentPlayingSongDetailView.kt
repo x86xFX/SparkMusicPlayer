@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -48,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import me.theek.spark.core.design_system.components.BasicPlaybackControls
+import me.theek.spark.core.design_system.components.GenreTag
 import me.theek.spark.core.design_system.icons.rememberMotionPhotosAuto
 import me.theek.spark.core.design_system.icons.rememberPauseCircle
 import me.theek.spark.core.design_system.icons.rememberPlayCircle
@@ -207,15 +207,9 @@ internal fun CurrentPlayingSongDetailView(
             )
 
             if (songGenre.isNotEmpty()) {
-                SuggestionChip(
-                    onClick = {},
-                    label = {
-                        Text(
-                            text = songGenre.joinToString(),
-                            maxLines = 1,
-                            overflow = TextOverflow.Clip
-                        )
-                    }
+                GenreTag(
+                    modifier = Modifier.padding(top = 15.dp),
+                    name = songGenre.joinToString()
                 )
             }
         }
@@ -370,7 +364,7 @@ internal fun CurrentPlayingSongDetailView(
     }
 }
 
-private fun timeStampToDuration(duration: Float): String {
+internal fun timeStampToDuration(duration: Float): String {
     val totalSecond = floor(duration / 1E3).toInt()
     val minutes = totalSecond / 60
     val remainingSeconds = totalSecond - (minutes * 60)

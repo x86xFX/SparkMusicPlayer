@@ -31,7 +31,7 @@ sealed interface MusicPlayerState {
 }
 
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @IntDef(RepeatMode.REPEAT_MODE_OFF, RepeatMode.REPEAT_MODE_ONE, RepeatMode.REPEAT_MODE_ALL)
 annotation class RepeatMode {
     companion object {

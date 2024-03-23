@@ -14,9 +14,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun GenreTag(name: String) {
+fun GenreTag(
+    name: String,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentSize()
             .padding(horizontal = 3.dp)
             .background(

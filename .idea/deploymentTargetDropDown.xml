@@ -3,7 +3,20 @@
   <component name="deploymentTargetDropDown">
     <value>
       <entry key="Spark Music Player">
-        <State />
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="SERIAL_NUMBER" />
+                  <value value="R9HT301S1CJ" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-03-23T12:20:15.315889700Z" />
+        </State>
       </entry>
     </value>
   </component>

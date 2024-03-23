@@ -40,8 +40,8 @@ internal fun SongRow(
     onSongClick: (Song) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
-    onSongInfoClick: () -> Unit,
-    onShareClick: () -> Unit,
+    onSongInfoClick: (Song) -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -100,7 +100,7 @@ internal fun SongRow(
             }
             SongOptionMenu(
                 modifier = Modifier.weight(1f),
-                songId = song.id,
+                song = song,
                 playlistsState = playlistsState,
                 onCreatePlaylistClick = { onCreatePlaylistClick(song) },
                 onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,

@@ -28,18 +28,19 @@ import me.saket.cascade.CascadeDropdownMenu
 import me.theek.spark.core.design_system.icons.rememberPlaylistAdd
 import me.theek.spark.core.design_system.icons.rememberQueueMusic
 import me.theek.spark.core.model.data.PlaylistData
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.util.UiState
 import androidx.compose.material3.DropdownMenuItem as MaterialDropDownMenuItem
 
 @Composable
 internal fun SongOptionMenu(
-    songId: Long,
+    song: Song,
     playlistsState: UiState<List<PlaylistData>>,
     onCreatePlaylistClick: () -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
-    onSongInfoClick: () -> Unit,
-    onShareClick: () -> Unit,
+    onSongInfoClick: (Song) -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var shouldExpandDropDownMenu by remember { mutableStateOf(false) }
@@ -125,7 +126,7 @@ internal fun SongOptionMenu(
                                                     onAddToExistingPlaylistClick(
                                                         Pair(
                                                             first = playlist.playlistId,
-                                                            second = songId
+                                                            second = song.id
                                                         )
                                                     )
                                                     shouldExpandDropDownMenu = false
@@ -152,7 +153,10 @@ internal fun SongOptionMenu(
                             contentDescription = null
                         )
                     },
-                    onClick = onSongInfoClick
+                    onClick = {
+                        onSongInfoClick(song)
+                        shouldExpandDropDownMenu = false
+                    }
                 )
                 MaterialDropDownMenuItem(
                     text = {
@@ -168,7 +172,10 @@ internal fun SongOptionMenu(
                             contentDescription = null
                         )
                     },
-                    onClick = onShareClick
+                    onClick = {
+                        onShareClick(song.path)
+                        shouldExpandDropDownMenu = false
+                    }
                 )
             }
         }

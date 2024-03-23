@@ -43,8 +43,8 @@ internal fun SongListComposable(
     onSongClick: (Song) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
-    onSongInfoClick: () -> Unit,
-    onShareClick: () -> Unit,
+    onSongInfoClick: (Song) -> Unit,
+    onShareClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
