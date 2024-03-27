@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,17 +29,21 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.feature.music_player.R
+import me.theek.spark.feature.music_player.util.timeStampToDuration
 
 @Composable
 internal fun ArtistsComposable(
-    artistDetailsStream: Map<String, ArtistDetails>,
+    artistsDetails: List<ArtistDetails>,
     onArtistClick: (ArtistDetails) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
-        items(artistDetailsStream.keys.toList()) { artistName ->
+        itemsIndexed(
+            items = artistsDetails,
+            key = { index, _ -> index }
+        ) { _, artistDetails ->
             ArtistItem(
-                artistDetails = artistDetailsStream.getValue(artistName),
+                artistDetails = artistDetails,
                 onArtistClick = onArtistClick
             )
         }
@@ -92,12 +96,27 @@ internal fun ArtistItem(
                 overflow = TextOverflow.Clip,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
-            Text(
-                text = "Tracks ${artistDetails.songs.size}",
-                maxLines = 1,
-                overflow = TextOverflow.Clip,
-                fontSize = MaterialTheme.typography.bodySmall.fontSize
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Tracks ${artistDetails.songCount}",
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                )
+                Text(
+                    text = "Duration ${timeStampToDuration(artistDetails.totalDuration.toFloat())}",
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize
+                )
+            }
+
         }
     }
 }
@@ -106,7 +125,7 @@ internal fun ArtistItem(
 @Composable
 private fun ArtistsComposablePreview() {
     ArtistItem(
-        artistDetails = ArtistDetails("The Weeknd", emptyList()),
+        artistDetails = ArtistDetails("The Weeknd",  34, 1),
         onArtistClick = {}
     )
 }

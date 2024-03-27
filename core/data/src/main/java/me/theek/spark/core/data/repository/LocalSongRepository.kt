@@ -81,6 +81,16 @@ class LocalSongRepository @Inject constructor(
         }
     }
 
+    override suspend fun getArtistSongs(artistName: String): Response<List<Song>> {
+        val result = songDao.getArtistSongs(artistName).map { it.toSong() }
+
+        return if (result.isEmpty()) {
+            Response.Failure("Artist doesn't have any songs")
+        } else {
+            Response.Success(result)
+        }
+    }
+
     override suspend fun getSongCoverArt(songPath: String): ByteArray? {
         return mediaStoreReader.getSongCover(songPath)
     }

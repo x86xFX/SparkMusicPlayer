@@ -1,6 +1,5 @@
 package me.theek.spark.feature.music_player
 
-import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,7 +33,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -51,11 +50,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.components.draggable_state.BottomSheetStates
 import me.theek.spark.core.design_system.components.draggable_state.rememberPlayerDraggableState
@@ -64,12 +63,14 @@ import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.DraggablePlayer
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
-import me.theek.spark.feature.music_player.components.timeStampToDuration
 import me.theek.spark.feature.music_player.tabs.ArtistsComposable
 import me.theek.spark.feature.music_player.tabs.PlaylistComposable
 import me.theek.spark.feature.music_player.tabs.SongListComposable
 import me.theek.spark.feature.music_player.util.MusicUiTabs
 import me.theek.spark.feature.music_player.util.UiState
+import me.theek.spark.feature.music_player.util.byteToMB
+import me.theek.spark.feature.music_player.util.shareIntent
+import me.theek.spark.feature.music_player.util.timeStampToDuration
 import me.theek.spark.feature.music_player.viewmodels.MusicListScreenViewModel
 import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 import me.theek.spark.feature.music_player.viewmodels.SongInfo
@@ -86,9 +87,10 @@ fun MusicListScreen(
     val currentSelectedSong = musicListViewModel.currentSelectedSong
     val musicListState = musicListViewModel.uiState
     val playlistState by playlistViewModel.uiState.collectAsStateWithLifecycle()
-    val artistDetailsStream by musicListViewModel.artistDetailsStream.collectAsStateWithLifecycle()
+    val artistsDetails by musicListViewModel.artistDetailsStream.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val songInfo = musicListViewModel.songInfo
+    val scope = rememberCoroutineScope()
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val draggableState = rememberPlayerDraggableState(constraintsScope = this)
@@ -111,7 +113,7 @@ fun MusicListScreen(
                         .padding(top = innerPadding.calculateTopPadding()),
                     musicListState = musicListState,
                     playlistsState = playlistState,
-                    artistDetailsStream = artistDetailsStream,
+                    artistsDetails = artistsDetails,
                     shouldOpenCreatePlaylistDialog = playlistViewModel.shouldOpenCreatePlaylistDialog,
                     onCreatePlaylistDismiss = playlistViewModel::onCreatePlaylistDismiss,
                     newPlaylistName = playlistViewModel.newPlaylistName,
@@ -125,6 +127,7 @@ fun MusicListScreen(
                     onPlaylistViewClick = onPlaylistViewClick,
                     onPlaylistSave = playlistViewModel::onPlaylistSave,
                     onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
+                    scope = scope,
                     onSongClick = {
                         musicListViewModel.onSongClick(it)
                         onSongServiceStart()
@@ -132,12 +135,6 @@ fun MusicListScreen(
                 )
             }
         )
-
-        LaunchedEffect(key1 = currentSelectedSong) {
-            if (currentSelectedSong != null) {
-                draggableState.animateTo(BottomSheetStates.MINIMISED)
-            }
-        }
 
         AnimatedVisibility(
             modifier = Modifier.fillMaxSize(),
@@ -158,6 +155,9 @@ fun MusicListScreen(
                 onSkipNextClick = musicListViewModel::onSkipNextClick,
                 onSkipPreviousClick = musicListViewModel::onSkipPreviousClick,
                 onRepeatClick = musicListViewModel::onRepeatModeChange,
+                onPlayerMinimizeClick = {
+                    scope.launch { draggableState.animateTo(BottomSheetStates.MINIMISED) }
+                },
                 draggableState = draggableState,
                 maxWidth = maxWidth,
                 maxHeight = maxHeight
@@ -181,156 +181,164 @@ private fun ShowSongInfoBottomBar(
 ) {
     if (songInfo.shouldShowSheet) {
         ModalBottomSheet(
+            modifier = Modifier.fillMaxWidth(),
             onDismissRequest = onDismissRequest,
             sheetState = sheetState
         ) {
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding(),
                 verticalArrangement = Arrangement.spacedBy(space = 10.dp, alignment = Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(songInfo.song)
-                        .memoryCacheKey(songInfo.song?.path)
-                        .build(),
-                    contentDescription = stringResource(R.string.album_art),
-                    error = painterResource(id = R.drawable.round_music_note_24),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(180.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                )
-                Column(modifier = Modifier.fillMaxWidth(fraction = 0.9f)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                            text = "Title:"
-                        )
-                        Text(
+                item {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(songInfo.song)
+                            .memoryCacheKey(songInfo.song?.path)
+                            .build(),
+                        contentDescription = stringResource(R.string.album_art),
+                        error = painterResource(id = R.drawable.round_music_note_24),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(180.dp)
+                            .clip(RoundedCornerShape(18.dp))
+                    )
+                }
+                item {
+                    Column(modifier = Modifier.fillMaxWidth(fraction = 0.9f)) {
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = songInfo.song?.songName ?: "Unknown",
-                            textAlign = TextAlign.Start,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.35f),
+                                text = "Title:"
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = songInfo.song?.songName ?: "Unknown",
+                                textAlign = TextAlign.Start,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                            text = "Artist:"
-                        )
-                        Text(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = songInfo.song?.artistName ?: "Unknown",
-                            textAlign = TextAlign.Start,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.35f),
+                                text = "Artist:"
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = songInfo.song?.artistName ?: "Unknown",
+                                textAlign = TextAlign.Start,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                            text = "Duration:"
-                        )
-                        Text(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = timeStampToDuration(songInfo.song?.duration?.toFloat() ?: 0f),
-                            textAlign = TextAlign.Start,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.35f),
+                                text = "Duration:"
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = timeStampToDuration(songInfo.song?.duration?.toFloat() ?: 0f),
+                                textAlign = TextAlign.Start,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                            text = "MIME Type:"
-                        )
-                        Text(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = songInfo.song?.mimeType ?: "Unknown",
-                            textAlign = TextAlign.Start,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.35f),
+                                text = "MIME Type:"
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = songInfo.song?.mimeType ?: "Unknown",
+                                textAlign = TextAlign.Start,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                            text = "Release year:"
-                        )
-                        Text(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = songInfo.song?.releaseYear?.toString() ?: "Unknown",
-                            textAlign = TextAlign.Start,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.35f),
+                                text = "Release year:"
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = songInfo.song?.releaseYear?.toString() ?: "Unknown",
+                                textAlign = TextAlign.Start,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                            text = "Location:"
-                        )
-                        Text(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = songInfo.song?.path ?: "Unknown",
-                            textAlign = TextAlign.Start,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.35f),
+                                text = "Location:"
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = songInfo.song?.path ?: "Unknown",
+                                textAlign = TextAlign.Start,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                            text = "Size:"
-                        )
-                        Text(
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            text = songInfo.song?.size?.toString() ?: "Unknown",
-                            textAlign = TextAlign.Start,
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.35f),
+                                text = "Size:"
+                            )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                            val bytesToMB = byteToMB(byte = songInfo.song?.size)
+
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = if (bytesToMB != null) "${bytesToMB}MB" else "~",
+                                textAlign = TextAlign.Start,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
                 }
             }
         }
@@ -342,22 +350,22 @@ private fun ShowSongInfoBottomBar(
 private fun MusicUi(
     musicListState: UiState<List<Song>>,
     playlistsState: UiState<List<PlaylistData>>,
-    artistDetailsStream: Map<String, ArtistDetails>,
+    artistsDetails: List<ArtistDetails>,
     shouldOpenCreatePlaylistDialog: Boolean,
     onCreatePlaylistDismiss: () -> Unit,
     newPlaylistName: String,
     onNewPlaylistNameChange: (String) -> Unit,
     onPlaylistSave: () -> Unit,
-    onSongClick: (Song) -> Unit,
+    onSongClick: (Int) -> Unit,
     onPlaylistViewClick: (Long) -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: (Song) -> Unit,
     onShareClick: (String) -> Unit,
+    scope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { MusicUiTabs.size })
     val selectedIndex by remember { derivedStateOf { pagerState.currentPage } }
 
@@ -413,7 +421,7 @@ private fun MusicUi(
                 2 -> { //Artists
                     ArtistsComposable(
                         modifier = Modifier.fillMaxSize(),
-                        artistDetailsStream = artistDetailsStream,
+                        artistsDetails = artistsDetails,
                         onArtistClick = onNavigateToArtistDetailScreen
                     )
                 }
@@ -448,7 +456,7 @@ private fun MusicUi(
                 OutlinedTextField(
                     value = newPlaylistName,
                     onValueChange = onNewPlaylistNameChange,
-                    label = { Text(text = "Playlist name") },
+                    label = { Text(text = stringResource(R.string.playlist_name)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         autoCorrect = false,
@@ -461,13 +469,4 @@ private fun MusicUi(
             }
         )
     }
-}
-
-private fun shareIntent(value: String): Intent {
-    val sendIntent: Intent = Intent().apply {
-        action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_STREAM, value.toUri())
-        type = "audio/*"
-    }
-    return Intent.createChooser(sendIntent, "Share song with")
 }

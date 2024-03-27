@@ -10,18 +10,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import me.theek.spark.core.data.repository.ArtistRepository
+import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.model.data.ArtistRemoteData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.util.Response
 import me.theek.spark.core.player.AudioService
 import me.theek.spark.core.player.PlayerEvent
+import me.theek.spark.core.player.QueueManager
 import me.theek.spark.feature.music_player.util.UiState
 
 @HiltViewModel(assistedFactory = ArtistDetailViewModel.ArtistDetailViewModelFactory::class)
 class ArtistDetailViewModel @AssistedInject constructor(
     @Assisted val artistName: String,
     private val artistRepository: ArtistRepository,
-    private val audioService: AudioService
+    private val audioService: AudioService,
+    private val queueManager: QueueManager,
+    private val songRepository: SongRepository
 ) : ViewModel() {
 
     @AssistedFactory
@@ -31,10 +35,15 @@ class ArtistDetailViewModel @AssistedInject constructor(
 
     private val _artistRemoteDetails = MutableStateFlow<UiState<ArtistRemoteData>>(UiState.Loading)
     val artistRemoteDetails = _artistRemoteDetails.asStateFlow()
+    private val _artistSongState = MutableStateFlow<UiState<List<Song>>>(UiState.Loading)
+    val artistSongState = _artistSongState.asStateFlow()
 
-    init { getArtistDetails() }
+    init {
+        getArtistRemoteDetails()
+        getCurrentArtistSongs()
+    }
 
-    fun getArtistDetails() {
+    fun getArtistRemoteDetails() {
         viewModelScope.launch {
             when (val response = artistRepository.getAristDetails(artistName)) {
                 is Response.Failure -> {
@@ -50,9 +59,37 @@ class ArtistDetailViewModel @AssistedInject constructor(
         }
     }
 
-    fun onSongClick(song: Song) {
+    fun onSongClick(songIndex: Int) {
         viewModelScope.launch {
-            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = song.id.toInt() - 1))
+            when (val response = artistSongState.value) {
+                UiState.Loading, is UiState.Failure, is UiState.Progress -> Unit
+                is UiState.Success -> {
+                    println("Called Song MediaList Artist")
+                    queueManager.clearCurrentQueue()
+                    queueManager.addSongsToQueue(response.data)
+                }
+            }
+            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
+        }
+    }
+
+    fun checkExoplayerStats() {
+        println(audioService.checkExoplayerStats())
+    }
+
+    private fun getCurrentArtistSongs() {
+        viewModelScope.launch {
+            when (val response = songRepository.getArtistSongs(artistName)) {
+                is Response.Loading -> {
+                    _artistRemoteDetails.value = UiState.Loading
+                }
+                is Response.Failure -> {
+                    _artistSongState.value = UiState.Failure(response.message)
+                }
+                is Response.Success -> {
+                    _artistSongState.value = UiState.Success(response.data)
+                }
+            }
         }
     }
 }

@@ -15,12 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,6 +56,7 @@ import me.theek.spark.core.design_system.icons.rememberSignalWifiStatusBarNotCon
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.feature.music_player.components.SongRow
 import me.theek.spark.feature.music_player.util.UiState
+import me.theek.spark.feature.music_player.util.shareIntent
 import me.theek.spark.feature.music_player.viewmodels.ArtistDetailViewModel
 
 
@@ -69,6 +71,7 @@ fun ArtistDetailScreen(
     }
 
     val artistRemoteState by viewModel.artistRemoteDetails.collectAsStateWithLifecycle()
+    val artistSongState by viewModel.artistSongState.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -163,6 +166,9 @@ fun ArtistDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                Button(onClick = viewModel::checkExoplayerStats) {
+                    Text(text = "Check Exoplayer stats")
+                }
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,7 +196,7 @@ fun ArtistDetailScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             TextButton(
-                                onClick = viewModel::getArtistDetails
+                                onClick = viewModel::getArtistRemoteDetails
                             ) {
                                 Icon(
                                     modifier = Modifier.size(28.dp),
@@ -230,25 +236,50 @@ fun ArtistDetailScreen(
                     }
                 }
             }
-            LazyColumn(
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .navigationBarsPadding()
-                    .fillMaxSize()
-            ) {
-                items(
-                    items = artistDetails.songs,
-                    key = { it.id }
-                ) {
-                    SongRow(
-                        song = it,
-                        playlistsState = UiState.Loading, // Make sure to fix this
-                        onSongClick = viewModel::onSongClick,
-                        onCreatePlaylistClick = {},
-                        onAddToExistingPlaylistClick = { },
-                        onSongInfoClick = {},
-                        onShareClick = {}
-                    )
+
+            when (val artistData = artistSongState) {
+                is UiState.Progress -> Unit
+                is UiState.Failure -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = artistData.message ?: "Something went wrong.")
+                    }
+                }
+                UiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is UiState.Success -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .navigationBarsPadding()
+                            .fillMaxSize()
+                    ) {
+                        itemsIndexed(
+                            items = artistData.data,
+                            key = { index, _ -> index }
+                        ) { index, song ->
+                            SongRow(
+                                index = index,
+                                song = song,
+                                playlistsState = UiState.Loading, // Make sure to fix this
+                                onSongClick = viewModel::onSongClick,
+                                onCreatePlaylistClick = {},
+                                onAddToExistingPlaylistClick = { },
+                                onSongInfoClick = {},
+                                onShareClick = { songPath ->
+                                    shareIntent(songPath)
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

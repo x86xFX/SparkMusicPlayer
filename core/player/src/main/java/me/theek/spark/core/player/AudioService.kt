@@ -6,7 +6,10 @@ import me.theek.spark.core.model.data.Song
 
 interface AudioService {
     val musicPlayStateStream: StateFlow<MusicPlayerState>
-    fun setMediaItemList(mediaItems: List<Song>)
+    fun addSongsToQueue(mediaItems: List<Song>)
+    fun replaceCurrentQueue(mediaItems: List<Song>)
+    fun clearCurrentQueue()
+    fun checkExoplayerStats(): String
     suspend fun onPlayerEvent(playerEvent: PlayerEvent)
     fun setRepeatMode(@RepeatMode repeatMode: Int)
     fun stopPlayer()

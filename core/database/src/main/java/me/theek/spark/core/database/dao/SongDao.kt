@@ -15,4 +15,7 @@ interface SongDao {
 
     @Query("SELECT * FROM songs")
     fun getSongs() : Flow<List<SongEntity>>
+
+    @Query("SELECT * FROM songs WHERE artist_name = :artistName")
+    suspend fun getArtistSongs(artistName: String) : List<SongEntity>
 }

@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -40,7 +40,7 @@ import me.theek.spark.feature.music_player.util.UiState
 internal fun SongListComposable(
     musicListState: UiState<List<Song>>,
     playlistsState: UiState<List<PlaylistData>>,
-    onSongClick: (Song) -> Unit,
+    onSongClick: (Int) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: (Song) -> Unit,
@@ -133,11 +133,12 @@ internal fun SongListComposable(
 
                     }
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(
+                        itemsIndexed(
                             items = musicListState.data,
-                            key = { it.id }
-                        ) {song ->
+                            key = { index, _ -> index }
+                        ) { index, song ->
                             SongRow(
+                                index = index,
                                 song = song,
                                 playlistsState = playlistsState,
                                 onSongClick = onSongClick,

@@ -21,7 +21,7 @@ import javax.inject.Singleton
 class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : AudioService, Player.Listener {
 
     /**
-     * State for music player
+     * State of music player
      */
     private val _musicPlayStateStream: MutableStateFlow<MusicPlayerState> = MutableStateFlow(MusicPlayerState.Initial)
     override val musicPlayStateStream: StateFlow<MusicPlayerState> = _musicPlayStateStream.asStateFlow()
@@ -39,7 +39,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
      * Add songs to exoplayer's mediaItems and set exoplayer's state as **COMMAND_PREPARE**
      * @param mediaItems - Songs list that pass into exoplayer.
      */
-    override fun setMediaItemList(mediaItems: List<Song>) {
+    override fun addSongsToQueue(mediaItems: List<Song>) {
         exoPlayer.setMediaItems(
             mediaItems.map { song ->
                 MediaItem.Builder()
@@ -50,14 +50,48 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
                             .setReleaseYear(song.releaseYear)
                             .setDisplayTitle(song.songName)
                             .setAlbumArtist(song.artistName)
+                            .setGenre(song.genres.joinToString())
                             .setSubtitle(song.songName)
                             .build()
                     )
                     .build()
             }
         )
-        exoPlayer.prepare()
+
+        if (exoPlayer.playbackState == ExoPlayer.STATE_IDLE) {
+            exoPlayer.prepare()
+        }
     }
+
+    override fun replaceCurrentQueue(mediaItems: List<Song>) {
+        exoPlayer.setMediaItems(
+            mediaItems.map { song ->
+                MediaItem.Builder()
+                    .setUri(song.path)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setTrackNumber(song.trackNumber)
+                            .setReleaseYear(song.releaseYear)
+                            .setDisplayTitle(song.songName)
+                            .setAlbumArtist(song.artistName)
+                            .setGenre(song.genres.joinToString())
+                            .setSubtitle(song.songName)
+                            .build()
+                    )
+                    .build()
+            },
+            true
+        )
+    }
+
+    override fun clearCurrentQueue() {
+        exoPlayer.clearMediaItems()
+    }
+
+    override fun checkExoplayerStats(): String {
+        return "MusicFiles: ${exoPlayer.mediaItemCount}\nCurrentPlaying: ${exoPlayer.currentMediaItemIndex}"
+    }
+
 
     /**
      * Handle player events like pausing, playing, seeking songs.
@@ -66,19 +100,41 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
      */
     override suspend fun onPlayerEvent(playerEvent: PlayerEvent) {
         when (playerEvent) {
-            PlayerEvent.Backward -> { exoPlayer.seekToPrevious() }
-            PlayerEvent.Forward -> { exoPlayer.seekToNext() }
-            PlayerEvent.PlayPause -> { playOrPause() }
-            is PlayerEvent.SelectedSongChange -> { onSelectedSongChange(playerEvent.changedSongIndex) }
-            is PlayerEvent.SeekTo -> { exoPlayer.seekTo(playerEvent.seekTo) }
+            PlayerEvent.Backward -> {
+                exoPlayer.seekToPrevious()
+            }
+
+            PlayerEvent.Forward -> {
+                exoPlayer.seekToNext()
+            }
+
+            PlayerEvent.PlayPause -> {
+                playOrPause()
+            }
+
+            is PlayerEvent.SelectedSongChange -> {
+                onSelectedSongChange(playerEvent.changedSongIndex)
+            }
+
+            is PlayerEvent.SeekTo -> {
+                exoPlayer.seekTo(playerEvent.seekTo)
+            }
         }
     }
 
     override fun setRepeatMode(@RepeatMode repeatMode: Int) {
         when (repeatMode) {
-            RepeatMode.REPEAT_MODE_ALL -> { exoPlayer.repeatMode = Player.REPEAT_MODE_ALL }
-            RepeatMode.REPEAT_MODE_OFF -> { exoPlayer.repeatMode = Player.REPEAT_MODE_OFF }
-            RepeatMode.REPEAT_MODE_ONE -> { exoPlayer.repeatMode = Player.REPEAT_MODE_ONE }
+            RepeatMode.REPEAT_MODE_ALL -> {
+                exoPlayer.repeatMode = Player.REPEAT_MODE_ALL
+            }
+
+            RepeatMode.REPEAT_MODE_OFF -> {
+                exoPlayer.repeatMode = Player.REPEAT_MODE_OFF
+            }
+
+            RepeatMode.REPEAT_MODE_ONE -> {
+                exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
+            }
         }
     }
 
@@ -88,8 +144,14 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
 
     override fun onPlaybackStateChanged(playbackState: Int) {
         when (playbackState) {
-            Player.STATE_BUFFERING -> { _musicPlayStateStream.update { MusicPlayerState.Buffering(progress = exoPlayer.currentPosition) } }
-            Player.STATE_READY -> { _musicPlayStateStream.update { MusicPlayerState.Ready(duration = exoPlayer.duration) } }
+            Player.STATE_BUFFERING -> {
+                _musicPlayStateStream.update { MusicPlayerState.Buffering(progress = exoPlayer.currentPosition) }
+            }
+
+            Player.STATE_READY -> {
+                _musicPlayStateStream.update { MusicPlayerState.Ready(duration = exoPlayer.duration) }
+            }
+
             else -> Unit
         }
     }
@@ -109,6 +171,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
             Player.MEDIA_ITEM_TRANSITION_REASON_AUTO -> {
                 _musicPlayStateStream.update { MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex) }
             }
+
             else -> Unit
         }
     }

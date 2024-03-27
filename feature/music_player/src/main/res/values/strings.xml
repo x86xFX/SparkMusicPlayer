@@ -19,4 +19,5 @@
     <string name="no_internet_icon">No internet icon</string>
     <string name="artist_spotify_profile">Artist Spotify profile</string>
     <string name="artist_s_spotify_profile">Artist\'s Spotify Profile</string>
+    <string name="playlist_name">Playlist name</string>
 </resources>

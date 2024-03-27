@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -49,7 +51,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
     packaging {
         resources {
@@ -67,6 +69,7 @@ dependencies {
     implementation(libs.material3)
 
     implementation(libs.hilt)
+    implementation(libs.firebase.crashlytics)
     ksp(libs.hilt.compiler)
 
     implementation(libs.coil.compose)

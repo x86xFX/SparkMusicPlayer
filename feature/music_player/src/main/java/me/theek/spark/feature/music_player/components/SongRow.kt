@@ -35,9 +35,10 @@ import me.theek.spark.feature.music_player.util.UiState
 
 @Composable
 internal fun SongRow(
+    index: Int,
     song: Song,
     playlistsState: UiState<List<PlaylistData>>,
-    onSongClick: (Song) -> Unit,
+    onSongClick: (Int) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: (Song) -> Unit,
@@ -54,7 +55,7 @@ internal fun SongRow(
                 .fillMaxWidth()
                 .padding(horizontal = 5.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .clickable { onSongClick(song) },
+                .clickable { onSongClick(index) },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.width(10.dp))
@@ -119,6 +120,7 @@ internal fun SongRow(
 @Composable
 private fun SongRowPreview() {
     SongRow(
+        index = 1,
         song = Song(
             id = 0,
             path = "",

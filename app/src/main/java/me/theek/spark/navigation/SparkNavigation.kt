@@ -40,16 +40,14 @@ fun SparkNavigation(
             )
         }
         
-        composable(
-            route = Route.HOME
-        ) {
+        composable(route = Route.HOME) {
             MusicListScreen(
                 onSongServiceStart = onSongServiceStart,
-                onNavigateToArtistDetailScreen = {
+                onNavigateToArtistDetailScreen = { artistDetails ->
                     if (navController.canGoBack) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
-                            key = "artist_with_songs",
-                            value = it
+                            key = "artist_details",
+                            value = artistDetails
                         )
                         navController.navigate(Route.ARTIST_DETAILS)
                     }
@@ -65,10 +63,10 @@ fun SparkNavigation(
             enterTransition = { slideInHorizontally(animationSpec = tween(500)) },
             exitTransition = { slideOutHorizontally(animationSpec = tween(500)) }
         ) {
-            val artistWithSongs = navController.previousBackStackEntry?.savedStateHandle?.get<ArtistDetails>(key = "artist_with_songs")
-            if (artistWithSongs != null) {
+            val artistDetails = navController.previousBackStackEntry?.savedStateHandle?.get<ArtistDetails>(key = "artist_details")
+            if (artistDetails != null) {
                 ArtistDetailScreen(
-                    artistDetails = artistWithSongs,
+                    artistDetails = artistDetails,
                     onNavigateBackClick = {
                         if (navController.canGoBack) {
                             navController.popBackStack()

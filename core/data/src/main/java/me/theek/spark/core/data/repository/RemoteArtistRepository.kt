@@ -4,9 +4,11 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.theek.spark.core.data.mapper.toArtistDetails
 import me.theek.spark.core.data.mapper.toArtistProfileEntity
 import me.theek.spark.core.data.mapper.toArtistRemoteData
 import me.theek.spark.core.database.dao.ArtistDao
+import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.ArtistRemoteData
 import me.theek.spark.core.model.util.Response
 import me.theek.spark.core.network.RemoteArtistService
@@ -19,6 +21,10 @@ class RemoteArtistRepository @Inject constructor(
     private val remoteArtistService: RemoteArtistService,
     private val artistDao: ArtistDao
 ) : ArtistRepository {
+
+    override suspend fun getAllArtistsSongDetails(): List<ArtistDetails> = withContext(Dispatchers.IO) {
+        artistDao.getArtistsSongsDetails().map { it.toArtistDetails() }
+    }
 
     override suspend fun getAristDetails(artistName: String): Response<ArtistRemoteData> = withContext(Dispatchers.IO) {
 

@@ -51,6 +51,7 @@ import me.theek.spark.core.design_system.icons.rememberPause
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.player.RepeatMode
 import me.theek.spark.feature.music_player.R
+import me.theek.spark.feature.music_player.util.themedPaletteSwitch
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -72,6 +73,7 @@ internal fun DraggablePlayer(
     onPausePlayClick: () -> Unit,
     onSkipNextClick: () -> Unit,
     onRepeatClick: (@RepeatMode Int) -> Unit,
+    onPlayerMinimizeClick: () -> Unit,
     draggableState: PlayerDraggableState,
     maxWidth: Float,
     maxHeight: Float,
@@ -249,20 +251,11 @@ internal fun DraggablePlayer(
                 onSkipPreviousClick = onSkipPreviousClick,
                 onPausePlayClick = onPausePlayClick,
                 onSkipNextClick = onSkipNextClick,
-                onPlayerMinimizeClick = { /*TODO*/ },
+                onPlayerMinimizeClick = onPlayerMinimizeClick,
                 onPlayerQueueClick = { /*TODO*/ },
                 onFavouriteClick = { /*TODO*/ },
                 onRepeatClick = onRepeatClick,
             )
         }
-    }
-}
-
-@Composable
-private fun themedPaletteSwitch(isSystemInDarkTheme: Boolean, palette: Palette?): Palette.Swatch? {
-    return if (isSystemInDarkTheme) {
-        palette?.darkVibrantSwatch
-    } else {
-        palette?.vibrantSwatch
     }
 }

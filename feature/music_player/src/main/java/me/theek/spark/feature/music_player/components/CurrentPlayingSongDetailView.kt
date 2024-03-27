@@ -56,7 +56,7 @@ import me.theek.spark.core.design_system.icons.rememberRepeat
 import me.theek.spark.core.design_system.icons.rememberRepeatOne
 import me.theek.spark.core.player.RepeatMode
 import me.theek.spark.feature.music_player.R
-import kotlin.math.floor
+import me.theek.spark.feature.music_player.util.timeStampToDuration
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -362,11 +362,4 @@ internal fun CurrentPlayingSongDetailView(
             }
         }
     }
-}
-
-internal fun timeStampToDuration(duration: Float): String {
-    val totalSecond = floor(duration / 1E3).toInt()
-    val minutes = totalSecond / 60
-    val remainingSeconds = totalSecond - (minutes * 60)
-    return if (duration < 0) "--:--" else "%d:%02d".format(minutes, remainingSeconds)
 }

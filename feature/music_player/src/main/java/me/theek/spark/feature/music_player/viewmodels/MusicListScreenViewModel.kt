@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.theek.spark.core.data.repository.ArtistRepository
 import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.Song
@@ -27,6 +28,7 @@ import me.theek.spark.core.model.util.Response
 import me.theek.spark.core.player.AudioService
 import me.theek.spark.core.player.MusicPlayerState
 import me.theek.spark.core.player.PlayerEvent
+import me.theek.spark.core.player.QueueManager
 import me.theek.spark.core.player.RepeatMode
 import me.theek.spark.feature.music_player.util.UiState
 import javax.inject.Inject
@@ -36,12 +38,14 @@ import kotlin.math.floor
 @HiltViewModel
 class MusicListScreenViewModel @Inject constructor(
     private val songRepository: SongRepository,
+    private val artistRepository: ArtistRepository,
     private val audioService: AudioService,
+    private val queueManager: QueueManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private var songList by mutableStateOf(listOf<Song>())
-    private val _artistDetailsStream = MutableStateFlow<Map<String, ArtistDetails>>(emptyMap())
+    private val _artistDetailsStream = MutableStateFlow<List<ArtistDetails>>(emptyList())
     val artistDetailsStream = _artistDetailsStream.asStateFlow()
     var uiState by mutableStateOf<UiState<List<Song>>>(UiState.Loading)
         private set
@@ -72,7 +76,7 @@ class MusicListScreenViewModel @Inject constructor(
                 when (musicPlayerState) {
                     is MusicPlayerState.CurrentPlaying -> {
                         if (currentSelectedSong == null || currentSelectedSong != songList[musicPlayerState.mediaItemIndex]) {
-                            getCurrentPlayingSongCoverArt(songList[musicPlayerState.mediaItemIndex].path)
+                            getCurrentPlayingSongCoverArt(songList[musicPlayerState.mediaItemIndex].path) //Need to fix this
                         }
                         currentSelectedSong = songList[musicPlayerState.mediaItemIndex]
                     }
@@ -87,9 +91,11 @@ class MusicListScreenViewModel @Inject constructor(
         }
     }
 
-    fun onSongClick(song: Song) {
+    fun onSongClick(songIndex: Int) {
         viewModelScope.launch {
-            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = song.id.toInt() - 1))
+            queueManager.clearCurrentQueue()
+            queueManager.addSongsToQueue(songList)
+            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
         }
     }
 
@@ -138,7 +144,6 @@ class MusicListScreenViewModel @Inject constructor(
                 is Response.Success -> {
                     songList = songResponse.data
                     uiState = UiState.Success(songResponse.data)
-                    setMediaItems()
                     extractSongArtistsAndCounts()
                 }
 
@@ -150,10 +155,6 @@ class MusicListScreenViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun setMediaItems() {
-        audioService.setMediaItemList(mediaItems = songList)
     }
 
     private fun calculateProgress(currentProgress: Long) {
@@ -184,18 +185,8 @@ class MusicListScreenViewModel @Inject constructor(
     }
 
     private fun extractSongArtistsAndCounts() {
-        _artistDetailsStream.value = songList.groupBy { song ->
-            when (song.artistName?.lowercase()) {
-                "<unknown>" -> "Unknown"
-                else -> {
-                    song.artistName ?: "Unknown"
-                }
-            }
-        }.mapValues { (artistName, songs) ->
-            ArtistDetails(
-                artistName = artistName,
-                songs = songs
-            )
+        viewModelScope.launch {
+            _artistDetailsStream.value = artistRepository.getAllArtistsSongDetails()
         }
     }
 }
