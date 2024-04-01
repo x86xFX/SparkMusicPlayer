@@ -1,7 +1,6 @@
 package me.theek.spark.feature.music_player.viewmodels
 
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
