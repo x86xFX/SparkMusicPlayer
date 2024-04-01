@@ -1,7 +1,10 @@
 package me.theek.spark.core.content_reader
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
@@ -28,6 +31,11 @@ class MediaStoreReader @Inject constructor(
 ) {
 
     fun getAudioData(): Flow<FlowEvent<List<Song>>> = flow<FlowEvent<List<Song>>> {
+
+        if(!context.isAudioFileReadPermissionGranted()) {
+            emit(FlowEvent.Failure(message = "Permission required for read audio files"))
+            return@flow
+        }
 
         var songs: MutableList<Song> = mutableListOf()
 
@@ -137,5 +145,13 @@ class MediaStoreReader @Inject constructor(
         } catch (e: Exception) {
             null
         }
+    }
+}
+
+private fun Context.isAudioFileReadPermissionGranted() : Boolean {
+     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        this.checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
+    } else {
+        this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
     }
 }

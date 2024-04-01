@@ -54,6 +54,7 @@ import coil.request.ImageRequest
 import me.theek.spark.core.design_system.components.GenreTag
 import me.theek.spark.core.design_system.icons.rememberSignalWifiStatusBarNotConnected
 import me.theek.spark.core.model.data.ArtistDetails
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.SongRow
 import me.theek.spark.feature.music_player.util.UiState
 import me.theek.spark.feature.music_player.util.shareIntent
@@ -64,7 +65,11 @@ import me.theek.spark.feature.music_player.viewmodels.ArtistDetailViewModel
 @Composable
 fun ArtistDetailScreen(
     artistDetails: ArtistDetails,
-    onNavigateBackClick: () -> Unit
+    onNavigateBackClick: () -> Unit,
+    onSongInfoClick: (Song) -> Unit,
+    onCreatePlaylistClick: (Song) -> Unit,
+    onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
+    onSongClick: (List<Song>, Int) -> Unit
 ) {
     val viewModel = hiltViewModel<ArtistDetailViewModel, ArtistDetailViewModel.ArtistDetailViewModelFactory> { factory ->
         factory.create(artistDetails.artistName)
@@ -73,6 +78,7 @@ fun ArtistDetailScreen(
     val artistRemoteState by viewModel.artistRemoteDetails.collectAsStateWithLifecycle()
     val artistSongState by viewModel.artistSongState.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         AsyncImage(
@@ -270,12 +276,14 @@ fun ArtistDetailScreen(
                                 index = index,
                                 song = song,
                                 playlistsState = UiState.Loading, // Make sure to fix this
-                                onSongClick = viewModel::onSongClick,
-                                onCreatePlaylistClick = {},
-                                onAddToExistingPlaylistClick = { },
-                                onSongInfoClick = {},
+                                onSongClick = {
+                                    onSongClick(artistData.data, it)
+                                },
+                                onCreatePlaylistClick = onCreatePlaylistClick,
+                                onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
+                                onSongInfoClick = onSongInfoClick,
                                 onShareClick = { songPath ->
-                                    shareIntent(songPath)
+                                    context.startActivity(shareIntent(songPath))
                                 }
                             )
                         }

@@ -31,9 +31,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     /**
      * Initialize exoplayer and add listener
      */
-    init {
-        exoPlayer.addListener(this)
-    }
+    init { exoPlayer.addListener(this) }
 
     /**
      * Add songs to exoplayer's mediaItems and set exoplayer's state as **COMMAND_PREPARE**
@@ -57,7 +55,6 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
                     .build()
             }
         )
-
         if (exoPlayer.playbackState == ExoPlayer.STATE_IDLE) {
             exoPlayer.prepare()
         }

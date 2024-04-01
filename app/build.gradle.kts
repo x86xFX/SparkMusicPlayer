@@ -68,9 +68,11 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.material3)
 
-    implementation(libs.hilt)
     implementation(libs.firebase.crashlytics)
+
+    implementation(libs.hilt)
     ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation)
 
     implementation(libs.coil.compose)
     implementation(libs.androidx.core.splashscreen)

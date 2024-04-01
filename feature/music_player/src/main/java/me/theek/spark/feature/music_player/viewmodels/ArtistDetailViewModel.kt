@@ -15,8 +15,6 @@ import me.theek.spark.core.model.data.ArtistRemoteData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.util.Response
 import me.theek.spark.core.player.AudioService
-import me.theek.spark.core.player.PlayerEvent
-import me.theek.spark.core.player.QueueManager
 import me.theek.spark.feature.music_player.util.UiState
 
 @HiltViewModel(assistedFactory = ArtistDetailViewModel.ArtistDetailViewModelFactory::class)
@@ -24,7 +22,6 @@ class ArtistDetailViewModel @AssistedInject constructor(
     @Assisted val artistName: String,
     private val artistRepository: ArtistRepository,
     private val audioService: AudioService,
-    private val queueManager: QueueManager,
     private val songRepository: SongRepository
 ) : ViewModel() {
 
@@ -56,20 +53,6 @@ class ArtistDetailViewModel @AssistedInject constructor(
                     _artistRemoteDetails.value = UiState.Success(response.data)
                 }
             }
-        }
-    }
-
-    fun onSongClick(songIndex: Int) {
-        viewModelScope.launch {
-            when (val response = artistSongState.value) {
-                UiState.Loading, is UiState.Failure, is UiState.Progress -> Unit
-                is UiState.Success -> {
-                    println("Called Song MediaList Artist")
-                    queueManager.clearCurrentQueue()
-                    queueManager.addSongsToQueue(response.data)
-                }
-            }
-            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
         }
     }
 

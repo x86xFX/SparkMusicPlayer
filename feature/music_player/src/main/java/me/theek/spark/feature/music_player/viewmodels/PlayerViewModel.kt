@@ -1,6 +1,7 @@
 package me.theek.spark.feature.music_player.viewmodels
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,7 +37,7 @@ import kotlin.math.floor
 
 @OptIn(SavedStateHandleSaveableApi::class)
 @HiltViewModel
-class MusicListScreenViewModel @Inject constructor(
+class PlayerViewModel @Inject constructor(
     private val songRepository: SongRepository,
     private val artistRepository: ArtistRepository,
     private val audioService: AudioService,
@@ -44,7 +45,9 @@ class MusicListScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private var songList by mutableStateOf(listOf<Song>())
+    private var allSongList by mutableStateOf(listOf<Song>())
+    private var currentQueuedSongList by mutableStateOf(listOf<Song>())
+
     private val _artistDetailsStream = MutableStateFlow<List<ArtistDetails>>(emptyList())
     val artistDetailsStream = _artistDetailsStream.asStateFlow()
     var uiState by mutableStateOf<UiState<List<Song>>>(UiState.Loading)
@@ -75,10 +78,10 @@ class MusicListScreenViewModel @Inject constructor(
             audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
                 when (musicPlayerState) {
                     is MusicPlayerState.CurrentPlaying -> {
-                        if (currentSelectedSong == null || currentSelectedSong != songList[musicPlayerState.mediaItemIndex]) {
-                            getCurrentPlayingSongCoverArt(songList[musicPlayerState.mediaItemIndex].path) //Need to fix this
+                        if (currentSelectedSong == null || currentSelectedSong != currentQueuedSongList[musicPlayerState.mediaItemIndex]) {
+                            getCurrentPlayingSongCoverArt(currentQueuedSongList[musicPlayerState.mediaItemIndex].path)
                         }
-                        currentSelectedSong = songList[musicPlayerState.mediaItemIndex]
+                        currentSelectedSong = currentQueuedSongList[musicPlayerState.mediaItemIndex]
                     }
                     is MusicPlayerState.Playing -> { isPlaying = musicPlayerState.isPlaying }
                     is MusicPlayerState.Progress -> { calculateProgress(musicPlayerState.progress) }
@@ -94,7 +97,17 @@ class MusicListScreenViewModel @Inject constructor(
     fun onSongClick(songIndex: Int) {
         viewModelScope.launch {
             queueManager.clearCurrentQueue()
-            queueManager.addSongsToQueue(songList)
+            queueManager.addSongsToQueue(allSongList)
+            currentQueuedSongList = allSongList
+            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
+        }
+    }
+
+    fun onArtistQueueSongClick(songsInQueue: List<Song>, songIndex: Int) {
+        viewModelScope.launch {
+            queueManager.clearCurrentQueue()
+            queueManager.addSongsToQueue(songsInQueue)
+            currentQueuedSongList = songsInQueue
             audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
         }
     }
@@ -137,21 +150,23 @@ class MusicListScreenViewModel @Inject constructor(
 
     private fun loadSongData() {
         viewModelScope.launch {
-            when (val songResponse = songRepository.getSongs()) {
-                is Response.Failure -> {
-                    uiState = UiState.Failure(songResponse.message)
-                }
-                is Response.Success -> {
-                    songList = songResponse.data
-                    uiState = UiState.Success(songResponse.data)
-                    extractSongArtistsAndCounts()
-                }
+            songRepository.getSongs().collect { songResponse ->
+                when (songResponse) {
+                    is Response.Failure -> {
+                        uiState = UiState.Failure(songResponse.message)
+                    }
+                    is Response.Success -> {
+                        allSongList = songResponse.data
+                        uiState = UiState.Success(songResponse.data)
+                        extractSongArtistsAndCounts()
+                    }
 
-                is Response.Loading -> {
-                    uiState = UiState.Progress(
-                        progress = songResponse.progress,
-                        status = songResponse.message
-                    )
+                    is Response.Loading -> {
+                        uiState = UiState.Progress(
+                            progress = songResponse.progress,
+                            status = songResponse.message
+                        )
+                    }
                 }
             }
         }

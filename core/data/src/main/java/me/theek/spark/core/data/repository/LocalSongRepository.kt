@@ -2,10 +2,11 @@ package me.theek.spark.core.data.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.withContext
 import me.theek.spark.core.content_reader.MediaStoreReader
 import me.theek.spark.core.data.mapper.toSong
 import me.theek.spark.core.data.mapper.toSongEntity
@@ -55,31 +56,33 @@ class LocalSongRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun getSongs(): Response<List<Song>> = withContext(Dispatchers.IO) {
+    override fun getSongs(): Flow<Response<List<Song>>> = channelFlow<Response<List<Song>>> {
 
-        val existingSongs = songDao.getSongs().first()
+        songDao.getSongs().collectLatest { existingSongs ->
+            if (existingSongs.isEmpty()) {
+                when (val mediaData = mediaStoreReader.getAudioData().first()) {
+                    is FlowEvent.Progress -> {
+                        send(
+                            Response.Loading(
+                                size = mediaData.size,
+                                progress = mediaData.asFloat(),
+                                message = mediaData.message
+                            )
+                        )
+                    }
+                    is FlowEvent.Success -> {
+                        send(Response.Success(mediaData.data))
+                    }
 
-        if (existingSongs.isEmpty()) {
-            when (val mediaData = mediaStoreReader.getAudioData().first()) {
-                is FlowEvent.Progress -> {
-                    Response.Loading(
-                        size = mediaData.size,
-                        progress = mediaData.asFloat(),
-                        message = mediaData.message
-                    )
+                    is FlowEvent.Failure -> {
+                        send(Response.Failure(mediaData.message))
+                    }
                 }
-                is FlowEvent.Success -> {
-                    Response.Success(mediaData.data)
-                }
-
-                is FlowEvent.Failure -> {
-                    Response.Failure(mediaData.message)
-                }
+            } else {
+                send(Response.Success(existingSongs.map { it.toSong() }))
             }
-        } else {
-            Response.Success(existingSongs.map { it.toSong() })
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun getArtistSongs(artistName: String): Response<List<Song>> {
         val result = songDao.getArtistSongs(artistName).map { it.toSong() }
