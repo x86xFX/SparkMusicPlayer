@@ -9,7 +9,7 @@ import me.theek.spark.core.notificaition.SparkNotificationManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MediaService : MediaSessionService(){
+class MediaService : MediaSessionService() {
 
     @Inject
     lateinit var mediaSession: MediaSession
@@ -28,7 +28,6 @@ class MediaService : MediaSessionService(){
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession = mediaSession
 
     override fun onDestroy() {
-        super.onDestroy()
         mediaSession.apply {
             release()
             if (player.playbackState != Player.STATE_IDLE) {
@@ -37,5 +36,6 @@ class MediaService : MediaSessionService(){
                 player.stop()
             }
         }
+        super.onDestroy()
     }
 }
