@@ -1,6 +1,7 @@
 package me.theek.spark.feature.music_player.viewmodels
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -22,7 +23,7 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
 
     val uiState: StateFlow<UiState<List<PlaylistData>>> = playlistRepository.getAllPlayLists()
         .map { playlists ->
-            playlists.distinctBy { it.playlistId } // Filter duplicates based on playlistId
+            playlists.distinctBy { it.playlistId } // Filter out duplicates based on playlistId
         }.map {
             UiState.Success(it)
         }.stateIn(
@@ -30,12 +31,16 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = UiState.Loading
         )
-
     private var currentQueuedSong by mutableStateOf<Song?>(null)
     var newPlaylistName by mutableStateOf("")
         private set
     var shouldOpenCreatePlaylistDialog by mutableStateOf(false)
         private set
+    var isInSelectionMode by mutableStateOf(false)
+        private set
+    var shouldShowPlaylistDeletionWarning by mutableStateOf(false)
+        private set
+    private var selectedPlaylists = mutableStateListOf<Long>()
 
     fun addToQueuedPlaylistSong(song: Song) {
         currentQueuedSong = song
@@ -59,6 +64,7 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
         }
     }
 
+
     fun onPlaylistSave() {
         if (newPlaylistName.isNotBlank() && currentQueuedSong != null) {
             viewModelScope.launch {
@@ -71,6 +77,36 @@ class PlaylistViewModel @Inject constructor(private val playlistRepository: Play
                 newPlaylistName = ""
                 currentQueuedSong = null
             }
+        }
+    }
+
+    fun onChangingToSelectionMode(playlistId: Long) {
+        selectedPlaylists.add(playlistId)
+        isInSelectionMode = true
+    }
+
+    fun onPlaylistAddToSelection(playlistId: Long) {
+        selectedPlaylists.add(playlistId)
+    }
+
+    fun onPlaylistRemoveFromSelection(playlistId: Long) {
+        selectedPlaylists.remove(playlistId)
+    }
+
+    fun onPlaylistSelectionClearClick() {
+        isInSelectionMode = false
+        selectedPlaylists.clear()
+    }
+
+    fun onPlaylistDeleteWarningShow() { shouldShowPlaylistDeletionWarning = true }
+
+    fun onPlaylistDeleteWarningDismiss() { shouldShowPlaylistDeletionWarning = false }
+
+    fun onDeletePlaylists() {
+        viewModelScope.launch {
+            playlistRepository.deletePlaylists(selectedPlaylists)
+            isInSelectionMode = false
+            onPlaylistDeleteWarningDismiss()
         }
     }
 }

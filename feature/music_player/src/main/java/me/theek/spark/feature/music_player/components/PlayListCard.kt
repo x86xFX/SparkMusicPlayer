@@ -1,6 +1,8 @@
 package me.theek.spark.feature.music_player.components
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,9 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -28,19 +36,55 @@ import coil.request.ImageRequest
 import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.feature.music_player.R
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun PlayListCard(
     playlist: PlaylistData,
+    isInSelectionMode: Boolean,
+    onChangingToSelectionMode: (Long) -> Unit,
+    onPlaylistAddToSelection: (Long) -> Unit,
+    onPlaylistRemoveFromSelection: (Long) -> Unit,
     onPlaylistViewClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isSelected by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = isInSelectionMode) {
+        if (!isInSelectionMode) isSelected = false
+    }
+
     Card(modifier = modifier) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .width(100.dp)
                 .height(150.dp)
-                .clickable { onPlaylistViewClick(playlist.playlistId) }
+                .border(
+                    width = 2.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerLowest,
+                    shape = CardDefaults.shape
+                )
+                .combinedClickable(
+                    onLongClick = {
+                        if (isInSelectionMode.not()) {
+                            onChangingToSelectionMode(playlist.playlistId)
+                            isSelected = true
+                        }
+                    },
+                    onClick = {
+                        if (isInSelectionMode) {
+                            isSelected = if (isSelected) {
+                                onPlaylistRemoveFromSelection(playlist.playlistId)
+                                false
+                            } else {
+                                onPlaylistAddToSelection(playlist.playlistId)
+                                true
+                            }
+                        } else {
+                            onPlaylistViewClick(playlist.playlistId)
+                        }
+                    }
+                )
         ) {
             AsyncImage(
                 modifier = Modifier

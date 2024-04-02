@@ -13,4 +13,5 @@ interface PlaylistRepository {
     )
     suspend fun createPlaylistWithSongs(playListWithSong: List<SongInPlayList>)
     suspend fun addSongToExistingPlaylist(songId: Long, playListId: Long)
+    suspend fun deletePlaylists(playListIds: List<Long>)
 }

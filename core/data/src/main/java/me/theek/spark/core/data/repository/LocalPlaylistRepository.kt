@@ -59,4 +59,8 @@ class LocalPlaylistRepository @Inject constructor(
             ).toSongInPlaylistEntity()
         )
     }
+
+    override suspend fun deletePlaylists(playListIds: List<Long>) {
+        songInPlaylistDao.deletePlaylists(playListIds)
+    }
 }

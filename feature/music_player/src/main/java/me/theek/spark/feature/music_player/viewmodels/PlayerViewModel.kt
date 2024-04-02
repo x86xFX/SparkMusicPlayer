@@ -30,9 +30,11 @@ import me.theek.spark.core.player.MusicPlayerState
 import me.theek.spark.core.player.PlayerEvent
 import me.theek.spark.core.player.QueueManager
 import me.theek.spark.core.player.RepeatMode
+import me.theek.spark.core.player.RepeatMode.Companion.REPEAT_MODE_ALL
 import me.theek.spark.feature.music_player.util.UiState
 import javax.inject.Inject
 import kotlin.math.floor
+import kotlin.random.Random
 
 @OptIn(SavedStateHandleSaveableApi::class)
 @HiltViewModel
@@ -65,7 +67,7 @@ class PlayerViewModel @Inject constructor(
         private set
     var duration by savedStateHandle.saveable { mutableLongStateOf(0L) }
         private set
-    var repeatMode by savedStateHandle.saveable { mutableIntStateOf(RepeatMode.REPEAT_MODE_ALL) }
+    var repeatMode by savedStateHandle.saveable { mutableIntStateOf(REPEAT_MODE_ALL) }
         private set
     var songInfo by mutableStateOf(SongInfo())
         private set
@@ -95,19 +97,28 @@ class PlayerViewModel @Inject constructor(
 
     fun onSongClick(songIndex: Int) {
         viewModelScope.launch {
-            queueManager.clearCurrentQueue()
             queueManager.addSongsToQueue(allSongList)
             currentQueuedSongList = allSongList
+            audioService.setRepeatMode(REPEAT_MODE_ALL)
             audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
         }
     }
 
     fun onArtistQueueSongClick(songsInQueue: List<Song>, songIndex: Int) {
         viewModelScope.launch {
-            queueManager.clearCurrentQueue()
             queueManager.addSongsToQueue(songsInQueue)
             currentQueuedSongList = songsInQueue
             audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
+        }
+    }
+
+    fun onAllShuffleClick() {
+        viewModelScope.launch {
+            queueManager.addSongsToQueue(allSongList)
+            currentQueuedSongList = allSongList
+            val randomSongIndex = Random.nextInt(until = allSongList.lastIndex)
+            audioService.setRepeatMode(REPEAT_MODE_ALL)
+            audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = randomSongIndex))
         }
     }
 
@@ -157,7 +168,7 @@ class PlayerViewModel @Inject constructor(
                     is Response.Success -> {
                         allSongList = songResponse.data
                         uiState = UiState.Success(songResponse.data)
-                        extractSongArtistsAndCounts()
+                        launch { extractSongArtistsAndCounts() }
                     }
 
                     is Response.Loading -> {
@@ -198,10 +209,8 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    private fun extractSongArtistsAndCounts() {
-        viewModelScope.launch {
-            _artistDetailsStream.value = artistRepository.getAllArtistsSongDetails()
-        }
+    private suspend fun extractSongArtistsAndCounts() {
+        _artistDetailsStream.value = artistRepository.getAllArtistsSongDetails()
     }
 }
 

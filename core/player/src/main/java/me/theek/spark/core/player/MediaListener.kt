@@ -60,27 +60,6 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         }
     }
 
-    override fun replaceCurrentQueue(mediaItems: List<Song>) {
-        exoPlayer.setMediaItems(
-            mediaItems.map { song ->
-                MediaItem.Builder()
-                    .setUri(song.path)
-                    .setMediaMetadata(
-                        MediaMetadata.Builder()
-                            .setTrackNumber(song.trackNumber)
-                            .setReleaseYear(song.releaseYear)
-                            .setDisplayTitle(song.songName)
-                            .setAlbumArtist(song.artistName)
-                            .setGenre(song.genres.joinToString())
-                            .setSubtitle(song.songName)
-                            .build()
-                    )
-                    .build()
-            },
-            true
-        )
-    }
-
     override fun clearCurrentQueue() {
         exoPlayer.clearMediaItems()
     }

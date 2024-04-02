@@ -45,9 +45,10 @@ internal fun SongListComposable(
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: (Song) -> Unit,
     onShareClick: (String) -> Unit,
+    onShufflePlayClick: () -> Unit,
+    onAllPlayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     when (musicListState) {
         UiState.Loading -> Unit
         is UiState.Progress -> {
@@ -108,7 +109,7 @@ internal fun SongListComposable(
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             FilledTonalIconButton(
-                                onClick = { /*TODO*/ },
+                                onClick = onShufflePlayClick,
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
@@ -120,7 +121,7 @@ internal fun SongListComposable(
                             }
 
                             FilledTonalIconButton(
-                                onClick = { /*TODO*/ },
+                                onClick = onAllPlayClick,
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(

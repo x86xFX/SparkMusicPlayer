@@ -36,6 +36,7 @@ import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.DraggablePlayer
+import me.theek.spark.feature.music_player.components.PlaylistDeleteAlert
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
 import me.theek.spark.feature.music_player.tabs.ArtistsComposable
 import me.theek.spark.feature.music_player.tabs.PlaylistComposable
@@ -48,11 +49,11 @@ import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 
 @Composable
 fun MusicListScreen(
+    playerViewModel: PlayerViewModel,
     onSongServiceStart: () -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
-    onPlaylistViewClick: (Long) -> Unit,
-    playerViewModel: PlayerViewModel,
-    playlistViewModel: PlaylistViewModel
+    playlistViewModel: PlaylistViewModel,
+    onPlaylistViewClick: (Long) -> Unit
 ) {
     val currentSelectedSong = playerViewModel.currentSelectedSong
     val musicListState = playerViewModel.uiState
@@ -72,7 +73,12 @@ fun MusicListScreen(
                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                 .navigationBarsPadding(),
             topBar = {
-                SparkPlayerTopAppBar(onSearch = {})
+                SparkPlayerTopAppBar(
+                    isInPlaylistSelectionMode = playlistViewModel.isInSelectionMode,
+                    onSearch = {},
+                    onPlaylistDelete = playlistViewModel::onPlaylistDeleteWarningShow,
+                    onPlaylistSelectionClearClick = playlistViewModel::onPlaylistSelectionClearClick
+                )
             },
             content = { innerPadding ->
                 MusicUi(
@@ -86,16 +92,20 @@ fun MusicListScreen(
                     onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
                     onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
                     onSongInfoClick = playerViewModel::onSongInfoClick,
-                    onShareClick = { songPath ->
-                       context.startActivity(shareIntent(songPath))
-                    },
+                    onShareClick = { songPath -> context.startActivity(shareIntent(songPath)) },
                     onPlaylistViewClick = onPlaylistViewClick,
                     onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
                     scope = scope,
                     onSongClick = {
                         playerViewModel.onSongClick(it)
                         onSongServiceStart()
-                    }
+                    },
+                    onShufflePlayClick = playerViewModel::onAllShuffleClick,
+                    onAllPlayClick = { playerViewModel.onSongClick(0) },
+                    isInSelectionMode = playlistViewModel.isInSelectionMode,
+                    onChangingToSelectionMode = playlistViewModel::onChangingToSelectionMode,
+                    onPlaylistAddToSelection = playlistViewModel::onPlaylistAddToSelection,
+                    onPlaylistRemoveFromSelection = playlistViewModel::onPlaylistRemoveFromSelection
                 )
             }
         )
@@ -128,6 +138,12 @@ fun MusicListScreen(
             )
         }
     }
+
+    PlaylistDeleteAlert(
+        shouldShowAlert = playlistViewModel.shouldShowPlaylistDeletionWarning,
+        onAlertDismiss = playlistViewModel::onPlaylistDeleteWarningDismiss,
+        onDeletePlaylist = playlistViewModel::onDeletePlaylists
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -143,6 +159,12 @@ private fun MusicUi(
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
     onSongInfoClick: (Song) -> Unit,
     onShareClick: (String) -> Unit,
+    onShufflePlayClick: () -> Unit,
+    onAllPlayClick: () -> Unit,
+    isInSelectionMode: Boolean,
+    onChangingToSelectionMode: (Long) -> Unit,
+    onPlaylistAddToSelection: (Long) -> Unit,
+    onPlaylistRemoveFromSelection: (Long) -> Unit,
     scope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
@@ -152,7 +174,7 @@ private fun MusicUi(
     Column(modifier = modifier) {
         ScrollableTabRow(
             modifier = Modifier.fillMaxWidth(),
-            divider = { },
+            divider = {},
             indicator = {},
             edgePadding = 0.dp,
             selectedTabIndex = selectedIndex,
@@ -190,7 +212,9 @@ private fun MusicUi(
                         onCreatePlaylistClick = onCreatePlaylistClick,
                         onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
                         onSongInfoClick = onSongInfoClick,
-                        onShareClick = onShareClick
+                        onShareClick = onShareClick,
+                        onShufflePlayClick = onShufflePlayClick,
+                        onAllPlayClick = onAllPlayClick
                     )
                 }
 
@@ -210,7 +234,11 @@ private fun MusicUi(
                     PlaylistComposable(
                         modifier = Modifier.fillMaxSize(),
                         playlistsState = playlistsState,
-                        onPlaylistViewClick = onPlaylistViewClick
+                        onPlaylistViewClick = onPlaylistViewClick,
+                        isInSelectionMode = isInSelectionMode,
+                        onChangingToSelectionMode = onChangingToSelectionMode,
+                        onPlaylistAddToSelection = onPlaylistAddToSelection,
+                        onPlaylistRemoveFromSelection = onPlaylistRemoveFromSelection,
                     )
                 }
 

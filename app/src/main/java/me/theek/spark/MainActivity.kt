@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -21,13 +20,10 @@ import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.ui.theme.SparkMusicPlayerTheme
 import me.theek.spark.core.service.MediaService
 import me.theek.spark.navigation.SparkNavigation
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var exoPlayer: ExoPlayer
     private var isServiceRunning: Boolean = false
     private val mainViewModel: MainViewModel by viewModels()
 
@@ -65,13 +61,6 @@ class MainActivity : ComponentActivity() {
                 darkScrim = Color.TRANSPARENT
             )
         )
-    }
-
-    override fun onDestroy() {
-        exoPlayer.release()
-        val intent = Intent(this, MediaService::class.java)
-        stopService(intent)
-        super.onDestroy()
     }
 
     private fun startService() {

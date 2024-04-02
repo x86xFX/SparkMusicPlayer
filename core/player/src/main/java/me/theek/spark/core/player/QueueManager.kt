@@ -8,10 +8,7 @@ import javax.inject.Singleton
 class QueueManager @Inject constructor(private val audioService: AudioService) {
 
     fun addSongsToQueue(songs: List<Song>) {
-        audioService.addSongsToQueue(mediaItems = songs)
-    }
-
-    fun clearCurrentQueue() {
         audioService.clearCurrentQueue()
+        audioService.addSongsToQueue(mediaItems = songs)
     }
 }

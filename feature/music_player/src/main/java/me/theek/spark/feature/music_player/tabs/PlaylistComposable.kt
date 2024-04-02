@@ -21,6 +21,10 @@ import me.theek.spark.feature.music_player.util.UiState
 internal fun PlaylistComposable(
     playlistsState: UiState<List<PlaylistData>>,
     onPlaylistViewClick: (Long) -> Unit,
+    isInSelectionMode: Boolean,
+    onChangingToSelectionMode: (Long) -> Unit,
+    onPlaylistAddToSelection: (Long) -> Unit,
+    onPlaylistRemoveFromSelection: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (playlistsState) {
@@ -59,7 +63,11 @@ internal fun PlaylistComposable(
                         ) {playlist ->
                             PlayListCard(
                                 playlist = playlist,
-                                onPlaylistViewClick = onPlaylistViewClick
+                                isInSelectionMode = isInSelectionMode,
+                                onPlaylistViewClick = onPlaylistViewClick,
+                                onChangingToSelectionMode = onChangingToSelectionMode,
+                                onPlaylistAddToSelection = onPlaylistAddToSelection,
+                                onPlaylistRemoveFromSelection = onPlaylistRemoveFromSelection
                             )
                         }
                     }

@@ -70,8 +70,6 @@ dependencies {
 
     implementation(libs.firebase.crashlytics)
 
-    implementation(libs.androidx.media3.exoplayer)
-
     implementation(libs.hilt)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation)
