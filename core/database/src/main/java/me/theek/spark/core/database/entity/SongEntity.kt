@@ -17,6 +17,7 @@ data class SongEntity(
     @ColumnInfo(name = "artist_name") val artistName: String?,
     @ColumnInfo(name = "duration") val duration: Int?,
     @ColumnInfo(name = "album_id") val albumId: Int?,
+    @ColumnInfo(name = "album_name") val albumName: String?,
     @ColumnInfo(name = "track_number") val trackNumber: Int?,
     @ColumnInfo(name = "released_year") val releasedYear: Int?,
     @ColumnInfo(name = "added_at") val addedAt: Long = System.currentTimeMillis(),

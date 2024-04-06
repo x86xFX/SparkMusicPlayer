@@ -14,14 +14,12 @@ import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.model.data.ArtistRemoteData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.util.Response
-import me.theek.spark.core.player.AudioService
 import me.theek.spark.feature.music_player.util.UiState
 
 @HiltViewModel(assistedFactory = ArtistDetailViewModel.ArtistDetailViewModelFactory::class)
 class ArtistDetailViewModel @AssistedInject constructor(
     @Assisted val artistName: String,
     private val artistRepository: ArtistRepository,
-    private val audioService: AudioService,
     private val songRepository: SongRepository
 ) : ViewModel() {
 
@@ -36,42 +34,40 @@ class ArtistDetailViewModel @AssistedInject constructor(
     val artistSongState = _artistSongState.asStateFlow()
 
     init {
-        getArtistRemoteDetails()
-        getCurrentArtistSongs()
+        viewModelScope.launch {
+            launch { fetchArtistSpotifyDetails() }
+            launch { getCurrentArtistSongs() }
+        }
     }
 
     fun getArtistRemoteDetails() {
-        viewModelScope.launch {
-            when (val response = artistRepository.getAristDetails(artistName)) {
-                is Response.Failure -> {
-                    _artistRemoteDetails.value = UiState.Failure(response.message)
-                }
-                is Response.Loading -> {
-                    _artistRemoteDetails.value = UiState.Loading
-                }
-                is Response.Success -> {
-                    _artistRemoteDetails.value = UiState.Success(response.data)
-                }
+        viewModelScope.launch { fetchArtistSpotifyDetails() }
+    }
+
+    private suspend fun fetchArtistSpotifyDetails() {
+        when (val response = artistRepository.getAristDetails(artistName)) {
+            is Response.Failure -> {
+                _artistRemoteDetails.value = UiState.Failure(response.message)
+            }
+            is Response.Loading -> {
+                _artistRemoteDetails.value = UiState.Loading
+            }
+            is Response.Success -> {
+                _artistRemoteDetails.value = UiState.Success(response.data)
             }
         }
     }
 
-    fun checkExoplayerStats() {
-        println(audioService.checkExoplayerStats())
-    }
-
-    private fun getCurrentArtistSongs() {
-        viewModelScope.launch {
-            when (val response = songRepository.getArtistSongs(artistName)) {
-                is Response.Loading -> {
-                    _artistRemoteDetails.value = UiState.Loading
-                }
-                is Response.Failure -> {
-                    _artistSongState.value = UiState.Failure(response.message)
-                }
-                is Response.Success -> {
-                    _artistSongState.value = UiState.Success(response.data)
-                }
+    private suspend fun getCurrentArtistSongs() {
+        when (val response = songRepository.getArtistSongs(artistName)) {
+            is Response.Loading -> {
+                _artistRemoteDetails.value = UiState.Loading
+            }
+            is Response.Failure -> {
+                _artistSongState.value = UiState.Failure(response.message)
+            }
+            is Response.Success -> {
+                _artistSongState.value = UiState.Success(response.data)
             }
         }
     }

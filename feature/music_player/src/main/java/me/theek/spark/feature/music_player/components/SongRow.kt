@@ -128,6 +128,7 @@ private fun SongRowPreview() {
             duration = 300,
             songName = "Save Your Tears",
             albumId = 2,
+            albumName = "After Hours",
             trackNumber = 8,
             releaseYear = 2020,
             genres = emptyList(),

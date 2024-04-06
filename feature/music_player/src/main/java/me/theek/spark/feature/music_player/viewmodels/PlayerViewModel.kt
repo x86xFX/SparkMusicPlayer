@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.theek.spark.core.data.repository.ArtistRepository
 import me.theek.spark.core.data.repository.SongRepository
+import me.theek.spark.core.model.data.Album
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.util.Response
@@ -48,7 +49,7 @@ class PlayerViewModel @Inject constructor(
 
     private var allSongList by mutableStateOf(listOf<Song>())
     private var currentQueuedSongList by mutableStateOf(listOf<Song>())
-
+    var albumList by mutableStateOf(listOf<Album>())
     private val _artistDetailsStream = MutableStateFlow<List<ArtistDetails>>(emptyList())
     val artistDetailsStream = _artistDetailsStream.asStateFlow()
     var uiState by mutableStateOf<UiState<List<Song>>>(UiState.Loading)
@@ -72,8 +73,6 @@ class PlayerViewModel @Inject constructor(
     var songInfo by mutableStateOf(SongInfo())
         private set
 
-    init { loadSongData() }
-
     init {
         viewModelScope.launch {
             audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
@@ -95,6 +94,10 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
+    init { loadSongData() }
+
+    fun onLoadSongData() { loadSongData() }
+
     fun onSongClick(songIndex: Int) {
         viewModelScope.launch {
             queueManager.addSongsToQueue(allSongList)
@@ -104,7 +107,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    fun onArtistQueueSongClick(songsInQueue: List<Song>, songIndex: Int) {
+    fun onCustomQueueSongClick(songsInQueue: List<Song>, songIndex: Int) {
         viewModelScope.launch {
             queueManager.addSongsToQueue(songsInQueue)
             currentQueuedSongList = songsInQueue
@@ -169,8 +172,8 @@ class PlayerViewModel @Inject constructor(
                         allSongList = songResponse.data
                         uiState = UiState.Success(songResponse.data)
                         launch { extractSongArtistsAndCounts() }
+                        extractAlbums()
                     }
-
                     is Response.Loading -> {
                         uiState = UiState.Progress(
                             progress = songResponse.progress,
@@ -211,6 +214,18 @@ class PlayerViewModel @Inject constructor(
 
     private suspend fun extractSongArtistsAndCounts() {
         _artistDetailsStream.value = artistRepository.getAllArtistsSongDetails()
+    }
+
+    private fun extractAlbums() {
+        albumList = allSongList
+            .groupBy { it.albumId }
+            .map { (albumId, songsWithSameAlbumId) ->
+                Album(
+                    albumId = albumId,
+                    albumName = songsWithSameAlbumId[0].albumName,
+                    songs = songsWithSameAlbumId
+                )
+            }
     }
 }
 

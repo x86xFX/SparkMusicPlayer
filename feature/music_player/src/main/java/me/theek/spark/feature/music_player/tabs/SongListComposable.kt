@@ -63,7 +63,7 @@ internal fun SongListComposable(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Something went wrong")
+                Text(text = "Error: ${musicListState.message}")
             }
         }
         is UiState.Success -> {

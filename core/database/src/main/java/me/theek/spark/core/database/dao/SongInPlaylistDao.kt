@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import me.theek.spark.core.database.PlaylistWithSongs
+import me.theek.spark.core.database.PlaylistWithSongsList
 import me.theek.spark.core.database.entity.PlaylistWithSongsEntity
 
 @Dao
@@ -26,6 +27,15 @@ interface SongInPlaylistDao {
         ORDER BY p.playlist_name ASC
     """)
     fun getSongsPlaylists() : Flow<List<PlaylistWithSongs>>
+
+    @Query("""
+        SELECT songs.*, playlists.id AS playlistId, playlists.playlist_name AS playlistName, playlists.created_at AS playlistCreatedAt 
+        FROM song_in_playlist AS SIP 
+            INNER JOIN songs ON SIP.song_id = songs.id
+            INNER JOIN playlists ON SIP.playlist_id = playlists.id  
+        WHERE SIP.playlist_id = :playlistId
+    """)
+    fun getSelectedPlaylistSongs(playlistId: Long): Flow<List<PlaylistWithSongsList>>
 
 
     @Query("DELETE FROM song_in_playlist WHERE playlist_id IN (:playlistIds)")

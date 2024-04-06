@@ -8,7 +8,6 @@ interface AudioService {
     val musicPlayStateStream: StateFlow<MusicPlayerState>
     fun addSongsToQueue(mediaItems: List<Song>)
     fun clearCurrentQueue()
-    fun checkExoplayerStats(): String
     suspend fun onPlayerEvent(playerEvent: PlayerEvent)
     fun setRepeatMode(@RepeatMode repeatMode: Int)
     fun stopPlayer()

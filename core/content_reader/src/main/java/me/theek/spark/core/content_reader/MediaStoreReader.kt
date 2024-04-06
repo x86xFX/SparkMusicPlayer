@@ -46,6 +46,7 @@ class MediaStoreReader @Inject constructor(
                 MediaStore.Audio.AudioColumns.TITLE,
                 MediaStore.Audio.AudioColumns.ARTIST,
                 MediaStore.Audio.AudioColumns.ALBUM_ID,
+                MediaStore.Audio.AudioColumns.ALBUM,
                 MediaStore.Audio.AudioColumns.DURATION,
                 MediaStore.Audio.AudioColumns.TRACK,
                 MediaStore.Audio.AudioColumns.YEAR,
@@ -67,6 +68,7 @@ class MediaStoreReader @Inject constructor(
                     songName = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TITLE)),
                     artistName = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ARTIST)),
                     albumId = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM_ID)),
+                    albumName = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ALBUM)),
                     duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)),
                     trackNumber = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TRACK)),
                     releaseYear = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.YEAR)),
@@ -125,7 +127,7 @@ class MediaStoreReader @Inject constructor(
         emit(FlowEvent.Success(songs))
     }
     .catch {
-        emit(FlowEvent.Failure(it.message ?: "Unknown"))
+        emit(FlowEvent.Failure(it.message ?: "Something went wrong"))
     }
     .flowOn(Dispatchers.IO)
 

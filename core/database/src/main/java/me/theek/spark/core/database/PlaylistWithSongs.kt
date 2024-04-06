@@ -8,3 +8,10 @@ data class PlaylistWithSongs(
     val playlistName: String,
     @Embedded val songForCoverArt: SongEntity
 )
+
+data class PlaylistWithSongsList(
+    val playlistId: Long,
+    val playlistName: String,
+    val playlistCreatedAt: Long,
+    @Embedded val song: SongEntity
+)

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,6 +30,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.feature.music_player.R
+import me.theek.spark.feature.music_player.components.EmptyArtistComposable
 import me.theek.spark.feature.music_player.util.timeStampToDuration
 
 @Composable
@@ -37,15 +39,19 @@ internal fun ArtistsComposable(
     onArtistClick: (ArtistDetails) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier) {
-        itemsIndexed(
-            items = artistsDetails,
-            key = { index, _ -> index }
-        ) { _, artistDetails ->
-            ArtistItem(
-                artistDetails = artistDetails,
-                onArtistClick = onArtistClick
-            )
+    if (artistsDetails.isEmpty()) {
+        EmptyArtistComposable(modifier = Modifier.fillMaxSize())
+    } else {
+        LazyColumn(modifier = modifier) {
+            itemsIndexed(
+                items = artistsDetails,
+                key = { index, _ -> index }
+            ) { _, artistDetails ->
+                ArtistItem(
+                    artistDetails = artistDetails,
+                    onArtistClick = onArtistClick
+                )
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ package me.theek.spark.feature.music_player.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -74,6 +75,7 @@ internal fun DraggablePlayer(
     onSkipNextClick: () -> Unit,
     onRepeatClick: (@RepeatMode Int) -> Unit,
     onPlayerMinimizeClick: () -> Unit,
+    onPlayerMaximizeClick: () -> Unit,
     draggableState: PlayerDraggableState,
     maxWidth: Float,
     maxHeight: Float,
@@ -117,21 +119,15 @@ internal fun DraggablePlayer(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .background(
-                    color = backgroundContainerColor,
-                    shape = RoundedCornerShape(22.dp)
-                )
+                .clip(RoundedCornerShape(22.dp))
+                .background(color = backgroundContainerColor)
+                .clickable { onPlayerMaximizeClick() }
                 .padding(start = 15.dp, end = 15.dp, top = 10.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.alpha(
-                    (draggableState.state.offset.roundToInt() / maxHeight).coerceIn(
-                        0.0F,
-                        1.0F
-                    )
-                ),
+                modifier = Modifier.alpha((draggableState.state.offset.roundToInt() / maxHeight).coerceIn(0.0F,1.0F)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(

@@ -32,12 +32,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.components.draggable_state.BottomSheetStates
 import me.theek.spark.core.design_system.components.draggable_state.rememberPlayerDraggableState
+import me.theek.spark.core.model.data.Album
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.components.DraggablePlayer
 import me.theek.spark.feature.music_player.components.PlaylistDeleteAlert
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
+import me.theek.spark.feature.music_player.tabs.AlbumsComposable
 import me.theek.spark.feature.music_player.tabs.ArtistsComposable
 import me.theek.spark.feature.music_player.tabs.PlaylistComposable
 import me.theek.spark.feature.music_player.tabs.SongListComposable
@@ -89,6 +91,7 @@ fun MusicListScreen(
                     musicListState = musicListState,
                     playlistsState = playlistState,
                     artistsDetails = artistsDetails,
+                    albums = playerViewModel.albumList,
                     onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
                     onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
                     onSongInfoClick = playerViewModel::onSongInfoClick,
@@ -129,9 +132,8 @@ fun MusicListScreen(
                 onSkipNextClick = playerViewModel::onSkipNextClick,
                 onSkipPreviousClick = playerViewModel::onSkipPreviousClick,
                 onRepeatClick = playerViewModel::onRepeatModeChange,
-                onPlayerMinimizeClick = {
-                    scope.launch { draggableState.animateTo(BottomSheetStates.MINIMISED) }
-                },
+                onPlayerMinimizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.MINIMISED) } },
+                onPlayerMaximizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.EXPANDED) } },
                 draggableState = draggableState,
                 maxWidth = maxWidth,
                 maxHeight = maxHeight
@@ -152,6 +154,7 @@ private fun MusicUi(
     musicListState: UiState<List<Song>>,
     playlistsState: UiState<List<PlaylistData>>,
     artistsDetails: List<ArtistDetails>,
+    albums: List<Album>,
     onSongClick: (Int) -> Unit,
     onPlaylistViewClick: (Long) -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
@@ -219,7 +222,7 @@ private fun MusicUi(
                 }
 
                 1 -> { //Albums
-
+                    AlbumsComposable(albums = albums)
                 }
 
                 2 -> { //Artists

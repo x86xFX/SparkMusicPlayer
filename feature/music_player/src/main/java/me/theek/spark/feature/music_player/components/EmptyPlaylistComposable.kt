@@ -18,20 +18,20 @@ import androidx.compose.ui.unit.dp
 import me.theek.spark.feature.music_player.R
 
 @Composable
-internal fun EmptySongComposable(modifier: Modifier = Modifier) {
+internal fun EmptyPlaylistComposable(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Image(
             modifier = Modifier.size(200.dp),
-            painter = painterResource(id = R.drawable.music_listener),
-            contentDescription = stringResource(R.string.music_listener_icon)
+            painter = painterResource(id = R.drawable.ic_headphone),
+            contentDescription = stringResource(R.string.playlist_icon)
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "No songs found in external storage",
+            text = "Create playlist and add songs",
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = 3,

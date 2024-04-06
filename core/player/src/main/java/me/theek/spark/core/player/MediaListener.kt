@@ -64,11 +64,6 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         exoPlayer.clearMediaItems()
     }
 
-    override fun checkExoplayerStats(): String {
-        return "MusicFiles: ${exoPlayer.mediaItemCount}\nCurrentPlaying: ${exoPlayer.currentMediaItemIndex}"
-    }
-
-
     /**
      * Handle player events like pausing, playing, seeking songs.
      * @param playerEvent - Player event.

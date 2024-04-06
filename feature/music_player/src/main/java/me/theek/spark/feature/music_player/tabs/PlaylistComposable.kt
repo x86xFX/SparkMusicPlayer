@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.theek.spark.core.model.data.PlaylistData
+import me.theek.spark.feature.music_player.components.EmptyPlaylistComposable
 import me.theek.spark.feature.music_player.components.PlayListCard
 import me.theek.spark.feature.music_player.util.UiState
 
@@ -44,12 +45,7 @@ internal fun PlaylistComposable(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (playlistsState.data.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "Create playlist and add songs")
-                    }
+                    EmptyPlaylistComposable(modifier = Modifier.fillMaxSize())
                 } else {
                     LazyVerticalGrid(
                         modifier = modifier.padding(12.dp),

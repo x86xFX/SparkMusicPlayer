@@ -24,6 +24,7 @@ import me.theek.spark.MainActivityUiState
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.feature.music_player.ArtistDetailScreen
 import me.theek.spark.feature.music_player.MusicListScreen
+import me.theek.spark.feature.music_player.PlaylistViewScreen
 import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.components.ShowSongInfoBottomBar
 import me.theek.spark.feature.music_player.viewmodels.PlayerViewModel
@@ -53,6 +54,7 @@ fun SparkNavigation(
                                 inclusive = true
                             }
                         }
+                        playerViewModel.onLoadSongData()
                     }
                 }
             )
@@ -73,7 +75,13 @@ fun SparkNavigation(
                     }
                 },
                 onPlaylistViewClick = {
-                    println("Clicked playlist id: $it")
+                    if (navController.canGoBack) {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            key = "playlist_id",
+                            value = it
+                        )
+                    }
+                    navController.navigate(Route.PLAYLIST)
                 }
             )
         }
@@ -91,7 +99,25 @@ fun SparkNavigation(
                     onSongInfoClick = playerViewModel::onSongInfoClick,
                     onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
                     onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
-                    onSongClick = playerViewModel::onArtistQueueSongClick
+                    onSongClick = playerViewModel::onCustomQueueSongClick
+                )
+            }
+        }
+
+        composable(
+            route = Route.PLAYLIST,
+            enterTransition = { slideInHorizontally(animationSpec = tween(500)) },
+            exitTransition = { slideOutHorizontally(animationSpec = tween(500)) }
+        ) {
+            val playlistId = navController.previousBackStackEntry?.savedStateHandle?.get<Long>(key = "playlist_id")
+            if (playlistId != null) {
+                PlaylistViewScreen(
+                    playlistId = playlistId,
+                    onNavigateBackClick = { if(navController.canGoBack) { navController.popBackStack() } },
+                    onSongInfoClick = playerViewModel::onSongInfoClick,
+                    onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
+                    onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
+                    onSongClick = playerViewModel::onCustomQueueSongClick
                 )
             }
         }
@@ -140,4 +166,5 @@ object Route {
     const val ONBOARDING = "onboarding_screen"
     const val HOME = "home_screen"
     const val ARTIST_DETAILS = "artist_detail_screen"
+    const val PLAYLIST = "playlist_detail_screen"
 }

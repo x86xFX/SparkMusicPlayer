@@ -23,4 +23,6 @@
     <string name="delete_icon">Delete icon</string>
     <string name="close_icon">close icon</string>
     <string name="warning_icon">Warning icon</string>
+    <string name="artist_icon">Artist icon</string>
+    <string name="playlist_icon">playlist icon</string>
 </resources>

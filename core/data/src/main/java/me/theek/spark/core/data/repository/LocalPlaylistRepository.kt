@@ -4,11 +4,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import me.theek.spark.core.data.mapper.toPlayListEntity
 import me.theek.spark.core.data.mapper.toPlaylistData
+import me.theek.spark.core.data.mapper.toPlaylistWithSongs
 import me.theek.spark.core.data.mapper.toSongInPlaylistEntity
 import me.theek.spark.core.database.dao.PlaylistDao
 import me.theek.spark.core.database.dao.SongInPlaylistDao
 import me.theek.spark.core.model.data.Playlist
 import me.theek.spark.core.model.data.PlaylistData
+import me.theek.spark.core.model.data.PlaylistWithSongs
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.data.SongInPlayList
 import javax.inject.Inject
@@ -26,6 +28,12 @@ class LocalPlaylistRepository @Inject constructor(
             it.map {  playlistDataEntity ->
                 playlistDataEntity.toPlaylistData()
             }
+        }
+    }
+
+    override fun getSelectedPlaylistSongs(playlistId: Long): Flow<List<PlaylistWithSongs>> {
+        return songInPlaylistDao.getSelectedPlaylistSongs(playlistId).map {
+            it.map { playlistWithSongs -> playlistWithSongs.toPlaylistWithSongs() }
         }
     }
 
