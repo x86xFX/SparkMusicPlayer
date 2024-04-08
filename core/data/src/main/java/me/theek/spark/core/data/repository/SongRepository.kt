@@ -9,5 +9,8 @@ interface SongRepository {
     fun getSongImportStream() : Flow<FlowEvent<List<Song>>>
     fun getSongs() : Flow<Response<List<Song>>>
     suspend fun getArtistSongs(artistName: String) : Response<List<Song>>
+    fun getAlbumSongs(albumId: Int) : Flow<List<Song>>
+    fun getFavouriteSongs() : Flow<List<Song>>
+    suspend fun setSongFavourite(songId: Long, isFavourite: Boolean)
     suspend fun getSongCoverArt(songPath: String) : ByteArray?
 }

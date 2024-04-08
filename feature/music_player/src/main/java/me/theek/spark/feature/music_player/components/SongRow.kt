@@ -37,7 +37,7 @@ import me.theek.spark.feature.music_player.util.UiState
 internal fun SongRow(
     index: Int,
     song: Song,
-    playlistsState: UiState<List<PlaylistData>>,
+    playlistState: UiState<List<PlaylistData>>,
     onSongClick: (Int) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
@@ -59,10 +59,13 @@ internal fun SongRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.width(10.dp))
+//            val coverUri = Uri.parse("content://media/external/audio/media/${song.externalId}/albumart")
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(song)
                     .memoryCacheKey(song.path)
+//                    .memoryCacheKey(coverUri.path)
+//                    .diskCacheKey(coverUri.path)
                     .build(),
                 contentDescription = stringResource(R.string.album_art),
                 error = painterResource(id = R.drawable.round_music_note_24),
@@ -102,7 +105,7 @@ internal fun SongRow(
             SongOptionMenu(
                 modifier = Modifier.weight(1f),
                 song = song,
-                playlistsState = playlistsState,
+                playlistsState = playlistState,
                 onCreatePlaylistClick = { onCreatePlaylistClick(song) },
                 onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
                 onSongInfoClick = onSongInfoClick,
@@ -135,9 +138,10 @@ private fun SongRowPreview() {
             mimeType = null,
             lastModified = 0L,
             size = 2,
+            isFavourite = false,
             externalId = null
         ),
-        playlistsState = UiState.Loading,
+        playlistState = UiState.Loading,
         onSongClick = {},
         onCreatePlaylistClick = {},
         onSongInfoClick = {},

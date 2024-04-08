@@ -77,7 +77,8 @@ class MediaStoreReader @Inject constructor(
                     lastModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)),
                     size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)),
                     path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATA)),
-                    externalId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)).toString()
+                    externalId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)).toString(),
+                    isFavourite = false
                 )
                 songs.add(song)
                 progress++
@@ -132,7 +133,6 @@ class MediaStoreReader @Inject constructor(
     .flowOn(Dispatchers.IO)
 
     suspend fun getSongCover(songPath: String): ByteArray? = withContext(Dispatchers.IO) {
-        println("Called TagLib")
         val uri: Uri = if (songPath.startsWith("content://")) {
             Uri.parse(songPath)
         } else {

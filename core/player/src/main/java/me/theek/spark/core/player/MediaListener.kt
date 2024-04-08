@@ -3,6 +3,7 @@ package me.theek.spark.core.player
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -129,7 +130,6 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
         _musicPlayStateStream.update { MusicPlayerState.Playing(isPlaying = isPlaying) }
-        _musicPlayStateStream.update { MusicPlayerState.CurrentPlaying(exoPlayer.currentMediaItemIndex) }
         if (isPlaying) {
             CoroutineScope(Dispatchers.Main).launch { startProgressUpdate() }
         } else {
@@ -137,18 +137,13 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         }
     }
 
-    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-        when (reason) {
-            Player.MEDIA_ITEM_TRANSITION_REASON_AUTO -> {
-                _musicPlayStateStream.update { MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex) }
-            }
-
-            else -> Unit
-        }
-    }
-
     override fun stopPlayer() {
         exoPlayer.release()
+    }
+
+    override fun onTracksChanged(tracks: Tracks) {
+        _musicPlayStateStream.update { MusicPlayerState.OnTrackChange(mediaItemIndex = exoPlayer.currentMediaItemIndex) }
+        super.onTracksChanged(tracks)
     }
 
     /**
@@ -172,7 +167,6 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
         while (true) {
             delay(500)
             _musicPlayStateStream.update { MusicPlayerState.Progress(progress = exoPlayer.currentPosition) }
-            _musicPlayStateStream.update { MusicPlayerState.CurrentPlaying(mediaItemIndex = exoPlayer.currentMediaItemIndex) }
         }
     }
 
@@ -184,12 +178,8 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
     /**
      * Exoplayer play user selected song from song list.
      */
-    private suspend fun onSelectedSongChange(targetIndex: Int) {
-        if (targetIndex == exoPlayer.currentMediaItemIndex) {
-            playOrPause()
-        } else {
-            startPlaying(targetIndex)
-        }
+    private fun onSelectedSongChange(targetIndex: Int) {
+        startPlaying(targetIndex)
     }
 
     private fun startPlaying(targetIndex: Int) {

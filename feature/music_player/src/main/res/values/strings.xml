@@ -25,4 +25,6 @@
     <string name="warning_icon">Warning icon</string>
     <string name="artist_icon">Artist icon</string>
     <string name="playlist_icon">playlist icon</string>
+    <string name="album_image">album image</string>
+    <string name="to_up">To up</string>
 </resources>

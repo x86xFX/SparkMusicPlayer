@@ -12,7 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.data.util.ArtistCoverInterceptor
 import me.theek.spark.core.data.util.ArtistCoverNetworkInterceptor
-import me.theek.spark.core.data.util.CoverArtFetcher
+import me.theek.spark.core.data.util.SongCoverArtFetcher
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
@@ -29,7 +29,7 @@ object ImageModule {
         return ImageLoader.Builder(context)
             .components {
                 add(SvgDecoder.Factory())
-                add(CoverArtFetcher.ImageFactory(songRepository))
+                add(SongCoverArtFetcher.ImageFactory(songRepository))
                 add(ArtistCoverInterceptor())
             }
             .okHttpClient {

@@ -1,4 +1,4 @@
-package me.theek.spark.feature.music_player
+package me.theek.spark.feature.music_player.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,26 +42,31 @@ import me.theek.spark.feature.music_player.components.PlaylistDeleteAlert
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
 import me.theek.spark.feature.music_player.tabs.AlbumsComposable
 import me.theek.spark.feature.music_player.tabs.ArtistsComposable
+import me.theek.spark.feature.music_player.tabs.FavouritesComposable
 import me.theek.spark.feature.music_player.tabs.PlaylistComposable
 import me.theek.spark.feature.music_player.tabs.SongListComposable
 import me.theek.spark.feature.music_player.util.MusicUiTabs
 import me.theek.spark.feature.music_player.util.UiState
 import me.theek.spark.feature.music_player.util.shareIntent
+import me.theek.spark.feature.music_player.viewmodels.FavouriteViewModel
 import me.theek.spark.feature.music_player.viewmodels.PlayerViewModel
 import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 
 @Composable
 fun MusicListScreen(
     playerViewModel: PlayerViewModel,
+    playlistViewModel: PlaylistViewModel,
     onSongServiceStart: () -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
-    playlistViewModel: PlaylistViewModel,
-    onPlaylistViewClick: (Long) -> Unit
+    onPlaylistViewClick: (Long) -> Unit,
+    onAlbumClick: (Int?) -> Unit,
+    favouriteViewModel: FavouriteViewModel = hiltViewModel()
 ) {
+    val playlistState by playlistViewModel.uiState.collectAsStateWithLifecycle()
+    val artistsState by playerViewModel.artistDetailsStream.collectAsStateWithLifecycle()
+    val favouritesState by favouriteViewModel.uiState.collectAsStateWithLifecycle()
     val currentSelectedSong = playerViewModel.currentSelectedSong
     val musicListState = playerViewModel.uiState
-    val playlistState by playlistViewModel.uiState.collectAsStateWithLifecycle()
-    val artistsDetails by playerViewModel.artistDetailsStream.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -89,8 +95,9 @@ fun MusicListScreen(
                         .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                         .padding(top = innerPadding.calculateTopPadding()),
                     musicListState = musicListState,
-                    playlistsState = playlistState,
-                    artistsDetails = artistsDetails,
+                    playlistState = playlistState,
+                    artistsDetails = artistsState,
+                    favouritesState = favouritesState,
                     albums = playerViewModel.albumList,
                     onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
                     onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
@@ -108,7 +115,9 @@ fun MusicListScreen(
                     isInSelectionMode = playlistViewModel.isInSelectionMode,
                     onChangingToSelectionMode = playlistViewModel::onChangingToSelectionMode,
                     onPlaylistAddToSelection = playlistViewModel::onPlaylistAddToSelection,
-                    onPlaylistRemoveFromSelection = playlistViewModel::onPlaylistRemoveFromSelection
+                    onPlaylistRemoveFromSelection = playlistViewModel::onPlaylistRemoveFromSelection,
+                    onAlbumClick = onAlbumClick,
+                    onExternalSongClick = playerViewModel::onCustomQueueSongClick
                 )
             }
         )
@@ -119,8 +128,8 @@ fun MusicListScreen(
         ) {
             DraggablePlayer(
                 isPlaying = playerViewModel.isPlaying,
-                isFavourite = true,
                 repeatState = playerViewModel.repeatMode,
+                isFavourite = playerViewModel.isFavourite,
                 progress = playerViewModel.progress,
                 onProgressChange = playerViewModel::onProgressChange,
                 progressString = { playerViewModel.processString },
@@ -132,6 +141,7 @@ fun MusicListScreen(
                 onSkipNextClick = playerViewModel::onSkipNextClick,
                 onSkipPreviousClick = playerViewModel::onSkipPreviousClick,
                 onRepeatClick = playerViewModel::onRepeatModeChange,
+                onFavouriteClick = playerViewModel::onFavouriteClick,
                 onPlayerMinimizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.MINIMISED) } },
                 onPlayerMaximizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.EXPANDED) } },
                 draggableState = draggableState,
@@ -152,10 +162,12 @@ fun MusicListScreen(
 @Composable
 private fun MusicUi(
     musicListState: UiState<List<Song>>,
-    playlistsState: UiState<List<PlaylistData>>,
+    playlistState: UiState<List<PlaylistData>>,
+    favouritesState: UiState<List<Song>>,
     artistsDetails: List<ArtistDetails>,
     albums: List<Album>,
     onSongClick: (Int) -> Unit,
+    onExternalSongClick: (List<Song>, Int) -> Unit,
     onPlaylistViewClick: (Long) -> Unit,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
@@ -168,6 +180,7 @@ private fun MusicUi(
     onChangingToSelectionMode: (Long) -> Unit,
     onPlaylistAddToSelection: (Long) -> Unit,
     onPlaylistRemoveFromSelection: (Long) -> Unit,
+    onAlbumClick: (Int?) -> Unit,
     scope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
@@ -210,7 +223,7 @@ private fun MusicUi(
                     SongListComposable(
                         modifier = Modifier.fillMaxSize(),
                         musicListState = musicListState,
-                        playlistsState = playlistsState,
+                        playlistState = playlistState,
                         onSongClick = onSongClick,
                         onCreatePlaylistClick = onCreatePlaylistClick,
                         onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
@@ -222,7 +235,11 @@ private fun MusicUi(
                 }
 
                 1 -> { //Albums
-                    AlbumsComposable(albums = albums)
+                    AlbumsComposable(
+                        modifier = Modifier.fillMaxSize(),
+                        albums = albums,
+                        onAlbumClick = onAlbumClick
+                    )
                 }
 
                 2 -> { //Artists
@@ -236,7 +253,7 @@ private fun MusicUi(
                 3 -> { // Playlist
                     PlaylistComposable(
                         modifier = Modifier.fillMaxSize(),
-                        playlistsState = playlistsState,
+                        playlistState = playlistState,
                         onPlaylistViewClick = onPlaylistViewClick,
                         isInSelectionMode = isInSelectionMode,
                         onChangingToSelectionMode = onChangingToSelectionMode,
@@ -246,7 +263,15 @@ private fun MusicUi(
                 }
 
                 4 -> { // Favourites
-
+                    FavouritesComposable(
+                        modifier = Modifier.fillMaxSize(),
+                        favouritesState = favouritesState,
+                        playlistState = playlistState,
+                        onSongInfoClick = onSongInfoClick,
+                        onCreatePlaylistClick = onCreatePlaylistClick,
+                        onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
+                        onSongClick = onExternalSongClick
+                    )
                 }
             }
         }

@@ -33,7 +33,6 @@ class PlaylistPlayerViewModel @AssistedInject constructor(
             var playlistCreatedAt = ""
 
             it.forEach { playlistWithSongs ->
-                println(playlistWithSongs)
                 songs.add(playlistWithSongs.song)
                 playlistName = playlistWithSongs.playlistName
                 playlistCreatedAt = playlistWithSongs.toPlaylistCreatedDate()

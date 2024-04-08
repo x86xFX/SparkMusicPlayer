@@ -54,6 +54,7 @@ import me.theek.spark.core.design_system.icons.rememberPlayCircle
 import me.theek.spark.core.design_system.icons.rememberQueueMusic
 import me.theek.spark.core.design_system.icons.rememberRepeat
 import me.theek.spark.core.design_system.icons.rememberRepeatOne
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.player.RepeatMode
 import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.util.timeStampToDuration
@@ -61,13 +62,11 @@ import me.theek.spark.feature.music_player.util.timeStampToDuration
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun CurrentPlayingSongDetailView(
+    song: Song,
     isPlaying: Boolean,
-    isFavourite: Boolean,
     repeatState: @RepeatMode Int,
     progress: () -> Float,
-    songTitle: String?,
-    songGenre: List<String>,
-    songArtistName: String?,
+    isFavourite: Boolean,
     songDuration: Float,
     currentSelectedSongCoverArt: ByteArray?,
     thumbColor: Color,
@@ -80,7 +79,7 @@ internal fun CurrentPlayingSongDetailView(
     onSkipNextClick: () -> Unit,
     onPlayerMinimizeClick: () -> Unit,
     onPlayerQueueClick: () -> Unit,
-    onFavouriteClick: () -> Unit,
+    onFavouriteClick: (Long, Boolean) -> Unit,
     onRepeatClick: (@RepeatMode Int) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -135,7 +134,7 @@ internal fun CurrentPlayingSongDetailView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .basicMarquee(),
-                    text = songTitle ?: "Unknown",
+                    text = song.songName ?: "Unknown",
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -150,7 +149,7 @@ internal fun CurrentPlayingSongDetailView(
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = songArtistName ?: "Unknown",
+                    text = song.artistName ?: "Unknown",
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -206,10 +205,10 @@ internal fun CurrentPlayingSongDetailView(
                 contentDescription = stringResource(R.string.current_playing_song_cover_art)
             )
 
-            if (songGenre.isNotEmpty()) {
+            if (song.genres.isNotEmpty()) {
                 GenreTag(
                     modifier = Modifier.padding(top = 15.dp),
-                    name = songGenre.joinToString()
+                    name = song.genres.joinToString()
                 )
             }
         }
@@ -285,7 +284,7 @@ internal fun CurrentPlayingSongDetailView(
                 ) {
                     IconButton(
                         modifier = Modifier.weight(1f),
-                        onClick = onFavouriteClick
+                        onClick = { onFavouriteClick(song.id, !isFavourite) }
                     ) {
                         Icon(
                             modifier = Modifier.size(30.dp),

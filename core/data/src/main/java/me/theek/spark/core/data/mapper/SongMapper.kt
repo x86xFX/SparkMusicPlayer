@@ -18,7 +18,8 @@ fun SongEntity.toSong() : Song {
         mimeType = mimeType,
         lastModified = lastModified,
         size = size,
-        externalId = externalId
+        externalId = externalId,
+        isFavourite = isFavourite
     )
 }
 
@@ -36,6 +37,7 @@ fun Song.toSongEntity() : SongEntity {
         mimeType = mimeType,
         lastModified = lastModified,
         size = size,
-        externalId = externalId
+        externalId = externalId,
+        isFavourite = isFavourite
     )
 }

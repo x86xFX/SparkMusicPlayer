@@ -27,7 +27,6 @@ class RemoteArtistRepository @Inject constructor(
     }
 
     override suspend fun getAristDetails(artistName: String): Response<ArtistRemoteData> = withContext(Dispatchers.IO) {
-
         val existingData = artistDao.getArtistProfileDetails(artistName = artistName)
 
         if (existingData.isNotEmpty()) {

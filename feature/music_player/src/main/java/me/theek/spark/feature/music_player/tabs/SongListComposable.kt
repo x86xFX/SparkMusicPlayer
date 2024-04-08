@@ -11,21 +11,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.icons.rememberShuffle
 import me.theek.spark.core.design_system.icons.rememberSort
 import me.theek.spark.core.model.data.PlaylistData
@@ -36,10 +46,11 @@ import me.theek.spark.feature.music_player.components.ProgressSongComposable
 import me.theek.spark.feature.music_player.components.SongRow
 import me.theek.spark.feature.music_player.util.UiState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SongListComposable(
     musicListState: UiState<List<Song>>,
-    playlistsState: UiState<List<PlaylistData>>,
+    playlistState: UiState<List<PlaylistData>>,
     onSongClick: (Int) -> Unit,
     onCreatePlaylistClick: (Song) -> Unit,
     onAddToExistingPlaylistClick: (Pair<Long, Long>) -> Unit,
@@ -69,7 +80,11 @@ internal fun SongListComposable(
         is UiState.Success -> {
             if (musicListState.data.isEmpty()) {
                 EmptySongComposable(modifier = Modifier.fillMaxSize())
+
             } else {
+                val lazyColumnState = rememberLazyListState()
+                val scope = rememberCoroutineScope()
+
                 Column(
                     modifier = modifier
                         .background(
@@ -84,7 +99,11 @@ internal fun SongListComposable(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(modifier = Modifier.weight(7f)) {
+                        Row(
+                            modifier = Modifier
+                                .weight(7f)
+                                .padding(start = 10.dp)
+                        ) {
                             TextButton(onClick = { /*TODO*/ }) {
                                 Icon(
                                     modifier = Modifier.size(24.dp),
@@ -133,21 +152,48 @@ internal fun SongListComposable(
                         }
 
                     }
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        itemsIndexed(
-                            items = musicListState.data,
-                            key = { index, _ -> index }
-                        ) { index, song ->
-                            SongRow(
-                                index = index,
-                                song = song,
-                                playlistsState = playlistsState,
-                                onSongClick = onSongClick,
-                                onCreatePlaylistClick = onCreatePlaylistClick,
-                                onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
-                                onSongInfoClick = onSongInfoClick,
-                                onShareClick = onShareClick
-                            )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            state = lazyColumnState,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            itemsIndexed(
+                                items = musicListState.data,
+                                key = { index, _ -> index }
+                            ) { index, song ->
+                                SongRow(
+                                    index = index,
+                                    song = song,
+                                    playlistState = playlistState,
+                                    onSongClick = onSongClick,
+                                    onCreatePlaylistClick = onCreatePlaylistClick,
+                                    onAddToExistingPlaylistClick = onAddToExistingPlaylistClick,
+                                    onSongInfoClick = onSongInfoClick,
+                                    onShareClick = onShareClick
+                                )
+                            }
+                        }
+                        if (lazyColumnState.canScrollBackward) {
+                            CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+                                IconButton(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .padding(bottom = 70.dp)
+                                        .size(42.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.tertiaryContainer),
+                                    onClick = { scope.launch { lazyColumnState.animateScrollToItem(index = 0) } }
+                                ) {
+                                    Icon(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(5.dp),
+                                        imageVector = Icons.Rounded.KeyboardArrowUp,
+                                        contentDescription = stringResource(R.string.to_up),
+                                        tint = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
+                                }
+                            }
                         }
                     }
                 }

@@ -12,8 +12,7 @@ import me.theek.spark.core.model.data.UserData
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(userPreferencesDatasource: UserPreferencesDatasource) :
-    ViewModel() {
+class MainViewModel @Inject constructor(userPreferencesDatasource: UserPreferencesDatasource) : ViewModel() {
 
     val uiState: StateFlow<MainActivityUiState> = userPreferencesDatasource.userData.map { userData ->
             MainActivityUiState.Success(userData)

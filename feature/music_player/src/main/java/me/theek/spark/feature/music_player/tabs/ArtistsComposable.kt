@@ -2,7 +2,6 @@ package me.theek.spark.feature.music_player.tabs
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -57,7 +56,7 @@ internal fun ArtistsComposable(
 }
 
 @Composable
-internal fun ArtistItem(
+private fun ArtistItem(
     artistDetails: ArtistDetails,
     onArtistClick: (ArtistDetails) -> Unit,
     modifier: Modifier = Modifier
@@ -69,26 +68,22 @@ internal fun ArtistItem(
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier.weight(1.5f),
-            contentAlignment = Alignment.Center
-        ) {
-            AsyncImage(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .aspectRatio(1f),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(artistDetails)
-                    .memoryCacheKey(artistDetails.artistName)
-                    .diskCacheKey(artistDetails.artistName)
-                    .build(),
-                placeholder = painterResource(id = R.drawable.artist_placeholder),
-                error = painterResource(id = R.drawable.artist_placeholder),
-                contentDescription = stringResource(R.string.playlist_image),
-                contentScale = ContentScale.Crop
-            )
-        }
+        AsyncImage(
+            modifier = Modifier
+                .weight(1.5f)
+                .size(60.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .aspectRatio(1f),
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(artistDetails)
+                .memoryCacheKey(artistDetails.artistName)
+                .diskCacheKey(artistDetails.artistName)
+                .build(),
+            placeholder = painterResource(id = R.drawable.artist_placeholder),
+            error = painterResource(id = R.drawable.artist_placeholder),
+            contentDescription = stringResource(R.string.playlist_image),
+            contentScale = ContentScale.Crop
+        )
         Column(
             modifier = Modifier
                 .weight(8.5f)

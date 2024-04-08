@@ -18,4 +18,13 @@ interface SongDao {
 
     @Query("SELECT * FROM songs WHERE artist_name = :artistName")
     suspend fun getArtistSongs(artistName: String) : List<SongEntity>
+
+    @Query("UPDATE songs SET is_favourite = :isFavourite WHERE id = :songId")
+    suspend fun setSongFavourite(songId: Long, isFavourite: Boolean)
+
+    @Query("SELECT * FROM songs WHERE album_id = :albumId ORDER BY track_number ASC")
+    fun getAlbumSongs(albumId: Int) : Flow<List<SongEntity>>
+
+    @Query("SELECT * FROM songs WHERE is_favourite = 1")
+    fun getFavouriteSongs() : Flow<List<SongEntity>>
 }

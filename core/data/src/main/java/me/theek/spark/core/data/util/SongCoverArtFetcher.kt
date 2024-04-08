@@ -13,7 +13,7 @@ import okio.buffer
 import okio.source
 import java.io.ByteArrayInputStream
 
-class CoverArtFetcher(
+class SongCoverArtFetcher(
     private val data: Song,
     private val options: Options,
     private val songRepository: SongRepository
@@ -21,7 +21,7 @@ class CoverArtFetcher(
 
     class ImageFactory(private val songRepository: SongRepository) : Fetcher.Factory<Song> {
         override fun create(data: Song, options: Options, imageLoader: ImageLoader): Fetcher {
-            return CoverArtFetcher(data, options, songRepository)
+            return SongCoverArtFetcher(data, options, songRepository)
         }
     }
 

@@ -20,7 +20,7 @@ import me.theek.spark.feature.music_player.util.UiState
 
 @Composable
 internal fun PlaylistComposable(
-    playlistsState: UiState<List<PlaylistData>>,
+    playlistState: UiState<List<PlaylistData>>,
     onPlaylistViewClick: (Long) -> Unit,
     isInSelectionMode: Boolean,
     onChangingToSelectionMode: (Long) -> Unit,
@@ -28,7 +28,7 @@ internal fun PlaylistComposable(
     onPlaylistRemoveFromSelection: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when (playlistsState) {
+    when (playlistState) {
         is UiState.Progress, UiState.Loading -> Unit
         is UiState.Failure -> {
             Box(
@@ -44,7 +44,7 @@ internal fun PlaylistComposable(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (playlistsState.data.isEmpty()) {
+                if (playlistState.data.isEmpty()) {
                     EmptyPlaylistComposable(modifier = Modifier.fillMaxSize())
                 } else {
                     LazyVerticalGrid(
@@ -54,7 +54,7 @@ internal fun PlaylistComposable(
                         verticalArrangement = Arrangement.spacedBy(space = 12.dp, alignment = Alignment.Top)
                     ) {
                         items(
-                            items = playlistsState.data,
+                            items = playlistState.data,
                             key = { it.playlistId }
                         ) {playlist ->
                             PlayListCard(

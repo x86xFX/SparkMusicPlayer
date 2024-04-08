@@ -27,4 +27,5 @@ data class SongEntity(
     @ColumnInfo(name = "size") val size: Long,
     @ColumnInfo(name = "path") val path: String,
     @ColumnInfo(name = "external_id") val externalId: String?,
+    @ColumnInfo(name = "is_favourite") val isFavourite: Boolean
 )

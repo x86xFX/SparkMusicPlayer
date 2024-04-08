@@ -54,6 +54,7 @@ class PlayerViewModel @Inject constructor(
     val artistDetailsStream = _artistDetailsStream.asStateFlow()
     var uiState by mutableStateOf<UiState<List<Song>>>(UiState.Loading)
         private set
+
     var currentSelectedSong by mutableStateOf<Song?>(null)
         private set
     var currentSelectedSongCover by mutableStateOf<ByteArray?>(null)
@@ -61,6 +62,8 @@ class PlayerViewModel @Inject constructor(
     var currentSelectedSongPalette by mutableStateOf<Palette?>(null)
         private set
     var isPlaying by savedStateHandle.saveable { mutableStateOf(true) }
+        private set
+    var isFavourite by savedStateHandle.saveable { mutableStateOf(false) }
         private set
     var progress by savedStateHandle.saveable { mutableFloatStateOf(0f) }
         private set
@@ -77,11 +80,12 @@ class PlayerViewModel @Inject constructor(
         viewModelScope.launch {
             audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
                 when (musicPlayerState) {
-                    is MusicPlayerState.CurrentPlaying -> {
-                        if (currentSelectedSong == null || currentSelectedSong != currentQueuedSongList[musicPlayerState.mediaItemIndex]) {
-                            getCurrentPlayingSongCoverArt(currentQueuedSongList[musicPlayerState.mediaItemIndex].path)
-                        }
+                    is MusicPlayerState.OnTrackChange -> {
+                        getCurrentPlayingSongCoverArt(currentQueuedSongList[musicPlayerState.mediaItemIndex].path)
                         currentSelectedSong = currentQueuedSongList[musicPlayerState.mediaItemIndex]
+                        if (currentSelectedSong != null) {
+                            isFavourite = allSongList.first { currentSelectedSong!!.id == it.id }.isFavourite
+                        }
                     }
                     is MusicPlayerState.Playing -> { isPlaying = musicPlayerState.isPlaying }
                     is MusicPlayerState.Progress -> { calculateProgress(musicPlayerState.progress) }
@@ -157,22 +161,31 @@ class PlayerViewModel @Inject constructor(
         )
     }
 
+    fun onFavouriteClick(songId: Long, isFavourite: Boolean) {
+        viewModelScope.launch {
+            songRepository.setSongFavourite(songId, isFavourite)
+        }
+    }
+
     fun onSongInfoSheetDismiss() {
         songInfo = SongInfo(shouldShowSheet = false)
     }
 
     private fun loadSongData() {
         viewModelScope.launch {
-            songRepository.getSongs().collect { songResponse ->
+            songRepository.getSongs().collectLatest { songResponse ->
                 when (songResponse) {
                     is Response.Failure -> {
                         uiState = UiState.Failure(songResponse.message)
                     }
                     is Response.Success -> {
                         allSongList = songResponse.data
-                        uiState = UiState.Success(songResponse.data)
+                        if (currentSelectedSong != null) {
+                            isFavourite = songResponse.data.first { currentSelectedSong!!.id == it.id }.isFavourite
+                        }
                         launch { extractSongArtistsAndCounts() }
                         extractAlbums()
+                        uiState = UiState.Success(songResponse.data)
                     }
                     is Response.Loading -> {
                         uiState = UiState.Progress(

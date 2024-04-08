@@ -18,5 +18,6 @@ data class Song(
     val lastModified: Long,
     val size: Long,
     val path: String,
-    val externalId: String?
+    val externalId: String?,
+    val isFavourite: Boolean
 ) : Parcelable

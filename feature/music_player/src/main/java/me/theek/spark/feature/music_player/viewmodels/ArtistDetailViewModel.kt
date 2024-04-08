@@ -45,6 +45,7 @@ class ArtistDetailViewModel @AssistedInject constructor(
     }
 
     private suspend fun fetchArtistSpotifyDetails() {
+        _artistRemoteDetails.value = UiState.Loading
         when (val response = artistRepository.getAristDetails(artistName)) {
             is Response.Failure -> {
                 _artistRemoteDetails.value = UiState.Failure(response.message)

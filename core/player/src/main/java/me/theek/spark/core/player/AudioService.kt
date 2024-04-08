@@ -23,11 +23,11 @@ sealed interface PlayerEvent {
 
 sealed interface MusicPlayerState {
     data object Initial : MusicPlayerState
+    data class OnTrackChange(val mediaItemIndex: Int) : MusicPlayerState
     data class Ready(val duration: Long) : MusicPlayerState
     data class Progress(val progress: Long) : MusicPlayerState
     data class Buffering(val progress: Long) : MusicPlayerState
     data class Playing(val isPlaying: Boolean) : MusicPlayerState
-    data class CurrentPlaying(val mediaItemIndex: Int) : MusicPlayerState
     data class CurrentRepeatMode(@RepeatMode val repeatMode: Int) : MusicPlayerState
 }
 

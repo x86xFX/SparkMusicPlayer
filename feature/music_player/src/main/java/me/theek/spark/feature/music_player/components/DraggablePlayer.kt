@@ -61,8 +61,8 @@ import kotlin.math.roundToInt
 @Composable
 internal fun DraggablePlayer(
     isPlaying: Boolean,
-    isFavourite: Boolean,
     repeatState: @RepeatMode Int,
+    isFavourite: Boolean,
     progress: Float,
     progressString: () -> String,
     onProgressChange: (Float) -> Unit,
@@ -76,6 +76,7 @@ internal fun DraggablePlayer(
     onRepeatClick: (@RepeatMode Int) -> Unit,
     onPlayerMinimizeClick: () -> Unit,
     onPlayerMaximizeClick: () -> Unit,
+    onFavouriteClick: (Long, Boolean) -> Unit,
     draggableState: PlayerDraggableState,
     maxWidth: Float,
     maxHeight: Float,
@@ -230,13 +231,11 @@ internal fun DraggablePlayer(
                 .background(gradientBrush)
         ) {
             CurrentPlayingSongDetailView(
+                song = currentSelectedSong,
                 isPlaying = isPlaying,
-                isFavourite = isFavourite,
                 repeatState = repeatState,
+                isFavourite = isFavourite,
                 progress = { progress },
-                songTitle = currentSelectedSong.songName,
-                songGenre = currentSelectedSong.genres,
-                songArtistName = currentSelectedSong.artistName,
                 songDuration = songDuration,
                 currentSelectedSongCoverArt = currentSelectedSongCoverArt,
                 thumbColor = MaterialTheme.colorScheme.onBackground,
@@ -249,7 +248,7 @@ internal fun DraggablePlayer(
                 onSkipNextClick = onSkipNextClick,
                 onPlayerMinimizeClick = onPlayerMinimizeClick,
                 onPlayerQueueClick = { /*TODO*/ },
-                onFavouriteClick = { /*TODO*/ },
+                onFavouriteClick = onFavouriteClick,
                 onRepeatClick = onRepeatClick,
             )
         }

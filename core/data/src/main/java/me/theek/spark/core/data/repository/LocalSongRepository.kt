@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import me.theek.spark.core.content_reader.MediaStoreReader
 import me.theek.spark.core.data.mapper.toSong
 import me.theek.spark.core.data.mapper.toSongEntity
@@ -92,6 +93,22 @@ class LocalSongRepository @Inject constructor(
         } else {
             Response.Success(result)
         }
+    }
+
+    override fun getAlbumSongs(albumId: Int): Flow<List<Song>> {
+        return songDao.getAlbumSongs(albumId).map {
+            it.map { songEntity ->
+                songEntity.toSong()
+            }
+        }
+    }
+
+    override fun getFavouriteSongs(): Flow<List<Song>> {
+        return songDao.getFavouriteSongs().map { it.map { songEntity -> songEntity.toSong() } }
+    }
+
+    override suspend fun setSongFavourite(songId: Long, isFavourite: Boolean) {
+        songDao.setSongFavourite(songId, isFavourite)
     }
 
     override suspend fun getSongCoverArt(songPath: String): ByteArray? {
