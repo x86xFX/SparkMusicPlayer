@@ -1,10 +1,13 @@
 package me.theek.spark.feature.music_player.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,8 +22,9 @@ import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun EmptyArtistComposable(modifier: Modifier = Modifier) {
+    val scrollState = rememberScrollState()
     Column(
-        modifier = modifier,
+        modifier = modifier.scrollable(state = scrollState, orientation = Orientation.Vertical),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

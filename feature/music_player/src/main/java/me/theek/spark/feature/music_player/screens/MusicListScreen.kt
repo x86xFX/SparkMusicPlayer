@@ -5,10 +5,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -68,9 +72,14 @@ fun MusicListScreen(
     val currentSelectedSong = playerViewModel.currentSelectedSong
     val musicListState = playerViewModel.uiState
     val context = LocalContext.current
+    val orientation = LocalConfiguration.current.orientation
     val scope = rememberCoroutineScope()
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.displayCutout)
+            .fillMaxSize()
+    ) {
         val draggableState = rememberPlayerDraggableState(constraintsScope = this)
         val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
         val maxWidth = with(LocalDensity.current) { maxWidth.toPx() }
@@ -127,6 +136,7 @@ fun MusicListScreen(
             visible = currentSelectedSong != null
         ) {
             DraggablePlayer(
+                orientation = orientation,
                 isPlaying = playerViewModel.isPlaying,
                 repeatState = playerViewModel.repeatMode,
                 isFavourite = playerViewModel.isFavourite,

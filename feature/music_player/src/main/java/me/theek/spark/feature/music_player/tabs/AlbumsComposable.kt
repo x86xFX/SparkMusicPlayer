@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -118,23 +119,24 @@ private fun AlbumItem(
             .padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            modifier = Modifier
-                .weight(1.5f)
-                .size(60.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .aspectRatio(1f),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(Uri.parse("content://media/external/audio/media/${album.songs[0].externalId}/albumart"))
-                .build(),
-            placeholder = painterResource(id = R.drawable.artist_placeholder),
-            error = painterResource(id = R.drawable.artist_placeholder),
-            contentDescription = stringResource(R.string.album_image),
-            contentScale = ContentScale.Crop
-        )
+        Box {
+            AsyncImage(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .aspectRatio(1f),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(Uri.parse("content://media/external/audio/media/${album.songs[0].externalId}/albumart"))
+                    .build(),
+                placeholder = painterResource(id = R.drawable.artist_placeholder),
+                error = painterResource(id = R.drawable.artist_placeholder),
+                contentDescription = stringResource(R.string.album_image),
+                contentScale = ContentScale.Crop
+            )
+        }
         Column(
             modifier = Modifier
-                .weight(8.5f)
+                .wrapContentSize()
                 .padding(start = 10.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center

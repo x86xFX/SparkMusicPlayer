@@ -2,6 +2,7 @@ package me.theek.spark.feature.music_player.tabs
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -68,25 +70,26 @@ private fun ArtistItem(
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            modifier = Modifier
-                .weight(1.5f)
-                .size(60.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .aspectRatio(1f),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(artistDetails)
-                .memoryCacheKey(artistDetails.artistName)
-                .diskCacheKey(artistDetails.artistName)
-                .build(),
-            placeholder = painterResource(id = R.drawable.artist_placeholder),
-            error = painterResource(id = R.drawable.artist_placeholder),
-            contentDescription = stringResource(R.string.playlist_image),
-            contentScale = ContentScale.Crop
-        )
+        Box {
+            AsyncImage(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .aspectRatio(1f),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(artistDetails)
+                    .memoryCacheKey(artistDetails.artistName)
+                    .diskCacheKey(artistDetails.artistName)
+                    .build(),
+                placeholder = painterResource(id = R.drawable.artist_placeholder),
+                error = painterResource(id = R.drawable.artist_placeholder),
+                contentDescription = stringResource(R.string.playlist_image),
+                contentScale = ContentScale.Crop
+            )
+        }
         Column(
             modifier = Modifier
-                .weight(8.5f)
+                .wrapContentSize()
                 .padding(start = 10.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
@@ -117,7 +120,6 @@ private fun ArtistItem(
                     fontSize = MaterialTheme.typography.bodySmall.fontSize
                 )
             }
-
         }
     }
 }

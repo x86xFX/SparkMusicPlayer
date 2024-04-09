@@ -5,13 +5,21 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
@@ -61,7 +69,7 @@ import me.theek.spark.feature.music_player.util.timeStampToDuration
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-internal fun CurrentPlayingSongDetailView(
+internal fun CurrentPlayingSongDetailPortraitView(
     song: Song,
     isPlaying: Boolean,
     repeatState: @RepeatMode Int,
@@ -355,6 +363,301 @@ internal fun CurrentPlayingSongDetailView(
                                 contentDescription = stringResource(R.string.repeat_off_icon),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@Composable
+internal fun CurrentPlayingSongDetailLandscapeView(
+    song: Song,
+    isPlaying: Boolean,
+    repeatState: @RepeatMode Int,
+    progress: () -> Float,
+    isFavourite: Boolean,
+    songDuration: Float,
+    currentSelectedSongCoverArt: ByteArray?,
+    thumbColor: Color,
+    activeTrackColor: Color,
+    inactiveTrackColor: Color,
+    onProgressChange: (Float) -> Unit,
+    progressString: () -> String,
+    onSkipPreviousClick: () -> Unit,
+    onPausePlayClick: () -> Unit,
+    onSkipNextClick: () -> Unit,
+    onPlayerMinimizeClick: () -> Unit,
+    onPlayerQueueClick: () -> Unit,
+    onFavouriteClick: (Long, Boolean) -> Unit,
+    onRepeatClick: (@RepeatMode Int) -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val sliderColors = SliderDefaults.colors(
+        thumbColor = thumbColor,
+        activeTrackColor = activeTrackColor,
+        inactiveTrackColor = inactiveTrackColor
+    )
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .windowInsetsPadding(WindowInsets.displayCutout)
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(text = "Minimize")
+                    }
+                },
+                state = rememberTooltipState()
+            ) {
+                IconButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = onPlayerMinimizeClick
+                ) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        imageVector = Icons.Rounded.KeyboardArrowDown,
+                        contentDescription = stringResource(R.string.playlist_down_action_icon),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip {
+                        Text(text = "Queue")
+                    }
+                },
+                state = rememberTooltipState()
+            ) {
+                IconButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = onPlayerQueueClick
+                ) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        imageVector = rememberQueueMusic(),
+                        contentDescription = stringResource(R.string.player_queue_icon),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .windowInsetsPadding(WindowInsets.displayCutout)
+                .fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(0.5f)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .size(250.dp)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(18.dp)),
+                    error = painterResource(id = R.drawable.round_music_note_24),
+                    contentScale = ContentScale.Crop,
+                    model = currentSelectedSongCoverArt,
+                    contentDescription = stringResource(R.string.current_playing_song_cover_art)
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .weight(1f)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .basicMarquee(),
+                    text = song.songName ?: "Unknown",
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.headlineLarge.fontSize,
+                        fontWeight = FontWeight.Light,
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
+                    )
+                )
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = song.artistName ?: "Unknown",
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = TextStyle(
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        platformStyle = PlatformTextStyle(
+                            includeFontPadding = false
+                        )
+                    )
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+
+                CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+                    Slider(
+                        modifier = Modifier.fillMaxWidth(fraction = 0.9f),
+                        value = progress().div(100).times(songDuration),
+                        onValueChange = onProgressChange,
+                        thumb = {
+                            SliderDefaults.Thumb(
+                                interactionSource = interactionSource,
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .padding(
+                                        start = 4.dp,
+                                        top = 4.dp
+                                    ),
+                                colors = sliderColors
+                            )
+                        },
+                        valueRange = 0f..songDuration,
+                        colors = sliderColors
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.9f)
+                        .padding(horizontal = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = progressString(),
+                        overflow = TextOverflow.Clip,
+                        maxLines = 1,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = timeStampToDuration(songDuration),
+                        overflow = TextOverflow.Clip,
+                        maxLines = 1,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(fraction = 0.8f),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(text = "Favourite")
+                            }
+                        },
+                        state = rememberTooltipState()
+                    ) {
+                        IconButton(
+                            modifier = Modifier.weight(1f),
+                            onClick = { onFavouriteClick(song.id, !isFavourite) }
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(30.dp),
+                                imageVector = if (isFavourite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                                contentDescription = stringResource(R.string.favourite_icon),
+                                tint = if (isFavourite) Color(0xFFFF0C6D) else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    BasicPlaybackControls(
+                        modifier = Modifier.fillMaxWidth(fraction = 0.8f),
+                        onSkipPreviousClick = onSkipPreviousClick,
+                        onSkipNextClick = onSkipNextClick,
+                        skipNextIconSize = 40.dp,
+                        skipPreviousIconSize = 40.dp,
+                        playPauseIcon = {
+                            IconButton(
+                                modifier = Modifier.size(60.dp),
+                                onClick = onPausePlayClick
+                            ) {
+                                Icon(
+                                    modifier = Modifier.fillMaxSize(),
+                                    imageVector = if (isPlaying) rememberPauseCircle() else rememberPlayCircle(),
+                                    contentDescription = stringResource(me.theek.spark.core.design_system.R.string.play_pause_icon),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    )
+
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip {
+                                Text(text = "Repeat")
+                            }
+                        },
+                        state = rememberTooltipState()
+                    ) {
+                        when (repeatState) {
+                            RepeatMode.REPEAT_MODE_ALL -> {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clickable { onRepeatClick(RepeatMode.REPEAT_MODE_ONE) },
+                                    imageVector =  rememberRepeat(),
+                                    contentDescription = stringResource(R.string.repeat_all_icon),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            RepeatMode.REPEAT_MODE_ONE -> {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clickable { onRepeatClick(RepeatMode.REPEAT_MODE_OFF) },
+                                    imageVector =  rememberRepeatOne(),
+                                    contentDescription = stringResource(R.string.repeat_one_icon),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            else -> {
+                                Icon(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clickable { onRepeatClick(RepeatMode.REPEAT_MODE_ALL) },
+                                    imageVector =  rememberMotionPhotosAuto(),
+                                    contentDescription = stringResource(R.string.repeat_off_icon),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }

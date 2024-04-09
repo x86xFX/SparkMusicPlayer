@@ -76,6 +76,9 @@ class PlayerViewModel @Inject constructor(
     var songInfo by mutableStateOf(SongInfo())
         private set
 
+    /**
+     * Music player stream, Details of current playing song, play/pause, track change events.
+     */
     init {
         viewModelScope.launch {
             audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
@@ -171,9 +174,16 @@ class PlayerViewModel @Inject constructor(
         songInfo = SongInfo(shouldShowSheet = false)
     }
 
+    /**
+     * Collect latest emits of songs. One emit contains list of songs.
+     * Firstly check room database empty or not.
+     * If empty songRepository call media store reader to query local songs in external storage.
+     * Then collected songs store in room database for future usage and its improve app's data collection process.
+     */
     private fun loadSongData() {
         viewModelScope.launch {
             songRepository.getSongs().collectLatest { songResponse ->
+                println("Response $songResponse")
                 when (songResponse) {
                     is Response.Failure -> {
                         uiState = UiState.Failure(songResponse.message)
