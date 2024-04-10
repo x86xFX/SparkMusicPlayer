@@ -1,5 +1,6 @@
 package me.theek.spark.core.data.repository
 
+import android.graphics.Bitmap
 import kotlinx.coroutines.flow.Flow
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.util.FlowEvent
@@ -12,5 +13,5 @@ interface SongRepository {
     fun getAlbumSongs(albumId: Int) : Flow<List<Song>>
     fun getFavouriteSongs() : Flow<List<Song>>
     suspend fun setSongFavourite(songId: Long, isFavourite: Boolean)
-    suspend fun getSongCoverArt(songPath: String) : ByteArray?
+    suspend fun getSongCoverArt(songExternalId: String?) : Bitmap?
 }

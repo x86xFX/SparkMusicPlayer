@@ -3,12 +3,13 @@ package me.theek.spark.core.content_reader
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
-import com.simplecityapps.ktaglib.KTagLib
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -20,15 +21,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.util.FlowEvent
-import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MediaStoreReader @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val kTagLib: KTagLib
-) {
+class MediaStoreReader @Inject constructor(@ApplicationContext private val context: Context) {
+
+    private val contentResolver = context.contentResolver
 
     fun getAudioData(): Flow<FlowEvent<List<Song>>> = flow<FlowEvent<List<Song>>> {
 
@@ -39,7 +38,7 @@ class MediaStoreReader @Inject constructor(
 
         var songs: MutableList<Song> = mutableListOf()
 
-        val songCursor = context.contentResolver.query(
+        val songCursor = contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             arrayOf(
                 MediaStore.Audio.Media._ID,
@@ -94,7 +93,7 @@ class MediaStoreReader @Inject constructor(
         }
 
         // Extract song genres
-        context.contentResolver.query(
+        contentResolver.query(
             MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
             arrayOf(MediaStore.Audio.Genres._ID, MediaStore.Audio.Genres.NAME),
             null,
@@ -105,7 +104,7 @@ class MediaStoreReader @Inject constructor(
                 val id = genreCursor.getLong(genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres._ID))
                 val genre = genreCursor.getString(genreCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME))
 
-                context.contentResolver.query(
+                contentResolver.query(
                     MediaStore.Audio.Genres.Members.getContentUri("external", id),
                     arrayOf(MediaStore.Audio.Media._ID),
                     null,
@@ -132,19 +131,25 @@ class MediaStoreReader @Inject constructor(
     }
     .flowOn(Dispatchers.IO)
 
-    suspend fun getSongCover(songPath: String): ByteArray? = withContext(Dispatchers.IO) {
-        val uri: Uri = if (songPath.startsWith("content://")) {
-            Uri.parse(songPath)
-        } else {
-            Uri.fromFile(File(songPath))
-        }
-
-        try {
-            context.contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
-                kTagLib.getArtwork(pfd.detachFd())
+    @Suppress("DEPRECATION") //Suppress because createSource only support for API 28+
+    suspend fun getSongCover(songExternalId: String?):  Bitmap? = withContext(Dispatchers.IO) {
+        if (songExternalId != null) {
+            val coverUri = Uri.parse("content://media/external/audio/media/${songExternalId}/albumart")
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(
+                        ImageDecoder.createSource(contentResolver, coverUri)
+                    ) { decoder, _, _ ->
+                        decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                        decoder.isMutableRequired = true
+                    }
+                } else {
+                    MediaStore.Images.Media.getBitmap(contentResolver, coverUri)
+                }
+            } catch (e: Exception) {
+                null
             }
-
-        } catch (e: Exception) {
+        } else {
             null
         }
     }

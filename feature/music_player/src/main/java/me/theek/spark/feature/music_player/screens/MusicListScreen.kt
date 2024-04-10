@@ -145,7 +145,6 @@ fun MusicListScreen(
                 progressString = { playerViewModel.processString },
                 currentSelectedSong = currentSelectedSong!!,
                 songDuration = playerViewModel.duration.toFloat(),
-                currentSelectedSongCoverArt = playerViewModel.currentSelectedSongCover,
                 currentSelectedSongPalette = playerViewModel.currentSelectedSongPalette,
                 onPausePlayClick = playerViewModel::onPausePlayClick,
                 onSkipNextClick = playerViewModel::onSkipNextClick,

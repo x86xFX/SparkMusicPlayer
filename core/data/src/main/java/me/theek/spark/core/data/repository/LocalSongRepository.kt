@@ -1,9 +1,9 @@
 package me.theek.spark.core.data.repository
 
+import android.graphics.Bitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -58,25 +58,35 @@ class LocalSongRepository @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     override fun getSongs(): Flow<Response<List<Song>>> = channelFlow<Response<List<Song>>> {
-
-        songDao.getSongs().collectLatest { existingSongs ->
+        /**
+         * Collect stored songs from Room database.
+         */
+        songDao.getSongs().collect { existingSongs ->
+            /**
+             * If existing songs are empty,
+             * call media store to retrieve new songs from external storage.
+             */
             if (existingSongs.isEmpty()) {
-                when (val mediaData = mediaStoreReader.getAudioData().first()) {
-                    is FlowEvent.Progress -> {
-                        send(
-                            Response.Loading(
-                                size = mediaData.size,
-                                progress = mediaData.asFloat(),
-                                message = mediaData.message
+                mediaStoreReader.getAudioData().collect { mediaStoreResponse ->
+                    when (mediaStoreResponse) {
+                        is FlowEvent.Failure -> {
+                            send(Response.Failure(mediaStoreResponse.message))
+                        }
+                        is FlowEvent.Progress -> {
+                            send(
+                                Response.Loading(
+                                    size = mediaStoreResponse.size,
+                                    progress = mediaStoreResponse.asFloat(),
+                                    message = mediaStoreResponse.message
+                                )
                             )
-                        )
-                    }
-                    is FlowEvent.Success -> {
-                        send(Response.Success(mediaData.data))
-                    }
-
-                    is FlowEvent.Failure -> {
-                        send(Response.Failure(mediaData.message))
+                        }
+                        is FlowEvent.Success -> {
+                            mediaStoreResponse.data.onEach { song ->
+                                songDao.insertSong(song.toSongEntity())
+                            }
+                            send(Response.Success(mediaStoreResponse.data))
+                        }
                     }
                 }
             } else {
@@ -111,7 +121,7 @@ class LocalSongRepository @Inject constructor(
         songDao.setSongFavourite(songId, isFavourite)
     }
 
-    override suspend fun getSongCoverArt(songPath: String): ByteArray? {
-        return mediaStoreReader.getSongCover(songPath)
+    override suspend fun getSongCoverArt(songExternalId: String?): Bitmap? {
+        return mediaStoreReader.getSongCover(songExternalId)
     }
 }

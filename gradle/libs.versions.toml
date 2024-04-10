@@ -83,7 +83,6 @@ androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-co
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-kTagLib = { module = "com.github.timusus:ktaglib", version.ref = "kTagLib" }
 androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "palette" }
 ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }

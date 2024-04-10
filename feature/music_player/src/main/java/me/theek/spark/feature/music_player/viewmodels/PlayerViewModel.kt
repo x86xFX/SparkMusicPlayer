@@ -1,6 +1,5 @@
 package me.theek.spark.feature.music_player.viewmodels
 
-import android.graphics.BitmapFactory
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -14,12 +13,10 @@ import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.palette.graphics.Palette
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import me.theek.spark.core.data.repository.ArtistRepository
 import me.theek.spark.core.data.repository.SongRepository
 import me.theek.spark.core.model.data.Album
@@ -54,10 +51,7 @@ class PlayerViewModel @Inject constructor(
     val artistDetailsStream = _artistDetailsStream.asStateFlow()
     var uiState by mutableStateOf<UiState<List<Song>>>(UiState.Loading)
         private set
-
     var currentSelectedSong by mutableStateOf<Song?>(null)
-        private set
-    var currentSelectedSongCover by mutableStateOf<ByteArray?>(null)
         private set
     var currentSelectedSongPalette by mutableStateOf<Palette?>(null)
         private set
@@ -84,7 +78,7 @@ class PlayerViewModel @Inject constructor(
             audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
                 when (musicPlayerState) {
                     is MusicPlayerState.OnTrackChange -> {
-                        getCurrentPlayingSongCoverArt(currentQueuedSongList[musicPlayerState.mediaItemIndex].path)
+                        currentPlayingSongColorPalette(currentQueuedSongList[musicPlayerState.mediaItemIndex].externalId)
                         currentSelectedSong = currentQueuedSongList[musicPlayerState.mediaItemIndex]
                         if (currentSelectedSong != null) {
                             isFavourite = allSongList.first { currentSelectedSong!!.id == it.id }.isFavourite
@@ -183,7 +177,6 @@ class PlayerViewModel @Inject constructor(
     private fun loadSongData() {
         viewModelScope.launch {
             songRepository.getSongs().collectLatest { songResponse ->
-                println("Response $songResponse")
                 when (songResponse) {
                     is Response.Failure -> {
                         uiState = UiState.Failure(songResponse.message)
@@ -221,17 +214,10 @@ class PlayerViewModel @Inject constructor(
         return if (duration < 0) "--:--" else "%d:%02d".format(minutes, remainingSeconds)
     }
 
-    private fun getCurrentPlayingSongCoverArt(songPath: String) {
+    private fun currentPlayingSongColorPalette(songExternalId: String?) {
         viewModelScope.launch {
-            currentSelectedSongCover = songRepository.getSongCoverArt(songPath)
-            currentPlayingSongColorPalette(coverArtData = currentSelectedSongCover)
-        }
-    }
-
-    private suspend fun currentPlayingSongColorPalette(coverArtData: ByteArray?) = withContext(Dispatchers.IO) {
-        if (coverArtData != null) {
-            val bitmap = BitmapFactory.decodeByteArray(coverArtData, 0, coverArtData.size)
-            currentSelectedSongPalette = Palette.from(bitmap).generate()
+            val bitmap = songRepository.getSongCoverArt(songExternalId)
+            currentSelectedSongPalette = bitmap?.let { Palette.from(it).generate() }
         }
     }
 

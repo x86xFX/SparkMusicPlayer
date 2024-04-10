@@ -1,5 +1,6 @@
 package me.theek.spark.feature.music_player.components
 
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -76,7 +77,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
     progress: () -> Float,
     isFavourite: Boolean,
     songDuration: Float,
-    currentSelectedSongCoverArt: ByteArray?,
+    coverUri: Uri,
     thumbColor: Color,
     activeTrackColor: Color,
     inactiveTrackColor: Color,
@@ -209,7 +210,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     .clip(RoundedCornerShape(8.dp)),
                 error = painterResource(id = R.drawable.round_music_note_24),
                 contentScale = ContentScale.Crop,
-                model = currentSelectedSongCoverArt,
+                model = coverUri,
                 contentDescription = stringResource(R.string.current_playing_song_cover_art)
             )
 
@@ -380,7 +381,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
     progress: () -> Float,
     isFavourite: Boolean,
     songDuration: Float,
-    currentSelectedSongCoverArt: ByteArray?,
+    coverUri: Uri,
     thumbColor: Color,
     activeTrackColor: Color,
     inactiveTrackColor: Color,
@@ -477,7 +478,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                         .clip(RoundedCornerShape(18.dp)),
                     error = painterResource(id = R.drawable.round_music_note_24),
                     contentScale = ContentScale.Crop,
-                    model = currentSelectedSongCoverArt,
+                    model = coverUri,
                     contentDescription = stringResource(R.string.current_playing_song_cover_art)
                 )
             }

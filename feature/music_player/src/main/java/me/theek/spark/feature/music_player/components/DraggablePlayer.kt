@@ -1,6 +1,7 @@
 package me.theek.spark.feature.music_player.components
 
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -69,7 +70,6 @@ internal fun DraggablePlayer(
     onProgressChange: (Float) -> Unit,
     currentSelectedSong: Song,
     songDuration: Float,
-    currentSelectedSongCoverArt: ByteArray?,
     currentSelectedSongPalette: Palette?,
     onSkipPreviousClick: () -> Unit,
     onPausePlayClick: () -> Unit,
@@ -98,6 +98,7 @@ internal fun DraggablePlayer(
         ),
         tileMode = TileMode.Clamp
     )
+    val coverUri = Uri.parse("content://media/external/audio/media/${currentSelectedSong.externalId}/albumart")
 
     when (orientation) {
         Configuration.ORIENTATION_LANDSCAPE -> {
@@ -112,7 +113,7 @@ internal fun DraggablePlayer(
                 onProgressChange = onProgressChange,
                 currentSelectedSong = currentSelectedSong,
                 songDuration = songDuration,
-                currentSelectedSongCoverArt = currentSelectedSongCoverArt,
+                coverUri = coverUri,
                 onSkipPreviousClick = onSkipPreviousClick,
                 onPausePlayClick = onPausePlayClick,
                 onSkipNextClick = onSkipNextClick,
@@ -140,7 +141,7 @@ internal fun DraggablePlayer(
                 onProgressChange = onProgressChange,
                 currentSelectedSong = currentSelectedSong,
                 songDuration = songDuration,
-                currentSelectedSongCoverArt = currentSelectedSongCoverArt,
+                coverUri = coverUri,
                 onSkipPreviousClick = onSkipPreviousClick,
                 onPausePlayClick = onPausePlayClick,
                 onSkipNextClick = onSkipNextClick,
@@ -169,8 +170,8 @@ private fun DraggablePlayerPortrait(
     progressString: () -> String,
     onProgressChange: (Float) -> Unit,
     currentSelectedSong: Song,
+    coverUri: Uri,
     songDuration: Float,
-    currentSelectedSongCoverArt: ByteArray?,
     onSkipPreviousClick: () -> Unit,
     onPausePlayClick: () -> Unit,
     onSkipNextClick: () -> Unit,
@@ -227,7 +228,7 @@ private fun DraggablePlayerPortrait(
                             modifier = Modifier
                                 .size(45.dp)
                                 .clip(RoundedCornerShape(8.dp)),
-                            model = currentSelectedSongCoverArt,
+                            model = coverUri,
                             contentDescription = stringResource(R.string.current_playing_song_cover_art)
                         )
                     }
@@ -328,7 +329,7 @@ private fun DraggablePlayerPortrait(
                 isFavourite = isFavourite,
                 progress = { progress },
                 songDuration = songDuration,
-                currentSelectedSongCoverArt = currentSelectedSongCoverArt,
+                coverUri = coverUri,
                 thumbColor = MaterialTheme.colorScheme.onBackground,
                 activeTrackColor = MaterialTheme.colorScheme.onBackground,
                 inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -357,8 +358,8 @@ private fun DraggablePlayerLandscape(
     progressString: () -> String,
     onProgressChange: (Float) -> Unit,
     currentSelectedSong: Song,
+    coverUri: Uri,
     songDuration: Float,
-    currentSelectedSongCoverArt: ByteArray?,
     onSkipPreviousClick: () -> Unit,
     onPausePlayClick: () -> Unit,
     onSkipNextClick: () -> Unit,
@@ -416,7 +417,7 @@ private fun DraggablePlayerLandscape(
                             modifier = Modifier
                                 .size(45.dp)
                                 .clip(RoundedCornerShape(8.dp)),
-                            model = currentSelectedSongCoverArt,
+                            model = coverUri,
                             contentDescription = stringResource(R.string.current_playing_song_cover_art)
                         )
                     }
@@ -515,7 +516,7 @@ private fun DraggablePlayerLandscape(
                 isFavourite = isFavourite,
                 progress = { progress },
                 songDuration = songDuration,
-                currentSelectedSongCoverArt = currentSelectedSongCoverArt,
+                coverUri = coverUri,
                 thumbColor = MaterialTheme.colorScheme.onBackground,
                 activeTrackColor = MaterialTheme.colorScheme.onBackground,
                 inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
