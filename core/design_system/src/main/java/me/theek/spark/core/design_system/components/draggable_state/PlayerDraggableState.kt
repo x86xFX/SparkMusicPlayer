@@ -16,7 +16,7 @@ class PlayerDraggableState(
     density = density,
     initialValue = initialValue,
     anchors = DraggableAnchors {
-        BottomSheetStates.MINIMISED at (maxHeight - 200f)
+        BottomSheetStates.MINIMISED at maxHeight
         BottomSheetStates.EXPANDED at 0f
     }
 )

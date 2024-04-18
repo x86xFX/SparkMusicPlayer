@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -37,18 +38,20 @@ import me.theek.spark.feature.music_player.viewmodels.SongInfo
 fun ShowSongInfoBottomBar(
     sheetState: SheetState,
     songInfo: SongInfo,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (songInfo.shouldShowSheet) {
         ModalBottomSheet(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier
+                .displayCutoutPadding()
+                .navigationBarsPadding()
+                .fillMaxWidth(),
             onDismissRequest = onDismissRequest,
             sheetState = sheetState
         ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(space = 10.dp, alignment = Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -57,6 +60,7 @@ fun ShowSongInfoBottomBar(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(songInfo.song)
                             .memoryCacheKey(songInfo.song?.path)
+                            .diskCacheKey(songInfo.song?.path)
                             .build(),
                         contentDescription = stringResource(R.string.album_art),
                         error = painterResource(id = R.drawable.round_music_note_24),
@@ -197,7 +201,7 @@ fun ShowSongInfoBottomBar(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(15.dp))
                     }
                 }
             }

@@ -12,9 +12,7 @@ import androidx.compose.ui.platform.LocalDensity
 @Composable
 fun rememberPlayerDraggableState(constraintsScope: BoxWithConstraintsScope): PlayerDraggableState {
     val density = LocalDensity.current
-    val maxHeight = with(LocalDensity.current) {
-        constraintsScope.maxHeight.toPx()
-    }
+    val maxHeight = with(density) { constraintsScope.maxHeight.toPx() }
     return rememberSaveable(
         saver = PlayerDraggableStateSaver(
             maxHeight = maxHeight,

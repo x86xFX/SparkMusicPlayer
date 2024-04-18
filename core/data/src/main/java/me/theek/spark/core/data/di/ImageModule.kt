@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import me.theek.spark.core.data.util.ArtistCoverInterceptor
 import me.theek.spark.core.data.util.ArtistCoverNetworkInterceptor
+import me.theek.spark.core.data.util.CoverArtFetcher
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
@@ -24,6 +25,7 @@ object ImageModule {
         return ImageLoader.Builder(context)
             .components {
                 add(SvgDecoder.Factory())
+                add(CoverArtFetcher.ImageFactory())
                 add(ArtistCoverInterceptor())
             }
             .okHttpClient {

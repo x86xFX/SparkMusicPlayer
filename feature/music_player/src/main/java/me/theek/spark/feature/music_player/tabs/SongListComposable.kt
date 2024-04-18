@@ -24,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,12 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.icons.rememberShuffle
-import me.theek.spark.core.design_system.icons.rememberSort
 import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.feature.music_player.R
@@ -84,7 +80,6 @@ internal fun SongListComposable(
             } else {
                 val lazyColumnState = rememberLazyListState()
                 val scope = rememberCoroutineScope()
-
                 Column(
                     modifier = modifier
                         .background(
@@ -95,37 +90,33 @@ internal fun SongListComposable(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 10.dp),
+                            .padding(vertical = 10.dp, horizontal = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .weight(7f)
-                                .padding(start = 10.dp)
-                        ) {
-                            TextButton(onClick = { /*TODO*/ }) {
-                                Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    imageVector = rememberSort(),
-                                    contentDescription = stringResource(R.string.sort_icon),
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "Date added",
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
+//                        Row(modifier = Modifier.weight(7f)) {
+//                            TextButton(onClick = { /*TODO*/ }) {
+//                                Icon(
+//                                    modifier = Modifier.size(24.dp),
+//                                    imageVector = rememberSort(),
+//                                    contentDescription = stringResource(R.string.sort_icon),
+//                                    tint = MaterialTheme.colorScheme.onSurface
+//                                )
+//                                Text(
+//                                    text = "Date added",
+//                                    maxLines = 1,
+//                                    overflow = TextOverflow.Ellipsis,
+//                                    fontWeight = FontWeight.SemiBold,
+//                                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+//                                    color = MaterialTheme.colorScheme.onSurface
+//                                )
+//                            }
+//                        }
 
                         Row(
-                            modifier = Modifier.weight(3f),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                            horizontalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.End)
                         ) {
                             FilledTonalIconButton(
                                 onClick = onShufflePlayClick,
@@ -178,7 +169,7 @@ internal fun SongListComposable(
                                 IconButton(
                                     modifier = Modifier
                                         .align(Alignment.BottomCenter)
-                                        .padding(bottom = 70.dp)
+                                        .padding(bottom = 80.dp)
                                         .size(42.dp)
                                         .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.tertiaryContainer),

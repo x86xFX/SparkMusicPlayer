@@ -1,6 +1,8 @@
 package me.theek.spark.core.design_system.ui.theme
 
 import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -79,6 +81,10 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant = md_theme_light_outlineVariant,
     scrim = md_theme_light_scrim
 )
+
+fun Context.isInDarkMode() : Boolean {
+    return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+}
 
 @Composable
 fun SparkMusicPlayerTheme(

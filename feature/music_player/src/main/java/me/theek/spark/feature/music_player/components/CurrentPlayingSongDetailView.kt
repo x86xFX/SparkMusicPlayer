@@ -1,6 +1,5 @@
 package me.theek.spark.feature.music_player.components
 
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -10,9 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
@@ -46,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -55,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import me.theek.spark.core.design_system.components.BasicPlaybackControls
 import me.theek.spark.core.design_system.components.GenreTag
 import me.theek.spark.core.design_system.icons.rememberMotionPhotosAuto
@@ -77,7 +76,6 @@ internal fun CurrentPlayingSongDetailPortraitView(
     progress: () -> Float,
     isFavourite: Boolean,
     songDuration: Float,
-    coverUri: Uri,
     thumbColor: Color,
     activeTrackColor: Color,
     inactiveTrackColor: Color,
@@ -99,14 +97,16 @@ internal fun CurrentPlayingSongDetailPortraitView(
     )
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(vertical = 30.dp, horizontal = 10.dp),
+                .padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.Top
         ) {
@@ -135,7 +135,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
             Column(
                 modifier = Modifier
                     .weight(8f)
-                    .padding(horizontal = 5.dp),
+                    .padding(horizontal = 5.dp, vertical = 5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -148,8 +148,8 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = TextStyle(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                        fontWeight = FontWeight.Light,
                         textAlign = TextAlign.Center,
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false
@@ -164,7 +164,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     color = MaterialTheme.colorScheme.onSurface,
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Light,
                         textAlign = TextAlign.Center,
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false
@@ -210,7 +210,11 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     .clip(RoundedCornerShape(8.dp)),
                 error = painterResource(id = R.drawable.round_music_note_24),
                 contentScale = ContentScale.Crop,
-                model = coverUri,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(song)
+                    .memoryCacheKey(song.path)
+                    .diskCacheKey(song.path)
+                    .build(),
                 contentDescription = stringResource(R.string.current_playing_song_cover_art)
             )
 
@@ -310,6 +314,8 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     onSkipNextClick = onSkipNextClick,
                     skipNextIconSize = 40.dp,
                     skipPreviousIconSize = 40.dp,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    horizontalArrangement = Arrangement.Center,
                     playPauseIcon = {
                         IconButton(
                             modifier = Modifier.size(60.dp),
@@ -381,7 +387,6 @@ internal fun CurrentPlayingSongDetailLandscapeView(
     progress: () -> Float,
     isFavourite: Boolean,
     songDuration: Float,
-    coverUri: Uri,
     thumbColor: Color,
     activeTrackColor: Color,
     inactiveTrackColor: Color,
@@ -403,14 +408,15 @@ internal fun CurrentPlayingSongDetailLandscapeView(
     )
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .displayCutoutPadding()
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .windowInsetsPadding(WindowInsets.displayCutout)
                 .fillMaxWidth()
                 .padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -459,9 +465,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
             }
         }
         Row(
-            modifier = Modifier
-                .windowInsetsPadding(WindowInsets.displayCutout)
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -478,15 +482,19 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                         .clip(RoundedCornerShape(18.dp)),
                     error = painterResource(id = R.drawable.round_music_note_24),
                     contentScale = ContentScale.Crop,
-                    model = coverUri,
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(song)
+                        .memoryCacheKey(song.path)
+                        .diskCacheKey(song.path)
+                        .build(),
                     contentDescription = stringResource(R.string.current_playing_song_cover_art)
                 )
             }
             Column(
                 modifier = Modifier
-                    .navigationBarsPadding()
                     .weight(1f)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .padding(end = 15.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -578,11 +586,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                 ) {
                     TooltipBox(
                         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = {
-                            PlainTooltip {
-                                Text(text = "Favourite")
-                            }
-                        },
+                        tooltip = { PlainTooltip { Text(text = "Favourite") } },
                         state = rememberTooltipState()
                     ) {
                         IconButton(
@@ -604,6 +608,8 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                         onSkipNextClick = onSkipNextClick,
                         skipNextIconSize = 40.dp,
                         skipPreviousIconSize = 40.dp,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        horizontalArrangement = Arrangement.Center,
                         playPauseIcon = {
                             IconButton(
                                 modifier = Modifier.size(60.dp),
@@ -621,11 +627,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
 
                     TooltipBox(
                         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = {
-                            PlainTooltip {
-                                Text(text = "Repeat")
-                            }
-                        },
+                        tooltip = { PlainTooltip { Text(text = "Repeat") } },
                         state = rememberTooltipState()
                     ) {
                         when (repeatState) {

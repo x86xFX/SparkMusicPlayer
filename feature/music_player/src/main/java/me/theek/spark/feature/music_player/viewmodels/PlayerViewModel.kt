@@ -85,7 +85,9 @@ class PlayerViewModel @Inject constructor(
                         }
                     }
                     is MusicPlayerState.Playing -> { isPlaying = musicPlayerState.isPlaying }
-                    is MusicPlayerState.Progress -> { calculateProgress(musicPlayerState.progress) }
+                    is MusicPlayerState.Progress -> {
+                        calculateProgress(musicPlayerState.progress)
+                    }
                     is MusicPlayerState.Buffering -> { calculateProgress(musicPlayerState.progress) }
                     is MusicPlayerState.Ready -> { duration = musicPlayerState.duration }
                     is MusicPlayerState.CurrentRepeatMode -> { repeatMode = musicPlayerState.repeatMode }
@@ -188,7 +190,7 @@ class PlayerViewModel @Inject constructor(
                         }
                         launch { extractSongArtistsAndCounts() }
                         extractAlbums()
-                        uiState = UiState.Success(songResponse.data)
+                        uiState = UiState.Success(songResponse.data.sortedBy { it.songName })
                     }
                     is Response.Loading -> {
                         uiState = UiState.Progress(

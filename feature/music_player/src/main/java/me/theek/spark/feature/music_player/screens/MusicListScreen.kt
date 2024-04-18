@@ -3,15 +3,13 @@ package me.theek.spark.feature.music_player.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +25,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,8 +32,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import me.theek.spark.core.design_system.components.draggable_state.BottomSheetStates
-import me.theek.spark.core.design_system.components.draggable_state.rememberPlayerDraggableState
 import me.theek.spark.core.model.data.Album
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.PlaylistData
@@ -75,67 +70,61 @@ fun MusicListScreen(
     val orientation = LocalConfiguration.current.orientation
     val scope = rememberCoroutineScope()
 
-    BoxWithConstraints(
+    Scaffold(
         modifier = Modifier
-            .windowInsetsPadding(WindowInsets.displayCutout)
             .fillMaxSize()
-    ) {
-        val draggableState = rememberPlayerDraggableState(constraintsScope = this)
-        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
-        val maxWidth = with(LocalDensity.current) { maxWidth.toPx() }
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            .displayCutoutPadding(),
+        topBar = {
+            SparkPlayerTopAppBar(
+                modifier = Modifier,
+                isInPlaylistSelectionMode = playlistViewModel.isInSelectionMode,
+                onPlaylistDelete = playlistViewModel::onPlaylistDeleteWarningShow,
+                onPlaylistSelectionClearClick = playlistViewModel::onPlaylistSelectionClearClick
+            )
+        },
+        content = { innerPadding ->
+            MusicUi(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                    .navigationBarsPadding()
+                    .padding(top = innerPadding.calculateTopPadding()),
+                musicListState = musicListState,
+                playlistState = playlistState,
+                artistsDetails = artistsState,
+                favouritesState = favouritesState,
+                albums = playerViewModel.albumList,
+                onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
+                onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
+                onSongInfoClick = playerViewModel::onSongInfoClick,
+                onShareClick = { songPath -> context.startActivity(shareIntent(songPath)) },
+                onPlaylistViewClick = onPlaylistViewClick,
+                onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
+                scope = scope,
+                onSongClick = {
+                    playerViewModel.onSongClick(it)
+                    onSongServiceStart()
+                },
+                onShufflePlayClick = playerViewModel::onAllShuffleClick,
+                onAllPlayClick = { playerViewModel.onSongClick(0) },
+                isInSelectionMode = playlistViewModel.isInSelectionMode,
+                onChangingToSelectionMode = playlistViewModel::onChangingToSelectionMode,
+                onPlaylistAddToSelection = playlistViewModel::onPlaylistAddToSelection,
+                onPlaylistRemoveFromSelection = playlistViewModel::onPlaylistRemoveFromSelection,
+                onAlbumClick = onAlbumClick,
+                onExternalSongClick = playerViewModel::onCustomQueueSongClick
+            )
+        }
+    )
 
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                .navigationBarsPadding(),
-            topBar = {
-                SparkPlayerTopAppBar(
-                    isInPlaylistSelectionMode = playlistViewModel.isInSelectionMode,
-                    onSearch = {},
-                    onPlaylistDelete = playlistViewModel::onPlaylistDeleteWarningShow,
-                    onPlaylistSelectionClearClick = playlistViewModel::onPlaylistSelectionClearClick
-                )
-            },
-            content = { innerPadding ->
-                MusicUi(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                        .padding(top = innerPadding.calculateTopPadding()),
-                    musicListState = musicListState,
-                    playlistState = playlistState,
-                    artistsDetails = artistsState,
-                    favouritesState = favouritesState,
-                    albums = playerViewModel.albumList,
-                    onCreatePlaylistClick = playlistViewModel::addToQueuedPlaylistSong,
-                    onAddToExistingPlaylistClick = playlistViewModel::onAddToExistingPlaylistClick,
-                    onSongInfoClick = playerViewModel::onSongInfoClick,
-                    onShareClick = { songPath -> context.startActivity(shareIntent(songPath)) },
-                    onPlaylistViewClick = onPlaylistViewClick,
-                    onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
-                    scope = scope,
-                    onSongClick = {
-                        playerViewModel.onSongClick(it)
-                        onSongServiceStart()
-                    },
-                    onShufflePlayClick = playerViewModel::onAllShuffleClick,
-                    onAllPlayClick = { playerViewModel.onSongClick(0) },
-                    isInSelectionMode = playlistViewModel.isInSelectionMode,
-                    onChangingToSelectionMode = playlistViewModel::onChangingToSelectionMode,
-                    onPlaylistAddToSelection = playlistViewModel::onPlaylistAddToSelection,
-                    onPlaylistRemoveFromSelection = playlistViewModel::onPlaylistRemoveFromSelection,
-                    onAlbumClick = onAlbumClick,
-                    onExternalSongClick = playerViewModel::onCustomQueueSongClick
-                )
-            }
-        )
-
+    Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
             modifier = Modifier.fillMaxSize(),
             visible = currentSelectedSong != null
         ) {
             DraggablePlayer(
+                scope = scope,
                 orientation = orientation,
                 isPlaying = playerViewModel.isPlaying,
                 repeatState = playerViewModel.repeatMode,
@@ -150,12 +139,7 @@ fun MusicListScreen(
                 onSkipNextClick = playerViewModel::onSkipNextClick,
                 onSkipPreviousClick = playerViewModel::onSkipPreviousClick,
                 onRepeatClick = playerViewModel::onRepeatModeChange,
-                onFavouriteClick = playerViewModel::onFavouriteClick,
-                onPlayerMinimizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.MINIMISED) } },
-                onPlayerMaximizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.EXPANDED) } },
-                draggableState = draggableState,
-                maxWidth = maxWidth,
-                maxHeight = maxHeight
+                onFavouriteClick = playerViewModel::onFavouriteClick
             )
         }
     }
@@ -201,7 +185,7 @@ private fun MusicUi(
             modifier = Modifier.fillMaxWidth(),
             divider = {},
             indicator = {},
-            edgePadding = 0.dp,
+            edgePadding = 10.dp,
             selectedTabIndex = selectedIndex,
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
         ) {

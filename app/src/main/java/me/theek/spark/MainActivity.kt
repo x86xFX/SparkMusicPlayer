@@ -9,8 +9,11 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,6 +21,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.theek.spark.core.design_system.ui.theme.SparkMusicPlayerTheme
+import me.theek.spark.core.design_system.ui.theme.isInDarkMode
 import me.theek.spark.core.service.MediaService
 import me.theek.spark.navigation.SparkNavigation
 
@@ -30,9 +34,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        splashScreen.setKeepOnScreenCondition {
-            mainViewModel.uiState.value is MainActivityUiState.Loading
-        }
+
+        enableEdgeToEdge(
+            navigationBarStyle = if (isInDarkMode()) {
+                SystemBarStyle.dark(scrim = Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(
+                    scrim = Color.TRANSPARENT,
+                    darkScrim = Color.TRANSPARENT
+                )
+            }
+        )
+
+        splashScreen.setKeepOnScreenCondition { mainViewModel.uiState.value is MainActivityUiState.Loading }
 
         lifecycleScope.launch {
             val mainActivityUiState = mainViewModel.uiState
@@ -41,7 +55,11 @@ class MainActivity : ComponentActivity() {
 
             setContent {
                 SparkMusicPlayerTheme {
-                    Surface(color = MaterialTheme.colorScheme.background) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
                         SparkNavigation(
                             uiState = mainActivityUiState,
                             onSongServiceStart = { startService() }
@@ -50,17 +68,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(
-                scrim = Color.TRANSPARENT,
-                darkScrim = Color.TRANSPARENT
-            ),
-            navigationBarStyle = SystemBarStyle.light(
-                scrim = Color.TRANSPARENT,
-                darkScrim = Color.TRANSPARENT
-            )
-        )
     }
 
     private fun startService() {

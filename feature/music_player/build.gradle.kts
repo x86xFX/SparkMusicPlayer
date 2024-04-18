@@ -62,6 +62,8 @@ dependencies {
     implementation(project(":core:design_system"))
     implementation(project(":core:player"))
 
+    implementation(libs.accompanist.systemuicontroller)
+
     implementation(libs.androidx.palette.ktx)
 
     implementation(libs.cascade.compose)

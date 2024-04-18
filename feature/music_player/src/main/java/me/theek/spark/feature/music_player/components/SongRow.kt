@@ -1,6 +1,5 @@
 package me.theek.spark.feature.music_player.components
 
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,12 +59,11 @@ internal fun SongRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.width(10.dp))
-            val coverUri = Uri.parse("content://media/external/audio/media/${song.externalId}/albumart")
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(coverUri)
-                    .memoryCacheKey(coverUri.path)
-                    .diskCacheKey(coverUri.path)
+                    .data(song)
+                    .memoryCacheKey(song.path)
+                    .diskCacheKey(song.path)
                     .build(),
                 contentDescription = stringResource(R.string.album_art),
                 error = painterResource(id = R.drawable.round_music_note_24),

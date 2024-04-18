@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,6 +15,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import me.theek.spark.feature.music_player.R
 
@@ -23,24 +23,17 @@ import me.theek.spark.feature.music_player.R
 @Composable
 internal fun SparkPlayerTopAppBar(
     isInPlaylistSelectionMode: Boolean,
-    onSearch: () -> Unit,
     onPlaylistDelete: () -> Unit,
-    onPlaylistSelectionClearClick: () -> Unit
+    onPlaylistSelectionClearClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     TopAppBar(
+        modifier = modifier,
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
         title = {
             Text(text = "Spark Player")
         },
         actions = {
-            AnimatedVisibility(visible = isInPlaylistSelectionMode.not()) {
-                IconButton(onClick = onSearch) {
-                    Icon(
-                        imageVector = Icons.Rounded.Search,
-                        contentDescription = stringResource(R.string.search_icon)
-                    )
-                }
-            }
             AnimatedVisibility(visible = isInPlaylistSelectionMode) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
