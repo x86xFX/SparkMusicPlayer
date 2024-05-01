@@ -45,6 +45,9 @@ dependencies {
 
     implementation(libs.coil.compose)
 
+    implementation(project(":core:model"))
+    implementation(project(":core:content_reader"))
+
     implementation(libs.hilt)
     ksp(libs.hilt.compiler)
 

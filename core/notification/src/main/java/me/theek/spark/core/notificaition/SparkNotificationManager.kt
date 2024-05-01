@@ -1,95 +1,80 @@
 package me.theek.spark.core.notificaition
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
-import androidx.annotation.OptIn
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.MediaSession
-import androidx.media3.session.MediaSessionService
-import androidx.media3.ui.PlayerNotificationManager
-import dagger.hilt.android.qualifiers.ApplicationContext
+import me.theek.spark.core.content_reader.MediaStoreReader
+import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.notificaition.Constants.NOTIFICATION_CHANNEL_ID
 import me.theek.spark.core.notificaition.Constants.NOTIFICATION_CHANNEL_NAME
 import me.theek.spark.core.notificaition.Constants.NOTIFICATION_ID
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class SparkNotificationManager @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val exoPlayer: ExoPlayer
+class SparkNotificationManager(
+    private val context: Context,
+    private val notificationManager: NotificationManagerCompat,
+    private val mediaStoreReader: MediaStoreReader,
+    private val sessionCompatToken: MediaSessionCompat.Token
 ) {
 
-    private val notificationManager = NotificationManagerCompat.from(context)
+    fun startNotificationService(currentSong: Song) : Notification = notificationService(currentSong)
 
-    init {
+    @SuppressLint("MissingPermission")
+    private fun notificationService(currentSong: Song) :Notification {
+
         createNotificationChannel()
-    }
 
-    fun startNotificationService(
-        mediaSession: MediaSession,
-        mediaSessionService: MediaSessionService
-    ) {
-        buildNotification(mediaSession)
-        startForegroundNotificationService(mediaSessionService)
-    }
-
-    @OptIn(UnstableApi::class)
-    private fun buildNotification(mediaSession: MediaSession) {
-        PlayerNotificationManager.Builder(
+        val notificationIntent = PendingIntent.getActivity(
             context,
-            NOTIFICATION_ID,
-            NOTIFICATION_CHANNEL_ID
+            1,
+            (context.applicationContext as ActivityIntentProvider).provideMainActivityIntent(),
+            PendingIntent.FLAG_IMMUTABLE
         )
-        .setMediaDescriptionAdapter(
-            SparkNotificationAdapter(
-                context = context,
-                pendingIntent = mediaSession.sessionActivity
+
+        val notificationBuilder = NotificationCompat
+            .Builder(context, NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(currentSong.songName ?: "Unknown")
+            .setContentText(currentSong.artistName ?: "Unknown")
+            .setShowWhen(false)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setSmallIcon(R.drawable.ic_spark_notification)
+            .setStyle(
+                androidx.media.app.NotificationCompat.MediaStyle()
+                    .setMediaSession(sessionCompatToken)
+                    .setShowActionsInCompactView(0, 1, 2)
             )
-        )
-        .setSmallIconResourceId(R.drawable.ic_spark_notification)
-        .build().also {
-            it.setMediaSessionToken(mediaSession.sessionCompatToken)
-            it.setUseFastForwardActionInCompactView(true)
-            it.setUseRewindActionInCompactView(true)
-            it.setPriority(NotificationCompat.PRIORITY_LOW)
-            it.setUseNextActionInCompactView(true)
-            it.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
-            it.setColorized(true)
-            it.setPlayer(exoPlayer)
-        }
-    }
+            .setContentIntent(notificationIntent)
+            .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setColorized(true)
+            .setSilent(true)
 
-    private fun startForegroundNotificationService(mediaSessionService: MediaSessionService) {
-        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .setOngoing(true)
-                .build()
-        } else {
-            NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                .setOngoing(true)
-                .build()
-        }
+        val coverImage = mediaStoreReader.getSongCover(currentSong.externalId)
 
-        mediaSessionService.startForeground(NOTIFICATION_ID, notification)
+        notificationBuilder.setLargeIcon(coverImage)
+
+        val notification = notificationBuilder.build()
+        notificationManager.notify(NOTIFICATION_ID, notification)
+
+        return notificationBuilder.build()
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW
-            )
-
-            notificationManager.createNotificationChannel(channel)
+            notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) ?: run {
+                val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+                notificationChannel.enableLights(false)
+                notificationChannel.enableVibration(false)
+                notificationChannel.setShowBadge(false)
+                notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                notificationManager.createNotificationChannel(notificationChannel)
+            }
         }
     }
 }

@@ -55,10 +55,11 @@ import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 fun MusicListScreen(
     playerViewModel: PlayerViewModel,
     playlistViewModel: PlaylistViewModel,
-    onSongServiceStart: () -> Unit,
+    currentQueue: List<Song>,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
     onPlaylistViewClick: (Long) -> Unit,
     onAlbumClick: (Int?) -> Unit,
+    onSongClick: () -> Unit,
     favouriteViewModel: FavouriteViewModel = hiltViewModel()
 ) {
     val playlistState by playlistViewModel.uiState.collectAsStateWithLifecycle()
@@ -103,8 +104,8 @@ fun MusicListScreen(
                 onNavigateToArtistDetailScreen = onNavigateToArtistDetailScreen,
                 scope = scope,
                 onSongClick = {
+                    onSongClick()
                     playerViewModel.onSongClick(it)
-                    onSongServiceStart()
                 },
                 onShufflePlayClick = playerViewModel::onAllShuffleClick,
                 onAllPlayClick = { playerViewModel.onSongClick(0) },
@@ -139,7 +140,8 @@ fun MusicListScreen(
                 onSkipNextClick = playerViewModel::onSkipNextClick,
                 onSkipPreviousClick = playerViewModel::onSkipPreviousClick,
                 onRepeatClick = playerViewModel::onRepeatModeChange,
-                onFavouriteClick = playerViewModel::onFavouriteClick
+                onFavouriteClick = playerViewModel::onFavouriteClick,
+                currentQueue = currentQueue
             )
         }
     }

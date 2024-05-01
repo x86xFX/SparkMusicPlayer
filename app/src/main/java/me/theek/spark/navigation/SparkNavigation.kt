@@ -36,7 +36,7 @@ import me.theek.spark.feature.onboarding.WelcomeScreen
 @Composable
 fun SparkNavigation(
     uiState: MainActivityUiState.Success,
-    onSongServiceStart: () -> Unit
+    onSongClick: () -> Unit
 ) {
     val navController = rememberNavController()
     val playerViewModel = hiltViewModel<PlayerViewModel>()
@@ -66,7 +66,7 @@ fun SparkNavigation(
             MusicListScreen(
                 playerViewModel = playerViewModel,
                 playlistViewModel = playlistViewModel,
-                onSongServiceStart = onSongServiceStart,
+                currentQueue = playerViewModel.currentQueuedSongList,
                 onNavigateToArtistDetailScreen = { artistDetails ->
                     if (navController.canGoBack) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -93,7 +93,8 @@ fun SparkNavigation(
                         )
                     }
                     navController.navigate(Route.ALBUM_DETAILS)
-                }
+                },
+                onSongClick = onSongClick
             )
         }
 

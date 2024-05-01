@@ -95,7 +95,7 @@ internal fun SongListComposable(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
 //                        Row(modifier = Modifier.weight(7f)) {
-//                            TextButton(onClick = { /*TODO*/ }) {
+//                            TextButton(onClick = { }) {
 //                                Icon(
 //                                    modifier = Modifier.size(24.dp),
 //                                    imageVector = rememberSort(),

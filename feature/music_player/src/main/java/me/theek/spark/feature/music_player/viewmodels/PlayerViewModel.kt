@@ -44,18 +44,18 @@ class PlayerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    val currentQueuedSongList = queueManager.currentQueue
+    var currentSelectedSong by mutableStateOf(queueManager.currentPlayingSong)
+        private set
     private var allSongList by mutableStateOf(listOf<Song>())
-    private var currentQueuedSongList by mutableStateOf(listOf<Song>())
     var albumList by mutableStateOf(listOf<Album>())
     private val _artistDetailsStream = MutableStateFlow<List<ArtistDetails>>(emptyList())
     val artistDetailsStream = _artistDetailsStream.asStateFlow()
     var uiState by mutableStateOf<UiState<List<Song>>>(UiState.Loading)
         private set
-    var currentSelectedSong by mutableStateOf<Song?>(null)
-        private set
     var currentSelectedSongPalette by mutableStateOf<Palette?>(null)
         private set
-    var isPlaying by savedStateHandle.saveable { mutableStateOf(true) }
+    var isPlaying by savedStateHandle.saveable { mutableStateOf(queueManager.isPlaying) }
         private set
     var isFavourite by savedStateHandle.saveable { mutableStateOf(false) }
         private set
@@ -78,13 +78,18 @@ class PlayerViewModel @Inject constructor(
             audioService.musicPlayStateStream.collectLatest { musicPlayerState ->
                 when (musicPlayerState) {
                     is MusicPlayerState.OnTrackChange -> {
-                        currentPlayingSongColorPalette(currentQueuedSongList[musicPlayerState.mediaItemIndex].externalId)
-                        currentSelectedSong = currentQueuedSongList[musicPlayerState.mediaItemIndex]
+                        currentPlayingSongColorPalette(queueManager.currentQueue[musicPlayerState.mediaItemIndex].externalId)
+                        queueManager.updateCurrentPlayingSong(queueManager.currentQueue[musicPlayerState.mediaItemIndex])
+                        currentSelectedSong = queueManager.currentPlayingSong
+
                         if (currentSelectedSong != null) {
                             isFavourite = allSongList.first { currentSelectedSong!!.id == it.id }.isFavourite
                         }
                     }
-                    is MusicPlayerState.Playing -> { isPlaying = musicPlayerState.isPlaying }
+                    is MusicPlayerState.Playing -> {
+                        isPlaying = musicPlayerState.isPlaying
+                        queueManager.updatePlayingState(musicPlayerState.isPlaying)
+                    }
                     is MusicPlayerState.Progress -> {
                         calculateProgress(musicPlayerState.progress)
                     }
@@ -103,8 +108,9 @@ class PlayerViewModel @Inject constructor(
 
     fun onSongClick(songIndex: Int) {
         viewModelScope.launch {
-            queueManager.addSongsToQueue(allSongList)
-            currentQueuedSongList = allSongList
+            audioService.clearCurrentQueue()
+            audioService.addSongsToQueue(allSongList)
+            queueManager.updateCurrentQueue(allSongList)
             audioService.setRepeatMode(REPEAT_MODE_ALL)
             audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
         }
@@ -112,16 +118,18 @@ class PlayerViewModel @Inject constructor(
 
     fun onCustomQueueSongClick(songsInQueue: List<Song>, songIndex: Int) {
         viewModelScope.launch {
-            queueManager.addSongsToQueue(songsInQueue)
-            currentQueuedSongList = songsInQueue
+            audioService.clearCurrentQueue()
+            audioService.addSongsToQueue(songsInQueue)
+            queueManager.updateCurrentQueue(songsInQueue)
             audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = songIndex))
         }
     }
 
     fun onAllShuffleClick() {
         viewModelScope.launch {
-            queueManager.addSongsToQueue(allSongList)
-            currentQueuedSongList = allSongList
+            audioService.clearCurrentQueue()
+            audioService.addSongsToQueue(allSongList)
+            queueManager.updateCurrentQueue(allSongList)
             val randomSongIndex = Random.nextInt(until = allSongList.lastIndex)
             audioService.setRepeatMode(REPEAT_MODE_ALL)
             audioService.onPlayerEvent(PlayerEvent.SelectedSongChange(changedSongIndex = randomSongIndex))
@@ -132,6 +140,7 @@ class PlayerViewModel @Inject constructor(
         viewModelScope.launch {
             audioService.onPlayerEvent(PlayerEvent.PlayPause)
             isPlaying = false
+            queueManager.updatePlayingState(isPlaying = false)
         }
     }
 

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import me.theek.spark.core.content_reader.MediaStoreReader
 import me.theek.spark.core.data.mapper.toSong
 import me.theek.spark.core.data.mapper.toSongEntity
@@ -122,6 +123,6 @@ class LocalSongRepository @Inject constructor(
     }
 
     override suspend fun getSongCoverArt(songExternalId: String?): Bitmap? {
-        return mediaStoreReader.getSongCover(songExternalId)
+        return withContext(Dispatchers.IO) { mediaStoreReader.getSongCover(songExternalId) }
     }
 }

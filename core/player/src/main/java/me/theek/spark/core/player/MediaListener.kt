@@ -19,7 +19,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : AudioService, Player.Listener {
+class MediaListener @Inject constructor(
+    private val exoPlayer: ExoPlayer,
+    private val queueManager: QueueManager
+) : AudioService, Player.Listener {
 
     /**
      * State of music player
@@ -143,6 +146,7 @@ class MediaListener @Inject constructor(private val exoPlayer: ExoPlayer) : Audi
 
     override fun onTracksChanged(tracks: Tracks) {
         _musicPlayStateStream.update { MusicPlayerState.OnTrackChange(mediaItemIndex = exoPlayer.currentMediaItemIndex) }
+        queueManager.updateCurrentPlayingSong(queueManager.currentQueue[exoPlayer.currentMediaItemIndex])
         super.onTracksChanged(tracks)
     }
 

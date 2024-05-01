@@ -25,15 +25,23 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -71,6 +79,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DraggablePlayer(
     scope: CoroutineScope,
@@ -89,10 +98,14 @@ internal fun DraggablePlayer(
     onSkipNextClick: () -> Unit,
     onRepeatClick: (@RepeatMode Int) -> Unit,
     onFavouriteClick: (Long, Boolean) -> Unit,
+    currentQueue: List<Song>,
     modifier: Modifier = Modifier
 ) {
     val isSystemInDarkTheme = isSystemInDarkTheme()
-    val themedSwatch = themedPaletteSwitch(isSystemInDarkTheme = isSystemInDarkTheme, palette = currentSelectedSongPalette)
+    val themedSwatch = themedPaletteSwitch(
+        isSystemInDarkTheme = isSystemInDarkTheme,
+        palette = currentSelectedSongPalette
+    )
     val backgroundContainerColor = if (themedSwatch != null) Color(themedSwatch.rgb) else MaterialTheme.colorScheme.secondaryContainer
     val bodyTextColor = if (themedSwatch != null) Color(themedSwatch.bodyTextColor) else MaterialTheme.colorScheme.onSecondaryContainer
     val titleTextColor = if (themedSwatch != null) Color(themedSwatch.titleTextColor) else MaterialTheme.colorScheme.onSecondaryContainer
@@ -104,6 +117,7 @@ internal fun DraggablePlayer(
         ),
         tileMode = TileMode.Clamp
     )
+    var shouldShowCurrentQueue by remember { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val navPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -129,8 +143,21 @@ internal fun DraggablePlayer(
                     onPausePlayClick = onPausePlayClick,
                     onSkipNextClick = onSkipNextClick,
                     onRepeatClick = onRepeatClick,
-                    onPlayerMinimizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.MINIMISED) } },
-                    onPlayerMaximizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.EXPANDED) } },
+                    onPlayerMinimizeClick = {
+                        scope.launch {
+                            draggableState.animateTo(
+                                BottomSheetStates.MINIMISED
+                            )
+                        }
+                    },
+                    onPlayerMaximizeClick = {
+                        scope.launch {
+                            draggableState.animateTo(
+                                BottomSheetStates.EXPANDED
+                            )
+                        }
+                    },
+                    onPlayerQueueClick = { shouldShowCurrentQueue = true },
                     onFavouriteClick = onFavouriteClick,
                     draggableState = draggableState,
                     backgroundContainerColor = backgroundContainerColor,
@@ -139,6 +166,7 @@ internal fun DraggablePlayer(
                     gradientBrush = gradientBrush
                 )
             }
+
             Configuration.ORIENTATION_LANDSCAPE -> {
                 DraggablePlayerLandscape(
                     modifier = modifier,
@@ -156,8 +184,21 @@ internal fun DraggablePlayer(
                     onPausePlayClick = onPausePlayClick,
                     onSkipNextClick = onSkipNextClick,
                     onRepeatClick = onRepeatClick,
-                    onPlayerMinimizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.MINIMISED) } },
-                    onPlayerMaximizeClick = { scope.launch { draggableState.animateTo(BottomSheetStates.EXPANDED) } },
+                    onPlayerMinimizeClick = {
+                        scope.launch {
+                            draggableState.animateTo(
+                                BottomSheetStates.MINIMISED
+                            )
+                        }
+                    },
+                    onPlayerMaximizeClick = {
+                        scope.launch {
+                            draggableState.animateTo(
+                                BottomSheetStates.EXPANDED
+                            )
+                        }
+                    },
+                    onPlayerQueueClick = { shouldShowCurrentQueue = true },
                     onFavouriteClick = onFavouriteClick,
                     draggableState = draggableState,
                     backgroundContainerColor = backgroundContainerColor,
@@ -165,6 +206,73 @@ internal fun DraggablePlayer(
                     titleTextColor = titleTextColor,
                     gradientBrush = gradientBrush
                 )
+            }
+        }
+    }
+
+    if (shouldShowCurrentQueue) {
+
+        ModalBottomSheet(
+            onDismissRequest = { shouldShowCurrentQueue = false }
+        ) {
+            LazyColumn {
+                itemsIndexed(
+                    items = currentQueue,
+                    key = { index, _ -> index }
+                ) { _, song ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 15.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(song)
+                                .memoryCacheKey(song.path)
+                                .diskCacheKey(song.path)
+                                .build(),
+                            contentDescription = stringResource(R.string.album_art),
+                            error = painterResource(id = R.drawable.round_music_note_24),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                        )
+                        Column(
+                            modifier = Modifier
+                                .weight(7f)
+                                .padding(15.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = song.songName ?: "Unknown",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = TextStyle(
+                                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
+                            Text(
+                                text = song.artistName ?: "Unknown",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = TextStyle(
+                                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(fraction = 0.9f),
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
+                }
             }
         }
     }
@@ -190,6 +298,7 @@ private fun DraggablePlayerPortrait(
     onRepeatClick: (@RepeatMode Int) -> Unit,
     onPlayerMinimizeClick: () -> Unit,
     onPlayerMaximizeClick: () -> Unit,
+    onPlayerQueueClick: () -> Unit,
     onFavouriteClick: (Long, Boolean) -> Unit,
     draggableState: PlayerDraggableState,
     backgroundContainerColor: Color,
@@ -198,14 +307,24 @@ private fun DraggablePlayerPortrait(
     gradientBrush: Brush,
     modifier: Modifier = Modifier
 ) {
-    val calc = remember(maxHeight) { maxHeight.roundToInt().minus(maxDp.value.roundToInt()).div(2).coerceAtMost(375) }
-
+    val calc = remember(maxHeight) {
+        maxHeight.roundToInt().minus(maxDp.value.roundToInt()).div(2).coerceAtMost(375)
+    }
     Box(
         modifier = Modifier
             .offset {
                 IntOffset(
                     x = 0,
-                    y = max(draggableState.state.offset.roundToInt() - (calc - navPadding.roundToPx().times(2)), 0)
+                    y = max(
+                        if (draggableState.state.offset.roundToInt() >= 3000) {
+                            draggableState.state.offset.roundToInt() - calc
+                        } else {
+                            draggableState.state.offset.roundToInt() - (calc - navPadding
+                                .roundToPx()
+                                .times(2))
+                        },
+                        0
+                    )
                 )
             }
             .anchoredDraggable(
@@ -229,7 +348,12 @@ private fun DraggablePlayerPortrait(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.alpha((draggableState.state.offset.roundToInt() / maxHeight).coerceIn(0.0F,1.0F)),
+                modifier = Modifier.alpha(
+                    (draggableState.state.offset.roundToInt() / maxHeight).coerceIn(
+                        0.0F,
+                        1.0F
+                    )
+                ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
@@ -360,7 +484,7 @@ private fun DraggablePlayerPortrait(
                 onPausePlayClick = onPausePlayClick,
                 onSkipNextClick = onSkipNextClick,
                 onPlayerMinimizeClick = onPlayerMinimizeClick,
-                onPlayerQueueClick = { /*TODO*/ },
+                onPlayerQueueClick = onPlayerQueueClick,
                 onFavouriteClick = onFavouriteClick,
                 onRepeatClick = onRepeatClick,
             )
@@ -387,6 +511,7 @@ private fun DraggablePlayerLandscape(
     onRepeatClick: (@RepeatMode Int) -> Unit,
     onPlayerMinimizeClick: () -> Unit,
     onPlayerMaximizeClick: () -> Unit,
+    onPlayerQueueClick: () -> Unit,
     onFavouriteClick: (Long, Boolean) -> Unit,
     draggableState: PlayerDraggableState,
     backgroundContainerColor: Color,
@@ -426,7 +551,12 @@ private fun DraggablePlayerLandscape(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.alpha((draggableState.state.offset.roundToInt() / maxHeight).coerceIn(0.0F,1.0F)),
+                modifier = Modifier.alpha(
+                    (draggableState.state.offset.roundToInt() / maxHeight).coerceIn(
+                        0.0F,
+                        1.0F
+                    )
+                ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
@@ -557,7 +687,7 @@ private fun DraggablePlayerLandscape(
                     onPausePlayClick = onPausePlayClick,
                     onSkipNextClick = onSkipNextClick,
                     onPlayerMinimizeClick = onPlayerMinimizeClick,
-                    onPlayerQueueClick = { /*TODO*/ },
+                    onPlayerQueueClick = onPlayerQueueClick,
                     onFavouriteClick = onFavouriteClick,
                     onRepeatClick = onRepeatClick,
                 )

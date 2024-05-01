@@ -56,7 +56,7 @@ internal fun SongRow(
                 .padding(horizontal = 5.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .clickable { onSongClick(index) },
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.width(10.dp))
             AsyncImage(

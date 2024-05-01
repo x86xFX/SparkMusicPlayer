@@ -2,7 +2,6 @@ package me.theek.spark
 
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,7 +28,6 @@ import me.theek.spark.navigation.SparkNavigation
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private var isServiceRunning: Boolean = false
     private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +61,9 @@ class MainActivity : ComponentActivity() {
                     ) {
                         SparkNavigation(
                             uiState = mainActivityUiState,
-                            onSongServiceStart = { startService() }
+                            onSongClick = {
+                                ContextCompat.startForegroundService(applicationContext, Intent(applicationContext, MediaService::class.java))
+                            }
                         )
                     }
                 }
@@ -70,16 +71,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun startService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!isServiceRunning) {
-                val intent = Intent(this, MediaService::class.java)
-                startForegroundService(intent)
-
-            } else {
-                startService(intent)
-            }
-            isServiceRunning = true
-        }
-    }
+//    override fun onDestroy() {
+//        stopService(Intent(applicationContext, MediaService::class.java))
+//        super.onDestroy()
+//    }
 }

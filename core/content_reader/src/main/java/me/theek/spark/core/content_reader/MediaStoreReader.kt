@@ -132,8 +132,8 @@ class MediaStoreReader @Inject constructor(@ApplicationContext private val conte
     .flowOn(Dispatchers.IO)
 
     @Suppress("DEPRECATION") //Suppress because createSource only support for API 28+
-    suspend fun getSongCover(songExternalId: String?):  Bitmap? = withContext(Dispatchers.IO) {
-        if (songExternalId != null) {
+    fun getSongCover(songExternalId: String?):  Bitmap? {
+        return if (songExternalId != null) {
             val coverUri = Uri.parse("content://media/external/audio/media/${songExternalId}/albumart")
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

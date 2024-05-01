@@ -149,8 +149,7 @@ private fun AlbumItem(
             )
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 20.dp),
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

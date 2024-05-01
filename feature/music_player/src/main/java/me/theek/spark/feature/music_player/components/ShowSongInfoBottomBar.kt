@@ -38,15 +38,10 @@ import me.theek.spark.feature.music_player.viewmodels.SongInfo
 fun ShowSongInfoBottomBar(
     sheetState: SheetState,
     songInfo: SongInfo,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier
+    onDismissRequest: () -> Unit
 ) {
     if (songInfo.shouldShowSheet) {
         ModalBottomSheet(
-            modifier = modifier
-                .displayCutoutPadding()
-                .navigationBarsPadding()
-                .fillMaxWidth(),
             onDismissRequest = onDismissRequest,
             sheetState = sheetState
         ) {

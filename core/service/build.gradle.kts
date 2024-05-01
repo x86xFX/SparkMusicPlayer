@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.media3.session)
     implementation(project(":core:player"))
+    implementation(project(":core:model"))
     implementation(project(":core:notification"))
 
     implementation(libs.hilt)

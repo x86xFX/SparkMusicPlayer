@@ -84,6 +84,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))
+    implementation(project(":core:notification"))
     implementation(project(":core:service"))
 
     testImplementation(libs.junit)
