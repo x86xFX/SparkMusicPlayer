@@ -51,7 +51,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.11"
+        kotlinCompilerExtensionVersion = "1.5.13"
     }
     packaging {
         resources {
@@ -79,16 +79,16 @@ dependencies {
     implementation(libs.compose.navigation)
 
     implementation(project(":core:design_system"))
-    implementation(project(":feature:onboarding"))
-    implementation(project(":feature:music_player"))
     implementation(project(":core:network"))
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))
     implementation(project(":core:notification"))
     implementation(project(":core:service"))
+    implementation(project(":feature:onboarding"))
+    implementation(project(":feature:music_player"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    debugImplementation (libs.leakcanary.android)
+//    debugImplementation (libs.leakcanary.android)
 }

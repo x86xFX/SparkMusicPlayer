@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
 import me.theek.spark.core.model.data.Song
 import me.theek.spark.core.model.util.FlowEvent
 import javax.inject.Inject
