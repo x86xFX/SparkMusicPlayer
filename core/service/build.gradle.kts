@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "me.theek.spark.core.service.x"
+    namespace = "me.theek.spark.core.service"
     compileSdk = 34
 
     defaultConfig {
