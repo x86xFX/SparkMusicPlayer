@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)

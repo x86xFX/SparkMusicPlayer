@@ -1,3 +1,8 @@
+import com.google.protobuf.gradle.GenerateProtoTask
+import org.gradle.configurationcache.extensions.capitalized
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)

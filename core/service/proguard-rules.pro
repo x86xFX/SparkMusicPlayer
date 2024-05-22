@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-dontwarn me.theek.spark.core.model.data.Song
+-dontwarn me.theek.spark.core.notificaition.SparkNotificationManager
+-dontwarn me.theek.spark.core.player.QueueManager
