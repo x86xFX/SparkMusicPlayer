@@ -9,11 +9,11 @@ junit = "4.13.2"
 leakcanary-android = "3.0-alpha-1"
 lifecycle-runtime-ktx = "2.7.0"
 core-ktx = "1.13.1"
-kotlin = "1.9.24"
+kotlin = "2.0.0"
 androidx-compose-bom = "2024.05.00"
 material3 = "1.2.1"
 hilt = "2.51.1"
-ksp = "1.9.24-1.0.20"
+ksp = "2.0.0-1.0.21"
 media3 = "1.3.1"
 legacy-support-v4 = "1.0.0"
 coil = "2.6.0"
@@ -30,19 +30,20 @@ palette = "1.0.0"
 ktor = "2.3.10"
 uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.2.4"
-firebaseCrashlytics = "19.0.0"
+firebaseCrashlytics = "19.0.1"
 gradle = "8.4.1"
-googleServices = "4.4.1"
+googleServices = "4.4.2"
 firebaseCrashlyticsGradle = "3.0.1"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-library" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialiation = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-library = { id = "com.android.library", version.ref = "android-library" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
-kotlin-serialiation = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 androidTest = { id = "com.android.test", version.ref = "android-library" }
 
 [libraries]

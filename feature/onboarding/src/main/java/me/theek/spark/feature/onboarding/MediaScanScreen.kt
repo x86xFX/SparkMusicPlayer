@@ -66,10 +66,10 @@ internal fun MediaScanScreen(
 
     Box(
         modifier = Modifier
+            .background(color = md_theme_dark_shadow)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .fillMaxSize()
-            .background(color = md_theme_dark_shadow),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -105,7 +105,7 @@ internal fun MediaScanScreen(
                 modifier = Modifier
                     .fillMaxWidth(fraction = 0.68f)
                     .padding(top = 40.dp, bottom = 10.dp),
-                text = "Chop,\nTrim,\nand edit to create\nyour perfect\nlistening\nexperience.",
+                text = "Dive into a world of seamless music exploration with Spark Music Player. Our intuitive interface and powerful features put you in control.",
                 color = media_scanner_content,
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(

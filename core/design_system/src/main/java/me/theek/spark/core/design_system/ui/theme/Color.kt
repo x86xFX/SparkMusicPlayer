@@ -72,6 +72,6 @@ val spark_circular_button_content = Color(0xFF005317)
 val spark_circular_button_background_2 = Color(0xFF60FF5C)
 val onboarding_screen_icon_tint = Color(0xFF10440F)
 
-val onboarding_screen_rainbow_color_1 =Color(0xFFFD5CD0)
+val onboarding_screen_rainbow_color_1 = Color(0xFFFD5CD0)
 val onboarding_screen_rainbow_color_2 = Color(0xFF4590EC)
 val onboarding_screen_rainbow_color_3 = Color(0xFF9F32FF)
