@@ -8,7 +8,7 @@ https://github.com/x86xFX/SparkMusicPlayer/assets/101990722/1aeab214-dc09-431d-a
 
 
 ## Tech stack & Open-source libraries
-- Minimum SDK level 21.
+- Minimum SDK level 24.
 - [Kotlin](https://kotlinlang.org/) based, utilizing [Coroutines](https://github.com/Kotlin/kotlinx.coroutines) + [Flow](https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/) for asynchronous operations.
 - Jetpack Libraries:
   - Jetpack Compose: Android’s modern toolkit for declarative UI development.
