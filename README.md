@@ -28,6 +28,10 @@ https://github.com/x86xFX/SparkMusicPlayer/assets/101990722/1aeab214-dc09-431d-a
 - [Material 3](https://m3.material.io/): Latest version of Google’s open-source design system.
 - [Cascade](https://github.com/saket/cascade): Nested popup menus with smooth height animations for Android
 
+## Spark Spotify Artist API
+Ktor http server that fetch artist's followers, profile link, profile image and other basic details from spotify artist api.
+[SparkSpotifyArtistAPI](https://github.com/x86xFX/SparkSpotifyArtistAPI)
+
 # License
 ```xml
 Designed and developed by 2024 x86xFX (Theekshana Nirmana)
