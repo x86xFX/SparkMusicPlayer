@@ -43,8 +43,6 @@ class PlayerViewModel @Inject constructor(
     private val queueManager: QueueManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
-    val currentQueuedSongList = queueManager.currentQueue
     var currentSelectedSong by mutableStateOf(queueManager.currentPlayingSong)
         private set
     private var allSongList by mutableStateOf(listOf<Song>())
@@ -178,6 +176,8 @@ class PlayerViewModel @Inject constructor(
     fun onSongInfoSheetDismiss() {
         songInfo = SongInfo(shouldShowSheet = false)
     }
+
+    fun onGetCurrentQueue(): List<Song> = queueManager.getCurrentSongsQueue()
 
     /**
      * Collect latest emits of songs. One emit contains list of songs.

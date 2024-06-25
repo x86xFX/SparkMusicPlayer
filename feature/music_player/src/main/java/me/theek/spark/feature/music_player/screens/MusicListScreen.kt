@@ -55,7 +55,6 @@ import me.theek.spark.feature.music_player.viewmodels.PlaylistViewModel
 fun MusicListScreen(
     playerViewModel: PlayerViewModel,
     playlistViewModel: PlaylistViewModel,
-    currentQueue: List<Song>,
     onNavigateToArtistDetailScreen: (ArtistDetails) -> Unit,
     onPlaylistViewClick: (Long) -> Unit,
     onAlbumClick: (Int?) -> Unit,
@@ -141,7 +140,7 @@ fun MusicListScreen(
                 onSkipPreviousClick = playerViewModel::onSkipPreviousClick,
                 onRepeatClick = playerViewModel::onRepeatModeChange,
                 onFavouriteClick = playerViewModel::onFavouriteClick,
-                currentQueue = currentQueue
+                onGetCurrentQueue = playerViewModel::onGetCurrentQueue
             )
         }
     }

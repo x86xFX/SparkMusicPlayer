@@ -98,7 +98,7 @@ internal fun DraggablePlayer(
     onSkipNextClick: () -> Unit,
     onRepeatClick: (@RepeatMode Int) -> Unit,
     onFavouriteClick: (Long, Boolean) -> Unit,
-    currentQueue: List<Song>,
+    onGetCurrentQueue: () -> List<Song>,
     modifier: Modifier = Modifier
 ) {
     val isSystemInDarkTheme = isSystemInDarkTheme()
@@ -198,7 +198,9 @@ internal fun DraggablePlayer(
                             )
                         }
                     },
-                    onPlayerQueueClick = { shouldShowCurrentQueue = true },
+                    onPlayerQueueClick = {
+                        shouldShowCurrentQueue = true
+                    },
                     onFavouriteClick = onFavouriteClick,
                     draggableState = draggableState,
                     backgroundContainerColor = backgroundContainerColor,
@@ -209,7 +211,6 @@ internal fun DraggablePlayer(
             }
         }
     }
-
     if (shouldShowCurrentQueue) {
 
         ModalBottomSheet(
@@ -217,7 +218,7 @@ internal fun DraggablePlayer(
         ) {
             LazyColumn {
                 itemsIndexed(
-                    items = currentQueue,
+                    items = onGetCurrentQueue(),
                     key = { index, _ -> index }
                 ) { _, song ->
                     Row(

@@ -66,7 +66,6 @@ fun SparkNavigation(
             MusicListScreen(
                 playerViewModel = playerViewModel,
                 playlistViewModel = playlistViewModel,
-                currentQueue = playerViewModel.currentQueuedSongList,
                 onNavigateToArtistDetailScreen = { artistDetails ->
                     if (navController.canGoBack) {
                         navController.currentBackStackEntry?.savedStateHandle?.set(

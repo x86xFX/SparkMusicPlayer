@@ -27,4 +27,6 @@ class QueueManager @Inject constructor() {
     }
 
     fun updatePlayingState(isPlaying: Boolean) { this.isPlaying = isPlaying }
+
+    fun getCurrentSongsQueue() : List<Song> = currentQueue
 }
