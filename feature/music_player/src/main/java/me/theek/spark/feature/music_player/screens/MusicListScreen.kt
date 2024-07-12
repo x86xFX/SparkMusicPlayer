@@ -36,7 +36,7 @@ import me.theek.spark.core.model.data.Album
 import me.theek.spark.core.model.data.ArtistDetails
 import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
-import me.theek.spark.feature.music_player.components.DraggablePlayer
+import me.theek.spark.feature.music_player.components.draggable_player.DraggablePlayer
 import me.theek.spark.feature.music_player.components.PlaylistDeleteAlert
 import me.theek.spark.feature.music_player.components.SparkPlayerTopAppBar
 import me.theek.spark.feature.music_player.tabs.AlbumsComposable

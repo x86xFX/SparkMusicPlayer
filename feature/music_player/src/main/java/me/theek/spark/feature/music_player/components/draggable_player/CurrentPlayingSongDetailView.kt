@@ -1,6 +1,7 @@
-package me.theek.spark.feature.music_player.components
+package me.theek.spark.feature.music_player.components.draggable_player
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -41,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -79,6 +81,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
     thumbColor: Color,
     activeTrackColor: Color,
     inactiveTrackColor: Color,
+    backgroundBrush: Brush,
     onProgressChange: (Float) -> Unit,
     progressString: () -> String,
     onSkipPreviousClick: () -> Unit,
@@ -99,7 +102,9 @@ internal fun CurrentPlayingSongDetailPortraitView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding(),
+            .background(backgroundBrush)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -390,6 +395,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
     thumbColor: Color,
     activeTrackColor: Color,
     inactiveTrackColor: Color,
+    backgroundBrush: Brush,
     onProgressChange: (Float) -> Unit,
     progressString: () -> String,
     onSkipPreviousClick: () -> Unit,
@@ -409,10 +415,11 @@ internal fun CurrentPlayingSongDetailLandscapeView(
 
     Column(
         modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundBrush)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .displayCutoutPadding()
-            .fillMaxSize(),
+            .displayCutoutPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
