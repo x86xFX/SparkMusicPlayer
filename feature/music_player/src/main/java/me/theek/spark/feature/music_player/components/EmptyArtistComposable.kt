@@ -35,7 +35,7 @@ internal fun EmptyArtistComposable(modifier: Modifier = Modifier) {
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "No artists found in song list",
+            text = stringResource(R.string.no_artists_found_in_song_list),
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = 3,

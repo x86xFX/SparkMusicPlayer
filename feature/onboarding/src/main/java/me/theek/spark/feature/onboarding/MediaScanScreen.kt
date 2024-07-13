@@ -90,7 +90,7 @@ internal fun MediaScanScreen(
         ) {
             Text(
                 modifier = Modifier.padding(top = 20.dp, bottom = 10.dp),
-                text = "Take control of your music:",
+                text = stringResource(R.string.take_control_of_your_music),
                 maxLines = 2,
                 color = media_scanner_content,
                 overflow = TextOverflow.Ellipsis,
@@ -105,7 +105,7 @@ internal fun MediaScanScreen(
                 modifier = Modifier
                     .fillMaxWidth(fraction = 0.68f)
                     .padding(top = 40.dp, bottom = 10.dp),
-                text = "Dive into a world of seamless music exploration with Spark Music Player. Our intuitive interface and powerful features put you in control.",
+                text = stringResource(R.string.dive_into_a_world_of_seamless_music_exploration_with_spark_music_player_our_intuitive_interface_and_powerful_features_put_you_in_control),
                 color = media_scanner_content,
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(
@@ -128,12 +128,12 @@ internal fun MediaScanScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Something went wrong")
+                    Text(text = stringResource(R.string.something_went_wrong))
                 }
             }
             is UiState.Progress -> {
                 MediaScanner(
-                    hint = uiState.message ?: "~~~",
+                    hint = uiState.message ?: stringResource(R.string.hint_01),
                     progress = uiState.progress
                 )
             }
@@ -198,7 +198,7 @@ private fun MediaReadPermissionAlert(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             Button(onClick = onNavigateToSettings) {
-                Text(text = "Settings")
+                Text(text = stringResource(R.string.settings))
             }
         },
         icon = {
@@ -209,7 +209,7 @@ private fun MediaReadPermissionAlert(
         },
         title = {
             Text(
-                text = "Permission Required",
+                text = stringResource(R.string.permission_required),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -221,7 +221,7 @@ private fun MediaReadPermissionAlert(
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         }
     )

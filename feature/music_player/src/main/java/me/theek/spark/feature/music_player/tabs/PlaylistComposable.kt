@@ -12,8 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import me.theek.spark.core.model.data.PlaylistData
+import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.components.EmptyPlaylistComposable
 import me.theek.spark.feature.music_player.components.PlayListCard
 import me.theek.spark.feature.music_player.util.UiState
@@ -35,7 +37,7 @@ internal fun PlaylistComposable(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Something went wrong")
+                Text(text = stringResource(R.string.something_went_wrong))
             }
         }
         is UiState.Success -> {

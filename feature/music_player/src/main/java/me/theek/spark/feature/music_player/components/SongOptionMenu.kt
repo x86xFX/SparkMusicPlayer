@@ -64,7 +64,7 @@ internal fun SongOptionMenu(
             ) {
                 DropdownMenuItem(
                     text = {
-                        Text(text = "Add to playlist")
+                        Text(text = stringResource(R.string.add_to_playlist))
                     },
                     leadingIcon = {
                         Icon(
@@ -77,7 +77,7 @@ internal fun SongOptionMenu(
                         MaterialDropDownMenuItem(
                             text = {
                                 Text(
-                                    text = "Create playlist",
+                                    text = stringResource(R.string.create_playlist),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -142,7 +142,7 @@ internal fun SongOptionMenu(
                 MaterialDropDownMenuItem(
                     text = {
                         Text(
-                            text = "Song info",
+                            text = stringResource(R.string.song_info),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -161,7 +161,7 @@ internal fun SongOptionMenu(
                 MaterialDropDownMenuItem(
                     text = {
                         Text(
-                            text = "Share",
+                            text = stringResource(R.string.share),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

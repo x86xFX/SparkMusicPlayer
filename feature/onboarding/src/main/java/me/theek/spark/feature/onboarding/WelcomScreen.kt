@@ -105,25 +105,25 @@ fun WelcomeScreen(
                     withStyle(
                         SpanStyle(brush = Brush.linearGradient(colors = rainbowColors))
                     ) {
-                        append("Music for ")
+                        append(stringResource(R.string.music_for))
                     }
 
                     withStyle(
                         SpanStyle(brush = Brush.linearGradient(colors = rainbowColors))
                     ) {
-                        append("every mood,")
+                        append(stringResource(R.string.every_mood))
                     }
 
                     withStyle(
                         SpanStyle(brush = Brush.linearGradient(colors = rainbowColors))
                     ) {
-                        append("\nevery moment,")
+                        append(stringResource(R.string.every_moment))
                     }
 
                     withStyle(
                         SpanStyle(brush = Brush.linearGradient(colors = rainbowColors))
                     ) {
-                        append("\nevery you.")
+                        append(stringResource(R.string.every_you))
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

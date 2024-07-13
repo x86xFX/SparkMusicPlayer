@@ -31,13 +31,13 @@ fun PlaylistDeleteAlert(
                     onClick = onDeletePlaylist,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onErrorContainer)
                 ) {
-                    Text(text = "Delete")
+                    Text(text = stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onAlertDismiss) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         color = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
@@ -49,10 +49,10 @@ fun PlaylistDeleteAlert(
                 )
             },
             title = {
-                Text(text = "Are you sure?")
+                Text(text = stringResource(R.string.are_you_sure))
             },
             text = {
-                Text(text = "This playlists will be deleted immediately. You can't undo this action.")
+                Text(text = stringResource(R.string.this_playlists_will_be_deleted_immediately_you_can_t_undo_this_action))
             }
         )
     }

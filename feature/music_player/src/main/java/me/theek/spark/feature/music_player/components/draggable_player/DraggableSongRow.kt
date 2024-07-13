@@ -80,7 +80,7 @@ fun DraggableSongRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .basicMarquee(),
-                text = currentSelectedSong.songName ?: "Unknown",
+                text = currentSelectedSong.songName ?: stringResource(id = R.string.unknown),
                 color = bodyTextColor,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
@@ -95,7 +95,7 @@ fun DraggableSongRow(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 color = titleTextColor,
-                text = currentSelectedSong.artistName ?: "Unknown",
+                text = currentSelectedSong.artistName ?: stringResource(id = R.string.unknown),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = TextStyle(

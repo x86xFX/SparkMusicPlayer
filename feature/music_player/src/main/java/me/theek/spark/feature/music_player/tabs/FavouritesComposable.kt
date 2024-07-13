@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import me.theek.spark.core.model.data.PlaylistData
 import me.theek.spark.core.model.data.Song
+import me.theek.spark.feature.music_player.R
 import me.theek.spark.feature.music_player.components.EmptyFavouritesComposable
 import me.theek.spark.feature.music_player.components.SongRow
 import me.theek.spark.feature.music_player.util.UiState
@@ -42,7 +44,7 @@ internal fun FavouritesComposable(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Something went wrong")
+                Text(text = stringResource(R.string.something_went_wrong))
             }
         }
         UiState.Loading -> {

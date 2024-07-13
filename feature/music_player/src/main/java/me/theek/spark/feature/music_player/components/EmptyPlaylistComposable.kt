@@ -35,7 +35,7 @@ internal fun EmptyPlaylistComposable(modifier: Modifier = Modifier) {
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "Create playlist and add songs",
+            text = stringResource(R.string.create_playlist_and_add_songs),
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = 3,

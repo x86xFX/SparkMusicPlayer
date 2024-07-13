@@ -13,9 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import me.theek.spark.feature.music_player.R
 
 @Composable
 internal fun ProgressSongComposable(
@@ -37,7 +39,7 @@ internal fun ProgressSongComposable(
         Spacer(modifier = Modifier.height(15.dp))
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = message ?: "Fetching...",
+            text = message ?: stringResource(R.string.fetching),
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,

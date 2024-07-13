@@ -80,7 +80,7 @@ internal fun SongRow(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = song.songName ?: "Unknown",
+                    text = song.songName ?: stringResource(id = R.string.unknown),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
@@ -90,7 +90,7 @@ internal fun SongRow(
                     )
                 )
                 Text(
-                    text = song.artistName ?: "Unknown",
+                    text = song.artistName ?: stringResource(id = R.string.unknown),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(

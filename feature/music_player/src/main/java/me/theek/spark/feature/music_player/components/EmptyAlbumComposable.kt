@@ -35,7 +35,7 @@ internal fun EmptyAlbumComposable(modifier: Modifier = Modifier) {
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "No albums found",
+            text = stringResource(R.string.no_albums_found),
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = 3,

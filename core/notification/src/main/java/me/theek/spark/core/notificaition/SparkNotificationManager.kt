@@ -39,8 +39,8 @@ class SparkNotificationManager(
 
         val notificationBuilder = NotificationCompat
             .Builder(context, NOTIFICATION_CHANNEL_ID)
-            .setContentTitle(currentSong.songName ?: "Unknown")
-            .setContentText(currentSong.artistName ?: "Unknown")
+            .setContentTitle(currentSong.songName ?: context.getString(R.string.unknown))
+            .setContentText(currentSong.artistName ?: context.getString(R.string.unknown))
             .setShowWhen(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(R.drawable.ic_spark_notification)

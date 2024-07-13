@@ -94,25 +94,6 @@ internal fun SongListComposable(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-//                        Row(modifier = Modifier.weight(7f)) {
-//                            TextButton(onClick = { }) {
-//                                Icon(
-//                                    modifier = Modifier.size(24.dp),
-//                                    imageVector = rememberSort(),
-//                                    contentDescription = stringResource(R.string.sort_icon),
-//                                    tint = MaterialTheme.colorScheme.onSurface
-//                                )
-//                                Text(
-//                                    text = "Date added",
-//                                    maxLines = 1,
-//                                    overflow = TextOverflow.Ellipsis,
-//                                    fontWeight = FontWeight.SemiBold,
-//                                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
-//                                    color = MaterialTheme.colorScheme.onSurface
-//                                )
-//                            }
-//                        }
-
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,

@@ -48,7 +48,7 @@ fun BasicPlaybackControls(
             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
             tooltip = {
               PlainTooltip {
-                Text(text = "Previous")
+                Text(text = stringResource(R.string.previous))
               }
             },
             state = rememberTooltipState()
@@ -72,7 +72,7 @@ fun BasicPlaybackControls(
             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
             tooltip = {
                 PlainTooltip {
-                    Text(text = "Play/Pause")
+                    Text(text = stringResource(R.string.play_pause))
                 }
             },
             state = rememberTooltipState()
@@ -87,7 +87,7 @@ fun BasicPlaybackControls(
             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
             tooltip = {
                 PlainTooltip {
-                    Text(text = "Next")
+                    Text(text = stringResource(R.string.next))
                 }
             },
             state = rememberTooltipState()

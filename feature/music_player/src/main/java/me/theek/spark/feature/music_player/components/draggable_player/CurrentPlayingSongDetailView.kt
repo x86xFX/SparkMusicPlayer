@@ -119,7 +119,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
-                        Text(text = "Minimize")
+                        Text(text = stringResource(R.string.minimize))
                     }
                 },
                 state = rememberTooltipState()
@@ -148,7 +148,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .basicMarquee(),
-                    text = song.songName ?: "Unknown",
+                    text = song.songName ?: stringResource(id = R.string.unknown),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -163,7 +163,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = song.artistName ?: "Unknown",
+                    text = song.artistName ?: stringResource(id = R.string.unknown),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -182,7 +182,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
-                        Text(text = "Queue")
+                        Text(text = stringResource(R.string.queue))
                     }
                 },
                 state = rememberTooltipState()
@@ -295,7 +295,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                     tooltip = {
                         PlainTooltip {
-                            Text(text = "Favourite")
+                            Text(text = stringResource(R.string.favourite))
                         }
                     },
                     state = rememberTooltipState()
@@ -340,7 +340,7 @@ internal fun CurrentPlayingSongDetailPortraitView(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                     tooltip = {
                         PlainTooltip {
-                            Text(text = "Repeat")
+                            Text(text = stringResource(R.string.repeat))
                         }
                     },
                     state = rememberTooltipState()
@@ -432,7 +432,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
-                        Text(text = "Minimize")
+                        Text(text = stringResource(id = R.string.minimize))
                     }
                 },
                 state = rememberTooltipState()
@@ -453,7 +453,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip {
-                        Text(text = "Queue")
+                        Text(text = stringResource(id = R.string.queue))
                     }
                 },
                 state = rememberTooltipState()
@@ -509,7 +509,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .basicMarquee(),
-                    text = song.songName ?: "Unknown",
+                    text = song.songName ?: stringResource(id = R.string.unknown),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -524,7 +524,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = song.artistName ?: "Unknown",
+                    text = song.artistName ?: stringResource(id = R.string.unknown),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -634,7 +634,7 @@ internal fun CurrentPlayingSongDetailLandscapeView(
 
                     TooltipBox(
                         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = { PlainTooltip { Text(text = "Repeat") } },
+                        tooltip = { PlainTooltip { Text(text = stringResource(id = R.string.repeat)) } },
                         state = rememberTooltipState()
                     ) {
                         when (repeatState) {

@@ -67,7 +67,7 @@ internal fun MediaScanProgressCard(
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
-                text = "Scanning...",
+                text = stringResource(R.string.scanning),
                 color = media_scanner_content,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

@@ -31,7 +31,7 @@ internal fun SparkPlayerTopAppBar(
         modifier = modifier,
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
         title = {
-            Text(text = "Spark Player")
+            Text(text = stringResource(R.string.spark_player))
         },
         actions = {
             AnimatedVisibility(visible = isInPlaylistSelectionMode) {

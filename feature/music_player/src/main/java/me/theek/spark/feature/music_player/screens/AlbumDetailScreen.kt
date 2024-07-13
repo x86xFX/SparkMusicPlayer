@@ -71,9 +71,9 @@ fun AlbumDetailScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Something went wrong")
+            Text(text = stringResource(R.string.something_went_wrong))
             Button(onClick = onNavigateBackClick) {
-                Text(text = "Go back")
+                Text(text = stringResource(R.string.go_back))
             }
         }
     } else {
@@ -164,7 +164,7 @@ fun AlbumDetailScreen(
                                         end = 20.dp,
                                         top = 10.dp
                                     ),
-                                text = state.data[0].albumName ?: "Unknown",
+                                text = state.data[0].albumName ?: stringResource(id = R.string.unknown),
                                 maxLines = 1,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onBackground,

@@ -35,7 +35,7 @@ internal fun EmptySongComposable(modifier: Modifier = Modifier) {
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "No songs found in external storage",
+            text = stringResource(R.string.no_songs_found_in_external_storage),
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = 3,

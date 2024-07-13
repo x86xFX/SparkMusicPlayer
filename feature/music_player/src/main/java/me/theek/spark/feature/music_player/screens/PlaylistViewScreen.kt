@@ -71,9 +71,9 @@ fun PlaylistViewScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Something went wrong")
+            Text(text = stringResource(R.string.something_went_wrong))
             Button(onClick = onNavigateBackClick) {
-                Text(text = "Go back")
+                Text(text = stringResource(R.string.go_back))
             }
         }
     } else {

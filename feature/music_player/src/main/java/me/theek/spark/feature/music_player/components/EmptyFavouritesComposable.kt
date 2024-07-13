@@ -35,7 +35,7 @@ internal fun EmptyFavouritesComposable(modifier: Modifier = Modifier) {
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "Your favourites will appear here",
+            text = stringResource(R.string.your_favourites_will_appear_here),
             textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
             maxLines = 3,

@@ -72,11 +72,11 @@ fun ShowSongInfoBottomBar(
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                                text = "Title:"
+                                text = stringResource(R.string.title)
                             )
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = songInfo.song?.songName ?: "Unknown",
+                                text = songInfo.song?.songName ?: stringResource(id = R.string.unknown),
                                 textAlign = TextAlign.Start,
                                 maxLines = 5,
                                 overflow = TextOverflow.Ellipsis
@@ -90,11 +90,11 @@ fun ShowSongInfoBottomBar(
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                                text = "Artist:"
+                                text = stringResource(R.string.artist)
                             )
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = songInfo.song?.artistName ?: "Unknown",
+                                text = songInfo.song?.artistName ?: stringResource(id = R.string.unknown),
                                 textAlign = TextAlign.Start,
                                 maxLines = 5,
                                 overflow = TextOverflow.Ellipsis
@@ -108,7 +108,7 @@ fun ShowSongInfoBottomBar(
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                                text = "Duration:"
+                                text = stringResource(R.string.duration)
                             )
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
@@ -126,11 +126,11 @@ fun ShowSongInfoBottomBar(
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                                text = "MIME Type:"
+                                text = stringResource(R.string.mime_type)
                             )
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = songInfo.song?.mimeType ?: "Unknown",
+                                text = songInfo.song?.mimeType ?: stringResource(id = R.string.unknown),
                                 textAlign = TextAlign.Start,
                                 maxLines = 5,
                                 overflow = TextOverflow.Ellipsis
@@ -144,11 +144,11 @@ fun ShowSongInfoBottomBar(
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                                text = "Release year:"
+                                text = stringResource(R.string.release_year)
                             )
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = songInfo.song?.releaseYear?.toString() ?: "Unknown",
+                                text = songInfo.song?.releaseYear?.toString() ?: stringResource(id = R.string.unknown),
                                 textAlign = TextAlign.Start,
                                 maxLines = 5,
                                 overflow = TextOverflow.Ellipsis
@@ -162,11 +162,11 @@ fun ShowSongInfoBottomBar(
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                                text = "Location:"
+                                text = stringResource(R.string.location)
                             )
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = songInfo.song?.path ?: "Unknown",
+                                text = songInfo.song?.path ?: stringResource(id = R.string.unknown),
                                 textAlign = TextAlign.Start,
                                 maxLines = 5,
                                 overflow = TextOverflow.Ellipsis
@@ -180,7 +180,7 @@ fun ShowSongInfoBottomBar(
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(fraction = 0.35f),
-                                text = "Size:"
+                                text = stringResource(R.string.size)
                             )
 
                             val bytesToMB = byteToMB(byte = songInfo.song?.size)

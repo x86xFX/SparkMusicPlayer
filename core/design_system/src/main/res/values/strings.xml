@@ -4,4 +4,7 @@
     <string name="skip_previous_icon">Skip Previous icon</string>
     <string name="play_pause_icon">play pause icon</string>
     <string name="skip_next_icon">skip next icon</string>
+    <string name="next">Next</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="previous">Previous</string>
 </resources>

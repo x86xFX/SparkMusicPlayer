@@ -142,7 +142,7 @@ private fun AlbumItem(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = album.albumName ?: "Unknown",
+                text = album.albumName ?: stringResource(R.string.unknown),
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize

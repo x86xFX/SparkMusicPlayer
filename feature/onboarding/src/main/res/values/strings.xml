@@ -8,4 +8,16 @@
     <string name="audio_file_permission_alert_description">Granting permission to access your local music files is required for this app to function properly. Please navigate to your device settings and enable the necessary permission</string>
     <string name="audio_scanner_icon">audio scanner icon</string>
     <string name="scanner_icon">Scanner icon</string>
+    <string name="scanning">Scanning…</string>
+    <string name="take_control_of_your_music">Take control of your music:</string>
+    <string name="dive_into_a_world_of_seamless_music_exploration_with_spark_music_player_our_intuitive_interface_and_powerful_features_put_you_in_control">Dive into a world of seamless music exploration with Spark Music Player. Our intuitive interface and powerful features put you in control.</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="hint_01">~~~</string>
+    <string name="settings">Settings</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="cancel">Cancel</string>
+    <string name="music_for">"Music for "</string>
+    <string name="every_mood">every mood,</string>
+    <string name="every_moment">\nevery moment,</string>
+    <string name="every_you">\nevery you.</string>
 </resources>

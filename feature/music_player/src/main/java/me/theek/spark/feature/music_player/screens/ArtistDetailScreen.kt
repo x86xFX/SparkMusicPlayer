@@ -83,9 +83,9 @@ fun ArtistDetailScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Something went wrong")
+            Text(text = stringResource(R.string.something_went_wrong))
             Button(onClick = onNavigateBackClick) {
-                Text(text = "Go back")
+                Text(text = stringResource(R.string.go_back))
             }
         }
     } else {
@@ -234,7 +234,7 @@ fun ArtistDetailScreen(
                                 )
                                 Text(
                                     modifier = Modifier.padding(start = 8.dp),
-                                    text = "Retry"
+                                    text = stringResource(R.string.retry)
                                 )
                             }
                         }
@@ -272,7 +272,7 @@ fun ArtistDetailScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = artistData.message ?: "Something went wrong.")
+                            Text(text = artistData.message ?: stringResource(id = R.string.something_went_wrong))
                         }
                     }
                     UiState.Loading -> {
