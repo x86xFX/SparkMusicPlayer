@@ -40,7 +40,7 @@
     <string name="cancel">Cancel</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="this_playlists_will_be_deleted_immediately_you_can_t_undo_this_action">This playlists will be deleted immediately. You can\'t undo this action.</string>
-    <string name="fetching">Fetching...</string>
+    <string name="fetching">Fetching…</string>
     <string name="title">Title:</string>
     <string name="duration">Duration:</string>
     <string name="artist">Artist:</string>

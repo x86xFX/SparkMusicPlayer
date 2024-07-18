@@ -1,6 +1,6 @@
 ## Spark Music Player
 <p align="center">
-<img src="https://github.com/x86xFX/SparkMusicPlayer/assets/101990722/12b4135c-7ca2-4f0e-bcf4-67810d13195a"/>
+<img src="https://github.com/x86xFX/SparkMusicPlayer/assets/101990722/12b4135c-7ca2-4f0e-bcf4-67810d13195a" alt="preview"/>
 </p>
 
 ## Preview

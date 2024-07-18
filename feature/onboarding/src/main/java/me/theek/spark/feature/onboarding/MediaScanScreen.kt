@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -47,7 +49,6 @@ import me.theek.spark.core.design_system.icons.roundedAudioFile
 import me.theek.spark.core.design_system.ui.theme.InriaSansFontFamily
 import me.theek.spark.core.design_system.ui.theme.md_theme_dark_shadow
 import me.theek.spark.core.design_system.ui.theme.media_scanner_content
-import me.theek.spark.core.design_system.ui.theme.onboarding_screen_icon_tint
 import me.theek.spark.core.design_system.ui.theme.spark_circular_button_background_2
 
 @Composable
@@ -72,14 +73,14 @@ internal fun MediaScanScreen(
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
+        Image(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxSize()
                 .wrapContentSize(),
             painter = painterResource(id = R.drawable.ic_placeholder),
+            contentScale = ContentScale.Crop,
             contentDescription = stringResource(R.string.feature_list_background),
-            tint = onboarding_screen_icon_tint
         )
         Column(
             modifier = Modifier
