@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "695858004899",
-    "project_id": "spark-music-player-417505",
-    "storage_bucket": "spark-music-player-417505.appspot.com"
+    "project_number": "1073987944646",
+    "project_id": "spark-music-player-a0d8b",
+    "storage_bucket": "spark-music-player-a0d8b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:695858004899:android:88d43fab0b6eb4b60e9016",
+        "mobilesdk_app_id": "1:1073987944646:android:ada08de989ae28a16317c7",
         "android_client_info": {
           "package_name": "me.theek.spark"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCpGHP_L0MbvuB8maVZYHy78Oh3sqZ6NOU"
+          "current_key": "AIzaSyBDOMD_jGOoP68nBhwJy8yfJiI8Y7SE3Ek"
         }
       ],
       "services": {

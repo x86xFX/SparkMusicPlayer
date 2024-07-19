@@ -49,5 +49,4 @@ dependencies {
     implementation(libs.ktor.android)
     implementation(libs.ktor.content.negotation)
     implementation(libs.ktor.json)
-    implementation(libs.ktor.logging)
 }

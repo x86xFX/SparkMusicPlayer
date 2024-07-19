@@ -3,7 +3,6 @@ package me.theek.spark.core.data.di
 import android.content.Context
 import coil.ImageLoader
 import coil.decode.SvgDecoder
-import coil.util.DebugLogger
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,7 +34,6 @@ object ImageModule {
             }
             .crossfade(true)
             .crossfade(500)
-            .logger(DebugLogger())
             .build()
     }
 }

@@ -47,7 +47,7 @@ class SparkNotificationManager(
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(sessionCompatToken)
-                    .setShowActionsInCompactView(0, 1, 2)
+                    .setShowActionsInCompactView()
             )
             .setContentIntent(notificationIntent)
             .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
